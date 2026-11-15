@@ -606,3 +606,50 @@ main {
   h1, h2, h3, .dim, .faint { color: #111 !important; }
   .dim, .faint { color: #444 !important; }
 }
+
+/* ---------- 3D constellation stage ---------- */
+
+.constellation-stage { position: relative; }
+
+/* ---------- help button ---------- */
+
+.help-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--panel-deep);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.help-btn:hover { color: var(--text); border-color: var(--accent); }
+
+/* ---------- guided walkthrough ---------- */
+
+.walkthrough-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  cursor: default;
+}
+.walkthrough-spot {
+  position: fixed;
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 9999px rgba(5, 8, 14, 0.78);
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+.walkthrough-pop {
+  position: fixed;
+  z-index: 101;
+  background: rgba(13, 19, 32, 0.97);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.walkthrough-pop h3 { margin: 0 0 0.3rem; }
+.walkthrough-pop p { margin: 0.2rem 0; font-size: 0.85rem; }

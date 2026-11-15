@@ -8,6 +8,7 @@
 import './styles/main.css';
 import { h, errorPanel } from './ui/dom';
 import { mountPersonaPicker, onPersonaChange } from './ui/persona';
+import { maybeRunWalkthrough, runWalkthrough } from './ui/walkthrough';
 import { renderConstellation } from './views/constellation';
 import { renderModel } from './views/model';
 import { renderTrial } from './views/trial';
@@ -102,6 +103,8 @@ function closeOverlays(): void {
 window.addEventListener('hashchange', render);
 onPersonaChange(() => render());
 mountPersonaPicker(document.getElementById('persona-slot')!);
+document.getElementById('help-btn')?.addEventListener('click', () => void runWalkthrough());
 render();
+maybeRunWalkthrough(); // first-visit tour (fires after the landing render)
 
 export {};

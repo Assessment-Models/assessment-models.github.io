@@ -12,8 +12,10 @@
     "test": "esbuild --platform=node src/scoring/engine.test.ts --bundle --format=esm --outfile=.tmp/engine.test.mjs && node .tmp/engine.test.mjs"
   },
   "dependencies": {
+    "@types/three": "^0.187.0",
     "chart.js": "^4.4.7",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

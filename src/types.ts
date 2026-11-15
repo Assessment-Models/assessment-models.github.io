@@ -1,0 +1,146 @@
+/** Shared types — build-time index (models.json) and runtime model structures. */
+
+// ---------- build-time index ----------
+
+export type NodeGroup =
+  | 'maturity-models'
+  | 'assessment-models'
+  | 'assessment-tools'
+  | 'components'
+  | 'infrastructure'
+  | 'external';
+
+export interface IndexNode {
+  id: string;
+  name: string;
+  description: string;
+  group: NodeGroup;
+  /** GitHub repository (org/name) backing this node, if any */
+  repo?: string;
+  version?: string;
+  status?: string;
+  /** registered contract handshake, e.g. "maturity-scale-contract@1.0" */
+  contract?: string;
+  /** ids of maturity-components packages imported by this asset */
+  components?: string[];
+  /** repository-standard adoption (joined from conformance.yaml) */
+  classification?: string;
+  conformance?: string;
+  standardVersion?: string;
+  external?: boolean;
+}
+
+export type EdgeKind = 'imports' | 'shared-components' | 'contract';
+
+export interface IndexEdge {
+  source: string; // node id
+  target: string; // node id
+  kind: EdgeKind;
+}
+
+export interface IndexManifest {
+  generated: string;
+  org: string;
+  site: string;
+  nodes: IndexNode[];
+  edges: IndexEdge[];
+}
+
+// ---------- runtime model structures (parsed YAML) ----------
+
+export interface ModelMeta {
+  id?: string;
+  name?: string;
+  version?: string;
+  description?: string;
+  status?: string;
+  scale?: { id?: string; version?: string };
+  scoring?: {
+    mechanism?: string;
+    domain?: { kind?: string; minimum?: number; maximum?: number };
+    aggregation_rule?: string;
+  };
+  criteria?: MetaCriterion[];
+  [k: string]: unknown;
+}
+
+export interface MetaCriterion {
+  id: string;
+  name?: string;
+  description?: string;
+  weight?: number;
+  mandatory?: boolean;
+  evidence_requirements?: string[];
+  level_expectations?: { level: string; expectation: string }[];
+}
+
+export interface ScaleLevel {
+  id: string; // "L-0".."L-4"
+  ordinal: number;
+  name?: string;
+  v2_name?: string;
+  value_name?: string;
+  v2_band?: string;
+  v2_score_range?: [number, number];
+  definition?: string;
+  short_description?: string;
+  characteristics?: string[];
+  exit_criteria?: string[];
+  evidence?: string[];
+  unlocks?: string[];
+}
+
+export interface Scale {
+  id?: string;
+  version?: string;
+  name?: string;
+  levels?: ScaleLevel[];
+  progression?: { effort_multiplier?: Record<string, number> } & Record<string, unknown>;
+  conformance?: { statuses?: string[] } & Record<string, unknown>;
+  [k: string]: unknown;
+}
+
+/** One scored criterion inside a sub-dimension (operationalized line). */
+export interface OpCriterion {
+  id: string;
+  name: string;
+  statement?: string;
+  levers?: string[];
+  anchors?: { level: number; text: string }[];
+  evidence?: string[];
+}
+
+export interface OpSubDimension {
+  id: string;
+  name: string;
+  lite_question?: string;
+  criteria: OpCriterion[];
+}
+
+export interface OpDimension {
+  id: string;
+  dimension?: string;
+  name: string;
+  weight: number;
+  description?: string;
+  sub_dimensions: OpSubDimension[];
+}
+
+// ---------- resolved structure for the drill-down / trial ----------
+
+export interface ModelStructure {
+  repo: string;
+  meta: ModelMeta;
+  /** composite line: evaluation over top-level criteria (0-100) */
+  composite: {
+    evaluation: ModelMeta | null;
+    scale: Scale | null;
+    componentFiles: { id: string; data: ModelMeta | null }[];
+  };
+  /** operationalized line, when the repo ships one */
+  operationalized: {
+    evaluation: ModelMeta;
+    scale: Scale;
+    dimensions: OpDimension[];
+  } | null;
+}

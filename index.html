@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Assessment-Models gateway — explore the maturity-model ecosystem, drill into model structure, run trial assessments and generate reports. Client-side only." />
+    <title>Assessment-Models — Gateway</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#/">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="8" cy="10" r="3" class="mk-a" />
+          <circle cx="22" cy="6" r="2.5" class="mk-b" />
+          <circle cx="26" cy="20" r="3" class="mk-c" />
+          <circle cx="13" cy="24" r="2.5" class="mk-d" />
+          <line x1="8" y1="10" x2="22" y2="6" class="mk-l" />
+          <line x1="22" y1="6" x2="26" y2="20" class="mk-l" />
+          <line x1="26" y1="20" x2="13" y2="24" class="mk-l" />
+          <line x1="13" y1="24" x2="8" y2="10" class="mk-l" />
+        </svg>
+        <span class="brand-name">Assessment<b>-Models</b></span>
+        <span class="brand-tag">gateway</span>
+      </a>
+      <nav id="crumbs" class="crumbs" aria-label="Breadcrumb"></nav>
+      <div class="topbar-right">
+        <a class="gh-link" href="https://github.com/Assessment-Models" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </header>
+    <main id="app"></main>
+    <div id="tooltip" class="tooltip" hidden></div>
+    <div id="drawer" class="drawer" hidden></div>
+    <div id="toast" class="toast" hidden></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

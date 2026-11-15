@@ -1,0 +1,61 @@
+name: Deploy gateway to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # weekly refresh so the constellation reflects org-side changes
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout ecosystem data sources
+        uses: actions/checkout@v4
+        with:
+          repository: Assessment-Models/assessment-registry
+          path: sources/assessment-registry
+      - uses: actions/checkout@v4
+        with:
+          repository: Assessment-Models/maturity-model-standard
+          path: sources/maturity-model-standard
+      - uses: actions/checkout@v4
+        with:
+          repository: Assessment-Models/maturity-model-digital-transformation
+          path: sources/maturity-model-digital-transformation
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: node scripts/build-index.mjs --registry sources/assessment-registry --standard sources/maturity-model-standard --models sources/maturity-model-digital-transformation
+      - run: npm run build:site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

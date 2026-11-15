@@ -1,0 +1,98 @@
+/**
+ * Router + shell. Hash routes:
+ *   #/                  → constellation (landing)
+ *   #/model/:id         → model drill-down
+ *   #/trial/:id         → trial assessment runner
+ *   #/report/:id        → generated report
+ */
+import './styles/main.css';
+import { h, errorPanel } from './ui/dom';
+import { renderConstellation } from './views/constellation';
+import { renderModel } from './views/model';
+import { renderTrial } from './views/trial';
+import { renderReport } from './views/report';
+
+const app = document.getElementById('app')!;
+
+type ViewFn = (root: HTMLElement, param?: string) => Promise<void> | void;
+
+const routes: { pattern: RegExp; view: ViewFn; crumb: (p?: string) => HTMLElement }[] = [
+  {
+    pattern: /^#?\/?$/,
+    view: (root) => renderConstellation(root),
+    crumb: () => h('span', { class: 'here' }, 'Constellation'),
+  },
+  {
+    pattern: /^#\/model\/([\w.-]+)/,
+    view: (root, p) => renderModel(root, p!),
+    crumb: (p) => crumbs(h('span', { class: 'here mono' }, p ?? '')),
+  },
+  {
+    pattern: /^#\/trial\/([\w.-]+)/,
+    view: (root, p) => renderTrial(root, p!),
+    crumb: (p) => crumbs(h('span', { class: 'here' }, 'Trial — ', h('span', { class: 'mono' }, p ?? ''))),
+  },
+  {
+    pattern: /^#\/report\/([\w.-]+)/,
+    view: (root, p) => renderReport(root, p!),
+    crumb: (p) => crumbs(h('span', { class: 'here' }, 'Report — ', h('span', { class: 'mono' }, p ?? ''))),
+  },
+];
+
+function crumbs(...nodes: Node[]): HTMLElement {
+  return h('span', {},
+    h('a', { href: '#/' }, 'Constellation'),
+    h('span', { class: 'sep' }, ' / '),
+    ...nodes,
+  );
+}
+
+let renderSeq = 0;
+
+async function render(): Promise<void> {
+  const hash = location.hash || '#/';
+  const seq = ++renderSeq;
+  closeOverlays();
+
+  const route = routes.find((r) => r.pattern.test(hash));
+  const crumbsEl = document.getElementById('crumbs')!;
+  crumbsEl.innerHTML = '';
+
+  if (!route) {
+    app.innerHTML = '';
+    app.append(errorPanel('Not found', `No route for ${hash}`));
+    return;
+  }
+
+  const param = hash.match(route.pattern)?.[1];
+  crumbsEl.append(route.crumb(param));
+
+  window.scrollTo(0, 0);
+  app.innerHTML = '';
+  const loading = h('div', { class: 'spinner-box' }, h('span', { class: 'spinner' }), h('span', {}, 'Loading…'));
+  app.append(loading);
+
+  try {
+    const root = h('div', {});
+    await route.view(root, param);
+    if (seq !== renderSeq) return; // a newer navigation superseded this render
+    app.innerHTML = '';
+    app.append(root);
+  } catch (err) {
+    if (seq !== renderSeq) return;
+    app.innerHTML = '';
+    app.append(errorPanel('Something went wrong', err instanceof Error ? err.message : String(err)));
+  }
+}
+
+function closeOverlays(): void {
+  for (const id of ['tooltip', 'drawer', 'toast']) {
+    const el = document.getElementById(id);
+    if (el) el.hidden = true;
+  }
+}
+
+window.addEventListener('hashchange', render);
+render();
+
+export {};

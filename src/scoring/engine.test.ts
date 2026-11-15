@@ -12,8 +12,8 @@ import {
   cascadeOperationalized,
   effortAdjusted,
   levelsFromScale,
+  normalizeLevelId,
   resolveLevel,
-  type EngineLevel,
 } from './engine';
 import type { Scale } from '../types';
 
@@ -118,7 +118,7 @@ function anchorsAndCascade() {
   eq(mixed.overall, 50);
 
   // resolve a cascaded overall against bands
-  const levels: EngineLevel[] = levelsFromScale(SCALE);
+  const levels = levelsFromScale(SCALE);
   const r = resolveLevel(mixed.overall, mixed.dimScores, levels);
   eq(r.resolved?.id, 'L-2'); // 50 → systematic band
 }
@@ -135,8 +135,43 @@ function bandEdges() {
   eq(bandFor(100, levels)?.id, 'L-4');
 }
 
+// ---------- canonical v2 band fallback (scales without machine score ranges) ----------
+
+function canonicalFallback() {
+  // maturity-model-technology-style scale: L0..L4 ids, no v2_score_range, no effort fields
+  const simpleScale: Scale = {
+    levels: [
+      { id: 'L0', ordinal: 0, name: 'Ad Hoc' },
+      { id: 'L1', ordinal: 1, name: 'Defined' },
+      { id: 'L2', ordinal: 2, name: 'Systematic' },
+      { id: 'L3', ordinal: 3, name: 'Managed' },
+      { id: 'L4', ordinal: 4, name: 'Optimising' },
+    ],
+    progression: {},
+  } as unknown as Scale;
+  const levels = levelsFromScale(simpleScale);
+  eq(levels.length, 5);
+  eq(levels.map((l) => l.min), [0, 21, 46, 71, 89]);
+  eq(levels.map((l) => l.max), [20, 45, 70, 88, 100]);
+  eq(levels.every((l) => l.canonical), true);
+  eq(levels[2].effort, 2.5);
+  eq(levels[2].band, 'dea:maturity-band-systematic');
+  // resolution works end-to-end on fallback bands
+  const r = resolveLevel(55, [{ id: 'L0', score: 60, mandatory: true }], levels);
+  eq(r.resolved?.min, 46);
+  eq(r.status, 'conformant');
+
+  // DTO-style ids: level-1-unrealized … level-5-leading, ordinals 0..4
+  eq(normalizeLevelId('level-1-unrealized', 0), 'L-0');
+  eq(normalizeLevelId('level-5-leading', 4), 'L-4');
+  eq(normalizeLevelId('L-2', 2), 'L-2');
+  eq(normalizeLevelId('L2', 2), 'L-2');
+  eq(normalizeLevelId(undefined, 3), 'L-3');
+}
+
 workedExample();
 mandatoryGate();
 anchorsAndCascade();
 bandEdges();
-console.log('engine tests passed: worked example 67.20 → L-2, gate, cascade, bands');
+canonicalFallback();
+console.log('engine tests passed: worked example 67.20 → L-2, gate, cascade, bands, canonical fallback');

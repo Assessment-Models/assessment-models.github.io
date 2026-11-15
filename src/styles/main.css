@@ -533,7 +533,53 @@ main {
 .report-table th { text-align: left; color: var(--text-faint); padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border); }
 .report-table td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border-soft); }
 
-/* ---------- misc ---------- */
+/* ---------- persona ---------- */
+
+.persona-slot { display: flex; align-items: center; gap: 0.45rem; }
+.persona-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+}
+.persona-select {
+  background: var(--panel-deep);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  font-size: 0.82rem;
+  font-family: var(--font);
+  cursor: pointer;
+}
+.persona-select:focus { outline: none; border-color: var(--accent); }
+
+/* Practitioner persona: emphasize shared-component edges over contract spokes */
+.persona-practitioner .edge-contract { opacity: 0.25; }
+.persona-practitioner .edge-shared { stroke: rgba(139, 124, 248, 0.85); stroke-width: 2; }
+.persona-practitioner .edge-imports { stroke: rgba(85, 196, 127, 0.75); }
+
+/* ---------- conformance dashboard ---------- */
+
+.conf-table td { vertical-align: top; }
+.conf-table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+/* ---------- report print polish ---------- */
+
+.print-cover { display: none; }
+@media print {
+  .print-cover {
+    display: block;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #111;
+    padding-bottom: 1rem;
+  }
+  .print-cover h1 { font-size: 2rem; }
+  .panel, .report-grid { page-break-inside: avoid; }
+  .page-break { page-break-before: always; }
+  .exec-summary p { color: #222 !important; }
+}
 
 .spinner-box { display: flex; align-items: center; gap: 0.7rem; padding: 3rem 0; color: var(--text-dim); justify-content: center; }
 .spinner {

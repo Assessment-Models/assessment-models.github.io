@@ -17,6 +17,7 @@ import {
   repoUrl,
   showTooltip,
 } from '../ui/dom';
+import { getPersonaDef } from '../ui/persona';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -101,6 +102,14 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
       stat(String(manifest.nodes.filter((n) => n.contract).length), 'contract handshakes'),
       stat(String(manifest.nodes.filter((n) => n.group === 'maturity-models').length), 'maturity models'),
     ),
+  );
+
+  // persona entry point (blueprint §2 — same core experience, tailored entry)
+  const persona = getPersonaDef();
+  const personaPanel = h('div', { class: 'panel persona-panel no-print', style: 'margin-bottom:1rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap' },
+    h('span', { class: 'badge', style: '--badge-color:#c76fd1' }, persona.label),
+    h('span', { class: 'dim', style: 'font-size:.86rem;flex:1;min-width:24ch' }, persona.step.text),
+    h('a', { class: 'btn primary small', href: persona.step.href }, persona.step.cta),
   );
 
   const filters = h('div', { class: 'filters no-print' });
@@ -237,7 +246,7 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
     }
   }
 
-  const wrap = h('div', { class: 'constellation-wrap' });
+  const wrap = h('div', { class: `constellation-wrap${persona.id === 'practitioner' ? ' persona-practitioner' : ''}` });
   wrap.append(svg);
   const legend = h('div', { class: 'legend no-print' });
   const legendItems: [string, string][] = [
@@ -251,7 +260,7 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
   legend.append(h('span', { class: 'faint' }, `generated ${new Date(manifest.generated).toISOString().slice(0, 10)}`));
   wrap.append(legend);
 
-  root.append(head, filters, wrap);
+  root.append(head, personaPanel, filters, wrap);
   root.append(h('p', { class: 'footer-note' },
     'Assessment Models — independently governed models, consistently engineered, operationally assessable and interoperable by design.',
   ));

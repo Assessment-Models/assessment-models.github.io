@@ -6,6 +6,7 @@
  */
 import yaml from 'js-yaml';
 import type {
+  CriteriaRegister,
   IndexManifest,
   IndexNode,
   ModelMeta,
@@ -41,26 +42,32 @@ export function findNode(manifest: IndexManifest, id: string): IndexNode | undef
   return manifest.nodes.find((n) => n.id === id);
 }
 
-async function fetchText(url: string): Promise<string> {
-  const res = await fetch(url);
+async function fetchText(url: string, timeoutMs = 8000): Promise<string> {
+  const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.text();
+  const text = await res.text();
+  // some static hosts answer missing paths with a 200 HTML shell — reject it
+  if (text.trimStart().startsWith('<')) throw new Error(`not YAML (HTML page) at ${url}`);
+  return text;
 }
 
 /** Fetch a YAML file from the repo (raw.githubusercontent), falling back to the local snapshot. */
 export async function loadYaml<T = unknown>(repo: string, path: string): Promise<T> {
   return cached(`yaml:${repo}:${path}`, async () => {
     const parse = (text: string) => yaml.load(text) as T;
-    try {
-      return parse(await fetchText(`https://raw.githubusercontent.com/${ORG}/${repo}/main/${path}`));
-    } catch (err) {
-      // fallback: snapshot copied at build time
-      try {
-        return parse(await fetchText(`${BASE}snapshot/${repo}/${path}`));
-      } catch {
-        throw err;
-      }
-    }
+    // race raw vs snapshot in parallel: live data wins when it arrives, the
+    // snapshot (resolved meanwhile) takes over immediately on raw failure
+    const rawP = fetchText(`https://raw.githubusercontent.com/${ORG}/${repo}/main/${path}`)
+      .then(parse)
+      .catch(() => null);
+    const snapP = fetchText(`${BASE}snapshot/${repo}/${path}`)
+      .then(parse)
+      .catch(() => null);
+    const raw = await rawP;
+    if (raw !== null) return raw;
+    const snap = await snapP;
+    if (snap !== null) return snap;
+    throw new Error(`could not load ${repo}/${path} from raw or snapshot`);
   });
 }
 
@@ -87,24 +94,32 @@ export function loadEvaluation(repo: string, line: 'composite' | 'operationalize
 /**
  * Load the full structure of a model repository.
  *
- * Composite line: model.yaml + maturity/evaluation.yaml + maturity/scale.yaml +
- * one component file per evaluation criterion (maturity/components/<id>.yaml).
- *
- * Operationalized line (probed; the DT repo ships one): maturity/operationalized/
- * evaluation.yaml + scale.yaml + model/<dim>.yaml per criteria id in the
- * operationalized evaluation.
+ * Lines are probed in order and the first hit wins:
+ *  1. DT-style operationalized line: maturity/operationalized/evaluation.yaml +
+ *     scale.yaml + model/<dim>.yaml per evaluation criterion.
+ *  2. Single-file criteria register: maturity/model/<repo>.yaml with
+ *     scoring.mechanism 'weighted-mean-0-100' and a root `dimensions` array
+ *     (maturity-model-digital-transformation-operationalized layout) — mapped
+ *     into the same OpDimension[] shape so trial/report run unchanged.
+ *  3. Composite line: maturity/evaluation.yaml + maturity/scale.yaml +
+ *     one component file per evaluation criterion (maturity/components/<id>.yaml).
  */
 export async function loadModelStructure(repo: string): Promise<ModelStructure> {
   const meta = await loadModelMeta(repo);
 
   const composite = await cached(`composite:${repo}`, async () => {
+    // independent loads: several repos ship scale.yaml without an evaluation.yaml
     let evaluation: ModelMeta | null = null;
     let scale: Scale | null = null;
     try {
       evaluation = await loadEvaluation(repo, 'composite');
+    } catch {
+      /* no evaluation.yaml — views degrade gracefully */
+    }
+    try {
       scale = await loadScale(repo, 'composite');
     } catch {
-      /* some repos may differ; drill-down degrades gracefully */
+      /* no scale.yaml */
     }
     const componentFiles: { id: string; data: ModelMeta | null }[] = [];
     if (evaluation?.criteria) {
@@ -123,12 +138,14 @@ export async function loadModelStructure(repo: string): Promise<ModelStructure> 
   });
 
   const operationalized = await cached(`opline:${repo}`, async () => {
+    // 1) DT-style operationalized line
     try {
       const [evaluation, scale] = await Promise.all([
         loadEvaluation(repo, 'operationalized'),
         loadScale(repo, 'operationalized'),
       ]);
       const dimIds = (evaluation.criteria ?? []).map((c) => c.id);
+      if (!dimIds.length) throw new Error('operationalized evaluation has no criteria');
       const loaded = await Promise.all(
         dimIds.map((id) =>
           loadYaml<OpDimension>(repo, `maturity/operationalized/model/${id}.yaml`),
@@ -139,8 +156,50 @@ export async function loadModelStructure(repo: string): Promise<ModelStructure> 
       const dimensions = loaded.map((d, i) => ({ ...d, id: dimIds[i] }));
       return { evaluation, scale, dimensions };
     } catch {
-      return null;
+      /* fall through to the criteria-register probe */
     }
+
+    // 2) single-file criteria register (weighted-mean-0-100); file may be named
+    //    after the repo or the short model id (maturity-model-<x> → <x>.yaml)
+    const shortId = repo.replace(/^maturity-model-/, '');
+    const registerCandidates = [`maturity/model/${shortId}.yaml`, `maturity/model/${repo}.yaml`];
+    try {
+      let reg: CriteriaRegister | null = null;
+      for (const path of registerCandidates) {
+        try {
+          reg = await loadYaml<CriteriaRegister>(repo, path);
+          break;
+        } catch {
+          /* try next candidate */
+        }
+      }
+      if (reg?.scoring?.mechanism === 'weighted-mean-0-100' && Array.isArray(reg.dimensions) && reg.dimensions.length > 0) {
+        const dimensions = reg.dimensions.map((d, i) => ({
+          ...d,
+          id: d.id ?? `d${i + 1}`,
+        }));
+        const evaluation: ModelMeta = {
+          id: reg.id,
+          name: reg.name,
+          version: reg.version,
+          description: reg.description,
+          status: reg.status,
+          scoring: reg.scoring as ModelMeta['scoring'],
+          criteria: dimensions.map((d) => ({
+            id: d.id,
+            name: d.name,
+            weight: d.weight,
+            mandatory: d.mandatory,
+          })),
+        };
+        const scale = await loadScale(repo, 'composite'); // maturity/scale.yaml
+        return { evaluation, scale, dimensions };
+      }
+    } catch {
+      /* no register either */
+    }
+
+    return null;
   });
 
   return { repo, meta, composite, operationalized };

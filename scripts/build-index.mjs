@@ -100,8 +100,14 @@ function parseConformanceLenient(text) {
       continue;
     }
     if (!current) continue;
-    const f = line.match(/^\s+(classification|standard_version|conformance):\s*"?([^"#]+)"?/);
-    if (f && !current[f[1]]) current[f[1]] = f[2].trim();
+    const f = line.match(/^\s{4}(classification|standard_version|conformance):\s*"?([^"#]+)"?/);
+    if (f && !current[f[1]] && f[2].trim() !== 'null') current[f[1]] = f[2].trim();
+    // phase2 block fields live at a 6-space indent inside the record
+    const p2 = line.match(/^\s{6}(identity|assessed|result):\s*"?([^"#]+)"?/);
+    if (p2 && !current['phase2_' + p2[1]] && p2[2].trim() !== 'null') {
+      const v = p2[2].trim().replace(/\s+/g, ' ');
+      current['phase2_' + p2[1]] = p2[1] === 'result' ? v.slice(0, 160) : v;
+    }
   }
   if (current) records.push(current);
   return { repositories: records };
@@ -184,6 +190,13 @@ for (const rec of conformance?.repositories ?? []) {
     node.classification = rec.classification;
     node.conformance = rec.conformance;
     node.standardVersion = rec.standard_version;
+    if (rec.phase2_identity || rec.phase2_assessed || rec.phase2_result) {
+      node.phase2 = {
+        identity: rec.phase2_identity,
+        assessed: rec.phase2_assessed,
+        result: rec.phase2_result,
+      };
+    }
   }
 }
 
@@ -240,21 +253,30 @@ const manifest = {
 };
 writeFileSync(join(publicPath, 'models.json'), JSON.stringify(manifest, null, 2) + '\n');
 
-// ---------- snapshot DT model YAMLs (offline fallback) ----------
+// ---------- snapshot maturity-model YAMLs (offline fallback for raw fetches) ----------
 
-const snapshotRepo = 'maturity-model-digital-transformation';
-const snapshotRoot = join(publicPath, 'snapshot', snapshotRepo);
-rmSync(snapshotRoot, { recursive: true, force: true });
-try {
-  cpSync(join(modelsPath, 'model.yaml'), join(snapshotRoot, 'model.yaml'));
-  cpSync(join(modelsPath, 'maturity'), join(snapshotRoot, 'maturity'), { recursive: true });
-  cpSync(join(modelsPath, 'examples', 'operationalized-2026.yaml'),
-    join(snapshotRoot, 'examples', 'operationalized-2026.yaml'), { force: true });
-} catch (err) {
-  console.warn(`snapshot copy failed (${err.message}) — continuing without snapshot`);
+// snapshot source root: locally the sibling clones sit next to the models clone;
+// in CI all repos are checked out under --snapshot-root (e.g. sources/)
+const snapshotRootArg = arg('snapshot-root', dirname(modelsPath));
+let snapshotted = 0;
+for (const node of nodes.filter((n) => n.group === 'maturity-models')) {
+  const src = join(snapshotRootArg, node.repo ?? node.id);
+  const dst = join(publicPath, 'snapshot', node.repo ?? node.id);
+  try {
+    rmSync(dst, { recursive: true, force: true });
+    cpSync(join(src, 'model.yaml'), join(dst, 'model.yaml'));
+    cpSync(join(src, 'maturity'), join(dst, 'maturity'), { recursive: true });
+    if (node.repo === 'maturity-model-digital-transformation') {
+      cpSync(join(src, 'examples', 'operationalized-2026.yaml'),
+        join(dst, 'examples', 'operationalized-2026.yaml'), { force: true });
+    }
+    snapshotted++;
+  } catch {
+    console.warn(`snapshot skipped for ${node.repo} (no local clone at ${src})`);
+  }
 }
 
 const modelCount = nodes.filter((n) => n.group === 'maturity-models').length;
 console.log(
-  `models.json: ${nodes.length} nodes (${modelCount} maturity models), ${edges.length} edges; snapshot: ${snapshotRepo}`,
+  `models.json: ${nodes.length} nodes (${modelCount} maturity models), ${edges.length} edges; snapshots: ${snapshotted}`,
 );

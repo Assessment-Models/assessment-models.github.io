@@ -27,26 +27,66 @@ export interface EngineLevel {
   v2Name?: string;
   valueName?: string;
   effort?: number;
+  /** true when the score range/effort came from the canonical v2 fallback, not the scale file */
+  canonical?: boolean;
+}
+
+/**
+ * Canonical v2 band instance `dea:maturity-bands-v2` v1.0.0 (technehub-labs/dea-metamodel).
+ * Every ecosystem scale references these bands (via band_reference or prose), but most
+ * scale.yaml files carry them as prose only — not machine fields. Levels without an
+ * explicit v2_score_range fall back to this by ordinal.
+ */
+export const CANONICAL_V2_BANDS: { min: number; max: number; band: string; effort: number }[] = [
+  { min: 0, max: 20, band: 'dea:maturity-band-emergent', effort: 1.0 },
+  { min: 21, max: 45, band: 'dea:maturity-band-structured', effort: 1.5 },
+  { min: 46, max: 70, band: 'dea:maturity-band-systematic', effort: 2.5 },
+  { min: 71, max: 88, band: 'dea:maturity-band-adaptive', effort: 4.0 },
+  { min: 89, max: 100, band: 'dea:maturity-band-self-optimising', effort: 6.0 },
+];
+
+/**
+ * Canonical display id for a scale level: accepts `L-0`, `L0`, `level-1-unrealized` …
+ * and maps to the canonical `L-<ordinal>` label (model level N ↔ canonical ordinal N-1
+ * per CR-AM-09; DTO's level-1-unrealized is ordinal 0 → "L-0").
+ */
+export function normalizeLevelId(id: string | undefined, ordinal: number): string {
+  if (id) {
+    const m = id.match(/^L-?(\d)$/i);
+    if (m) return `L-${m[1]}`;
+    const m2 = id.match(/^level-(\d+)/i);
+    if (m2) return `L-${Number(m2[1]) - 1}`;
+  }
+  return `L-${ordinal}`;
 }
 
 /** Normalize a scale.yaml into ascending, contiguous EngineLevels. */
 export function levelsFromScale(scale: Scale | null): EngineLevel[] {
   const levels = (scale?.levels ?? []) as ScaleLevel[];
   const effort = (scale?.progression?.effort_multiplier ?? {}) as Record<string, number>;
-  return levels
-    .filter((l) => Array.isArray(l.v2_score_range) && l.v2_score_range.length === 2)
-    .map((l) => ({
+  const out: EngineLevel[] = levels.map((l, i) => {
+    const hasRange = Array.isArray(l.v2_score_range) && l.v2_score_range.length === 2;
+    const ordinal = typeof l.ordinal === 'number' ? l.ordinal : i;
+    const fallback = CANONICAL_V2_BANDS[Math.min(ordinal, CANONICAL_V2_BANDS.length - 1)];
+    return {
       id: l.id,
-      ordinal: l.ordinal,
-      min: l.v2_score_range![0],
-      max: l.v2_score_range![1],
-      band: l.v2_band,
+      ordinal,
+      min: hasRange ? l.v2_score_range![0] : fallback.min,
+      max: hasRange ? l.v2_score_range![1] : fallback.max,
+      band: l.v2_band ?? fallback.band,
       name: l.name,
       v2Name: l.v2_name,
       valueName: l.value_name,
-      effort: effort[l.id],
-    }))
-    .sort((a, b) => a.min - b.min);
+      effort: effort[l.id] ?? fallback.effort,
+      canonical: !hasRange,
+    };
+  });
+  return out.sort((a, b) => a.min - b.min);
+}
+
+/** Canonical L-label for an EngineLevel (L-0..L-4 regardless of repo-specific ids). */
+export function canonicalLabel(level: EngineLevel): string {
+  return normalizeLevelId(level.id, level.ordinal);
 }
 
 export function bandFor(overall: number, levels: EngineLevel[]): EngineLevel | null {

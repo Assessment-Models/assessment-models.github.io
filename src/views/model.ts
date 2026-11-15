@@ -4,7 +4,9 @@
  * component imports, the contract handshake and the scale definition.
  */
 import type { ModelStructure, OpDimension, OpSubDimension, Scale } from '../types';
+import { canonicalLabel, levelsFromScale } from '../scoring/engine';
 import { loadModelStructure } from '../data/loader';
+import { getPersonaDef } from '../ui/persona';
 import { conformanceBadge, errorPanel, fetchNodeSafe, h, repoUrl } from './shared';
 
 type Line = 'operationalized' | 'composite';
@@ -48,7 +50,7 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
         structure.meta.description ?? node.description),
     ),
     h('div', { class: 'actions' },
-      h('a', { class: 'btn primary', href: `#/trial/${id}` }, 'Start trial →'),
+      h('a', { class: 'btn primary', href: `#/trial/${id}` }, getPersonaDef().modelCta),
       h('a', { class: 'btn', href: repoUrl(repo), target: '_blank', rel: 'noopener' }, 'GitHub ↗'),
     ),
   );
@@ -225,26 +227,30 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
   }
 
   function scaleView(scale: Scale): HTMLElement {
-    const levels = (scale.levels ?? []).filter((l) => Array.isArray(l.v2_score_range));
+    const levels = levelsFromScale(scale);
     if (!levels.length) return h('div', {});
     const table = h('table', { class: 'scale-table' },
       h('thead', {}, h('tr', {},
-        h('th', {}, 'Level'), h('th', {}, 'Value name'), h('th', {}, 'Band'),
+        h('th', {}, 'Level'), h('th', {}, 'Name'), h('th', {}, 'Band'),
         h('th', {}, 'Score range'), h('th', {}, 'Effort'), h('th', {}, 'Definition'),
       )),
       h('tbody', {}, ...levels.map((l) => h('tr', {},
-        h('td', {}, `${l.id} ${l.name ?? ''}`),
-        h('td', {}, l.value_name ?? ''),
-        h('td', { class: 'mono faint' }, (l.v2_band ?? '').replace('dea:maturity-band-', '')),
-        h('td', { class: 'mono' }, `${l.v2_score_range![0]}–${l.v2_score_range![1]}`),
-        h('td', { class: 'mono' },
-          String((scale.progression?.effort_multiplier as Record<string, number>)?.[l.id] ?? '')),
-        h('td', { class: 'dim' }, l.short_description ?? l.definition ?? ''),
+        h('td', {}, `${canonicalLabel(l)} ${l.name ?? ''}`),
+        h('td', {}, l.valueName ?? l.v2Name ?? ''),
+        h('td', { class: 'mono faint' }, (l.band ?? '').replace('dea:maturity-band-', '')),
+        h('td', { class: 'mono' }, `${l.min}–${l.max}`,
+          l.canonical ? h('span', { class: 'faint', title: 'from canonical dea:maturity-bands-v2' }, ' *') : null),
+        h('td', { class: 'mono' }, String(l.effort ?? '')),
+        h('td', { class: 'dim' }, l.v2Name ? `v2 state: ${l.v2Name}` : ''),
       ))),
     );
     return h('div', { class: 'panel', style: 'margin-top:1.2rem' },
       h('h2', {}, 'Scale — ', h('span', { class: 'mono faint', style: 'font-size:.85rem' }, scale.id ?? '')),
       table,
+      levels.some((l) => l.canonical)
+        ? h('p', { class: 'faint', style: 'font-size:.75rem;margin-top:.4rem' },
+            '* score range / effort from the canonical dea:maturity-bands-v2 instance (this scale’s band_reference)')
+        : null,
     );
   }
 }

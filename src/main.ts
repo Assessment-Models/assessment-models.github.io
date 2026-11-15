@@ -7,10 +7,12 @@
  */
 import './styles/main.css';
 import { h, errorPanel } from './ui/dom';
+import { mountPersonaPicker, onPersonaChange } from './ui/persona';
 import { renderConstellation } from './views/constellation';
 import { renderModel } from './views/model';
 import { renderTrial } from './views/trial';
 import { renderReport } from './views/report';
+import { renderConformance } from './views/conformance';
 
 const app = document.getElementById('app')!;
 
@@ -36,6 +38,11 @@ const routes: { pattern: RegExp; view: ViewFn; crumb: (p?: string) => HTMLElemen
     pattern: /^#\/report\/([\w.-]+)/,
     view: (root, p) => renderReport(root, p!),
     crumb: (p) => crumbs(h('span', { class: 'here' }, 'Report — ', h('span', { class: 'mono' }, p ?? ''))),
+  },
+  {
+    pattern: /^#\/conformance\/?$/,
+    view: (root) => renderConformance(root),
+    crumb: () => crumbs(h('span', { class: 'here' }, 'Conformance dashboard')),
   },
 ];
 
@@ -93,6 +100,8 @@ function closeOverlays(): void {
 }
 
 window.addEventListener('hashchange', render);
+onPersonaChange(() => render());
+mountPersonaPicker(document.getElementById('persona-slot')!);
 render();
 
 export {};

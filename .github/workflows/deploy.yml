@@ -32,10 +32,13 @@ jobs:
         with:
           repository: Assessment-Models/maturity-model-standard
           path: sources/maturity-model-standard
-      - uses: actions/checkout@v4
-        with:
-          repository: Assessment-Models/maturity-model-digital-transformation
-          path: sources/maturity-model-digital-transformation
+      - name: Checkout maturity-model repos (for offline snapshots)
+        run: |
+          for repo in maturity-model-digital-transformation maturity-model-digital-transformation-operationalized maturity-model-autonomous-operations maturity-model-modernization maturity-model-operations maturity-model-services-delivery maturity-model-technology; do
+            gh repo clone "Assessment-Models/$repo" "sources/$repo" -- --depth 1 --quiet 2>/dev/null || echo "clone skipped: $repo"
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - uses: actions/setup-node@v4
         with:
@@ -43,7 +46,7 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: node scripts/build-index.mjs --registry sources/assessment-registry --standard sources/maturity-model-standard --models sources/maturity-model-digital-transformation
+      - run: node scripts/build-index.mjs --registry sources/assessment-registry --standard sources/maturity-model-standard --models sources/maturity-model-digital-transformation --snapshot-root sources
       - run: npm run build:site
 
       - uses: actions/upload-pages-artifact@v3

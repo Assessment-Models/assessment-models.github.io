@@ -7,6 +7,7 @@ import type { OpDimension } from '../types';
 import { loadModelStructure } from '../data/loader';
 import {
   aggregate,
+  canonicalLabel,
   cascadeOperationalized,
   effortAdjusted,
   levelsFromScale,
@@ -173,7 +174,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
       resolved
         ? h('div', { class: 'lvl-badge' },
             h('span', { class: 'badge', style: '--badge-color:#55c47f;font-size:.9rem;padding:.25rem .9rem' },
-              `${resolved.id} — ${resolved.valueName ?? resolved.name ?? ''}`))
+              `${canonicalLabel(resolved)} — ${resolved.valueName ?? resolved.name ?? ''}`))
         : null,
       h('div', { class: 'sub' },
         `band: ${resolved?.band?.replace('dea:maturity-band-', '') ?? '—'} · ${res.status}`),

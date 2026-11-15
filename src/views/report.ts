@@ -8,6 +8,7 @@ import type { OpCriterion } from '../types';
 import { loadModelStructure } from '../data/loader';
 import {
   aggregate,
+  canonicalLabel,
   cascadeOperationalized,
   effortAdjusted,
   levelsFromScale,
@@ -100,7 +101,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     repo,
     line,
     overall,
-    level: resolved?.id ?? '—',
+    level: resolved ? canonicalLabel(resolved) : '—',
     levelName: resolved?.valueName ?? resolved?.name ?? '—',
     band: resolved?.band?.replace('dea:maturity-band-', '') ?? '—',
     status: res.status,
@@ -123,7 +124,21 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     ),
   ));
 
-  // ---------- hero ----------
+  // ---------- hero + executive summary ----------
+  const sortedDims = [...dimScores].sort((a, b) => b.score - a.score);
+  const strongest = sortedDims[0];
+  const weakest = sortedDims[sortedDims.length - 1];
+  const targetsMet = gapRows.filter((g) => g.gap != null && g.gap <= 0).length;
+  const gapCount = gapRows.filter((g) => g.gap != null && g.gap > 0).length;
+
+  root.append(h('div', { class: 'print-cover' },
+    h('h1', {}, 'Assessment report'),
+    h('p', {}, `${node.name} — ${report.line} line`),
+    h('p', { class: 'dim' },
+      `${report.generatedAt.slice(0, 16).replace('T', ' ')} · overall ${overall.toFixed(2)} · ${report.level} (${report.levelName}) · ${report.status}`),
+    h('p', { class: 'dim' }, 'Assessment-Models — assessment-models.github.io'),
+  ));
+
   root.append(h('div', { class: 'panel report-hero' },
     h('div', { class: 'big-score' }, overall.toFixed(2)),
     h('div', { class: 'hero-meta' },
@@ -132,6 +147,19 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
       h('span', { class: 'dim' }, `band: ${report.band} · conformance: ${report.status}`),
       effort != null ? h('span', { class: 'dim' }, `effort-adjusted value: ${effort} (×${resolved?.effort})`) : null,
     ),
+  ));
+
+  root.append(h('div', { class: 'panel exec-summary', style: 'margin-top:1.2rem' },
+    h('h2', {}, 'Executive summary'),
+    h('p', { style: 'max-width:90ch' },
+      `This trial scored ${dimScores.length} dimension${dimScores.length === 1 ? '' : 's'} of the ${report.line} line. ` +
+      `The overall score of ${overall.toFixed(2)} places the assessed organization at ${report.level} — ${report.levelName} — within the ${report.band} band, with conformance status “${report.status}”. ` +
+      (strongest && strongest.id !== weakest?.id
+        ? `${strongest.name} (${strongest.id}) is the strongest dimension at ${strongest.score}; ${weakest.name} (${weakest.id}) has the largest headroom at ${weakest.score}. `
+        : '') +
+      (targetsMet + gapCount > 0
+        ? `${targetsMet} of ${targetsMet + gapCount} dimensions currently meet their selected target level; ${gapCount} still have a gap to close.`
+        : 'No target levels were set for this trial.')),
   ));
 
   // ---------- charts ----------
@@ -147,7 +175,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   root.append(chartsGrid);
 
   // ---------- gap analysis ----------
-  const gapPanel = h('div', { class: 'panel', style: 'margin-top:1.2rem' },
+  const gapPanel = h('div', { class: 'panel page-break', style: 'margin-top:1.2rem' },
     h('h2', {}, 'Gap to target'),
     h('p', { class: 'dim', style: 'font-size:.8rem' }, 'distance from each dimension’s current score to its selected target level’s band minimum'),
   );
@@ -183,6 +211,20 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     ),
   );
   root.append(critPanel);
+
+  // ---------- evidence appendix (assessor notes) ----------
+  const notes = criteriaRows.filter((c) => c.note);
+  if (notes.length) {
+    root.append(h('div', { class: 'panel page-break', style: 'margin-top:1.2rem' },
+      h('h2', {}, 'Appendix — evidence notes'),
+      h('p', { class: 'dim', style: 'font-size:.8rem' },
+        'Assessor evidence notes recorded during the trial (kept locally until exported).'),
+      ...notes.map((c) => h('div', { class: 'crit', style: 'margin:.6rem 0' },
+        h('div', { class: 'crit-name mono' }, `${c.id} — ${c.name}`),
+        h('div', { class: 'dim', style: 'font-size:.85rem;white-space:pre-wrap' }, c.note ?? ''),
+      )),
+    ));
+  }
 
   root.append(h('p', { class: 'footer-note' },
     'Assessment Models — independently governed models, consistently engineered, operationally assessable and interoperable by design.',

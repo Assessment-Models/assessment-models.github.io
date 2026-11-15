@@ -27,6 +27,12 @@ export interface IndexNode {
   classification?: string;
   conformance?: string;
   standardVersion?: string;
+  /** portfolio conformance phase2 assessment (identity / result summary) */
+  phase2?: {
+    identity?: string;
+    assessed?: string;
+    result?: string;
+  };
   external?: boolean;
 }
 
@@ -122,8 +128,22 @@ export interface OpDimension {
   dimension?: string;
   name: string;
   weight: number;
+  mandatory?: boolean;
   description?: string;
   sub_dimensions: OpSubDimension[];
+}
+
+/** Single-file criteria register (e.g. maturity-model-digital-transformation-operationalized). */
+export interface CriteriaRegister {
+  id?: string;
+  name?: string;
+  version?: string;
+  description?: string;
+  status?: string;
+  scoring?: { mechanism?: string } & Record<string, unknown>;
+  /** dimensions → sub-dimensions → criteria (same shape as the DT operationalized line) */
+  dimensions?: OpDimension[];
+  [k: string]: unknown;
 }
 
 // ---------- resolved structure for the drill-down / trial ----------

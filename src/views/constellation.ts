@@ -143,7 +143,7 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
     const placed = layout(m.nodes);
     const posById = new Map(placed.map((p) => [p.node.id, p]));
 
-    interface EdgeEl { el: SVGElement; source: string; target: string }
+    interface EdgeEl { el: SVGElement; source: string; target: string; kind: string }
     const edgeEls: EdgeEl[] = [];
     for (const { edge, a, b } of resolveEdges(m.edges, posById)) {
       const line = document.createElementNS(SVG_NS, 'line');
@@ -152,8 +152,14 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
       line.setAttribute('x2', String(b.x));
       line.setAttribute('y2', String(b.y));
       line.setAttribute('class', `edge edge-${edge.kind}`);
+      line.style.cursor = 'pointer';
+      line.addEventListener('click', () => {
+        const src = posById.get(edge.source)?.node;
+        const tgt = posById.get(edge.target)?.node;
+        if (src && tgt) openDrawer(relationshipDetail(src, tgt, edge.kind));
+      });
       edgeLayer.append(line);
-      edgeEls.push({ el: line, source: edge.source, target: edge.target });
+      edgeEls.push({ el: line, source: edge.source, target: edge.target, kind: edge.kind });
     }
 
     // cluster labels — above each ring so they never collide with node labels
@@ -275,6 +281,28 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
       ));
     }
     return detail;
+  }
+
+  function relationshipDetail(source: IndexNode, target: IndexNode, kind: string): HTMLElement {
+    const kindLabel = kind === 'contract' ? 'Contract handshake' : kind === 'imports' ? 'Component import' : 'Shared component';
+    const color = kind === 'contract' ? 'var(--c-external)' : kind === 'imports' ? 'var(--c-components)' : 'var(--c-maturity)';
+    return h('div', {},
+      h('h2', {}, kindLabel),
+      h('div', { class: 'meta-row', style: 'display:flex;gap:.45rem;flex-wrap:wrap;margin:.5rem 0' },
+        h('span', { class: 'badge', style: `--badge-color:${color}` }, kind),
+      ),
+      h('p', {}, h('strong', {}, source.name), ' → ', h('strong', {}, target.name)),
+      h('p', { class: 'dim' },
+        kind === 'contract'
+          ? 'This edge represents a maturity-scale-contract handshake, enabling interoperable scoring and level resolution across models.'
+          : kind === 'imports'
+            ? 'This model imports reusable components or packages from the target, reducing duplication and ensuring consistency.'
+            : 'These models share common maturity components, promoting ecosystem coherence.'),
+      h('div', { style: 'margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap' },
+        h('a', { class: 'btn small', href: `#/model/${source.id}` }, `View ${source.name}`),
+        h('a', { class: 'btn small', href: `#/model/${target.id}` }, `View ${target.name}`),
+      ),
+    );
   }
 }
 

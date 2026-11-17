@@ -162,6 +162,24 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
         : 'No target levels were set for this trial.')),
   ));
 
+  // ---------- strengths & next steps ----------
+  const strengths = sortedDims.filter((d) => d.score >= 70).slice(0, 3);
+  const focus = sortedDims.filter((d) => d.score < 50).slice(0, 3);
+  root.append(h('div', { class: 'report-grid', style: 'margin-top:1.2rem' },
+    h('div', { class: 'panel' },
+      h('h2', {}, 'Key strengths'),
+      strengths.length
+        ? h('ul', { style: 'margin:.4rem 0;padding-left:1.2rem' }, ...strengths.map((d) => h('li', {}, `${d.name} (${d.score})`)))
+        : h('p', { class: 'dim' }, 'No dimensions scored above 70 in this trial.'),
+    ),
+    h('div', { class: 'panel' },
+      h('h2', {}, 'Recommended focus'),
+      focus.length
+        ? h('ul', { style: 'margin:.4rem 0;padding-left:1.2rem' }, ...focus.map((d) => h('li', {}, `${d.name} (${d.score}) — consider targeted improvement`)))
+        : h('p', { class: 'dim' }, 'All scored dimensions are above 50. Maintain current practices.'),
+    ),
+  ));
+
   // ---------- charts ----------
   const chartsGrid = h('div', { class: 'report-grid' });
   const radarCanvas = h('canvas', { id: 'radar-chart' });

@@ -14,6 +14,9 @@ import {
   resolveLevel,
 } from '../scoring/engine';
 import { errorPanel, fetchNodeSafe, h, toast } from './shared';
+import { Chart, RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
+
+Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 type Line = 'operationalized' | 'composite';
 
@@ -142,6 +145,8 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
     }));
   }
 
+  let radarChart: Chart | null = null;
+
   function renderSide(): void {
     side.innerHTML = '';
     const scale = line === 'operationalized' ? structure.operationalized?.scale ?? null : structure.composite.scale;
@@ -181,6 +186,12 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
       effort != null ? h('div', { class: 'sub' }, `effort-adjusted: ${effort} (×${resolved?.effort})`) : null,
     );
 
+    const radarCanvas = h('canvas', { id: 'live-radar', style: 'max-height:220px;width:100%' }) as HTMLCanvasElement;
+    const radarPanel = h('div', { class: 'panel' },
+      h('h3', { style: 'margin-bottom:.4rem' }, 'Live radar'),
+      radarCanvas,
+    );
+
     const reportBtn = h('a', { class: 'btn primary', href: `#/report/${node.id}`, style: 'justify-content:center' }, 'Generate report →');
     const resetBtn = h('button', { class: 'btn small', style: 'justify-content:center' }, 'Reset trial');
     resetBtn.addEventListener('click', () => {
@@ -190,7 +201,42 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
       toast('Trial reset');
     });
 
-    side.append(box, cascade, reportBtn, resetBtn);
+    side.append(box, radarPanel, cascade, reportBtn, resetBtn);
+
+    // Render / update radar
+    if (radarChart) radarChart.destroy();
+    if (dimScores.length > 0) {
+      radarChart = new Chart(radarCanvas, {
+        type: 'radar',
+        data: {
+          labels: dimScores.map((d) => d.id),
+          datasets: [{
+            label: 'Current',
+            data: dimScores.map((d) => d.score),
+            borderColor: 'rgb(124, 140, 248)',
+            backgroundColor: 'rgba(124, 140, 248, 0.2)',
+            pointBackgroundColor: 'rgb(124, 140, 248)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(124, 140, 248)',
+          }],
+        },
+        options: {
+          scales: {
+            r: {
+              min: 0,
+              max: 100,
+              ticks: { stepSize: 25, backdropColor: 'transparent', color: '#8b98b8' },
+              grid: { color: 'rgba(255,255,255,0.08)' },
+              angleLines: { color: 'rgba(255,255,255,0.08)' },
+              pointLabels: { color: '#d7deeb', font: { size: 11 } },
+            },
+          },
+          plugins: { legend: { display: false } },
+          maintainAspectRatio: false,
+        },
+      });
+    }
   }
 
   // ---------- scoring column ----------

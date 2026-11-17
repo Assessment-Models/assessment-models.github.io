@@ -1,6 +1,7 @@
 /**
  * Router + shell. Hash routes:
  *   #/                  → constellation (landing)
+ *   #/catalog           → model catalog
  *   #/model/:id         → model drill-down
  *   #/trial/:id         → trial assessment runner
  *   #/report/:id        → generated report
@@ -10,6 +11,7 @@ import { h, errorPanel } from './ui/dom';
 import { mountPersonaPicker, onPersonaChange } from './ui/persona';
 import { maybeRunWalkthrough, runWalkthrough } from './ui/walkthrough';
 import { renderConstellation } from './views/constellation';
+import { renderCatalog } from './views/catalog';
 import { renderModel } from './views/model';
 import { renderTrial } from './views/trial';
 import { renderReport } from './views/report';
@@ -24,6 +26,11 @@ const routes: { pattern: RegExp; view: ViewFn; crumb: (p?: string) => HTMLElemen
     pattern: /^#?\/?$/,
     view: (root) => renderConstellation(root),
     crumb: () => h('span', { class: 'here' }, 'Constellation'),
+  },
+  {
+    pattern: /^#\/catalog\/?$/,
+    view: (root) => renderCatalog(root),
+    crumb: () => crumbs(h('span', { class: 'here' }, 'Catalog')),
   },
   {
     pattern: /^#\/model\/([\w.-]+)/,

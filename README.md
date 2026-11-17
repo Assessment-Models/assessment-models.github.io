@@ -1,4 +1,4 @@
-# Assessment-Models Gateway
+# Assessment Models Gateway
 
 The interactive GitHub Pages gateway for the [Assessment-Models](https://github.com/Assessment-Models) ecosystem — https://assessment-models.github.io
 

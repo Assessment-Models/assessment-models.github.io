@@ -51,7 +51,7 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
       'Every registered asset of the Assessment-Models ecosystem, laid out as a navigable space. ',
       'Lines are component imports, shared maturity components and ', h('span', { class: 'mono' }, 'maturity-scale-contract'),
       ' handshakes into the OpenDEA metamodel. Hover to inspect, click to open.',
-      supportsWebGL() && !prefersReducedMotion() ? ' Drag to orbit, scroll to zoom.' : ''),
+      supportsWebGL() && !prefersReducedMotion() ? ' Drag to orbit, scroll to zoom. Click edges for relationship details.' : ''),
     h('div', { class: 'stats' },
       stat(String(manifest.nodes.length), 'registered assets'),
       stat(String(manifest.edges.length), 'relationships'),
@@ -60,11 +60,23 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
     ),
   );
 
-  // persona entry point (blueprint §2 — same core experience, tailored entry)
-  const personaPanel = h('div', { class: 'panel persona-panel no-print', style: 'margin-bottom:1rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap' },
-    h('span', { class: 'badge', style: '--badge-color:#c76fd1' }, persona.label),
-    h('span', { class: 'dim', style: 'font-size:.86rem;flex:1;min-width:24ch' }, persona.step.text),
-    h('a', { class: 'btn primary small', href: persona.step.href }, persona.step.cta),
+  // Enhanced persona landing guidance
+  const personaHints: Record<string, string[]> = {
+    assessor: ['Start with a maturity model', 'Run a trial assessment', 'Generate a report'],
+    assessee: ['Review level expectations', 'Explore dimensions', 'Understand evidence needs'],
+    practitioner: ['Trace component reuse', 'Inspect handshakes', 'Compare model structures'],
+    certifier: ['Check portfolio conformance', 'Verify contracts', 'Review coverage'],
+  };
+  const hints = personaHints[persona.id] ?? [];
+  const personaPanel = h('div', { class: 'panel persona-panel no-print', style: 'margin-bottom:1rem' },
+    h('div', { style: 'display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-bottom:.5rem' },
+      h('span', { class: 'badge', style: '--badge-color:#c76fd1' }, persona.label),
+      h('span', { class: 'dim', style: 'font-size:.86rem;flex:1;min-width:24ch' }, persona.step.text),
+      h('a', { class: 'btn primary small', href: persona.step.href }, persona.step.cta),
+    ),
+    hints.length ? h('div', { style: 'display:flex;gap:.4rem;flex-wrap:wrap' },
+      ...hints.map((hint) => h('span', { class: 'badge', style: '--badge-color:#7d8aa5;font-size:.75rem' }, hint)),
+    ) : null,
   );
 
   const filters = h('div', { class: 'filters no-print' });
@@ -112,6 +124,10 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
       onOpen: (node) => {
         hideTooltip();
         openDrawer(nodeDetail(node, GROUP_COLORS[node.group]));
+      },
+      onEdgeOpen: (source, target, kind) => {
+        hideTooltip();
+        openDrawer(relationshipDetail(source, target, kind));
       },
     });
     renderer.setVisible(active);

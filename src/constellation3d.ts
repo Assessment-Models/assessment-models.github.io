@@ -28,6 +28,7 @@ export interface Constellation3DOptions {
   practitioner: boolean;
   onHover: (node: IndexNode | null, x: number, y: number) => void;
   onOpen: (node: IndexNode) => void;
+  onEdgeOpen?: (source: IndexNode, target: IndexNode, kind: string) => void;
 }
 
 export interface Constellation3DHandle {
@@ -94,7 +95,7 @@ export function create3DConstellation(
   controls.dampingFactor = 0.06;
   controls.minDistance = 10;
   controls.maxDistance = 80;
-  controls.autoRotate = true; // until first interaction
+  controls.autoRotate = true;
   controls.autoRotateSpeed = 0.6;
   renderer.domElement.addEventListener('pointerdown', () => (controls.autoRotate = false), { once: true });
 
@@ -107,7 +108,7 @@ export function create3DConstellation(
 
   for (const p of placed) {
     const color = GROUP_COLORS[p.node.group];
-    const z = (((p.x * 13) % 7) + ((p.y * 7) % 5)) - 4; // deterministic mild depth jitter
+    const z = (((p.x * 13) % 7) + ((p.y * 7) % 5)) - 4;
     const wx = (p.x - 640) * WORLD_SCALE;
     const wy = (430 - p.y) * WORLD_SCALE;
 
@@ -141,31 +142,48 @@ export function create3DConstellation(
     nodeGroup.add(label);
   }
 
-  // ---- edges ----
+  // ---- edges (thicker for interaction) ----
   const posById = new Map(placed.map((p) => [p.node.id, p]));
   const resolved = resolveEdges(manifest.edges, posById);
   const edgeStyle = {
-    contract: { color: 0x3a4a6b, opacity: opts.practitioner ? 0.18 : 0.5 },
-    imports: { color: 0x55c47f, opacity: opts.practitioner ? 0.85 : 0.55 },
-    'shared-components': { color: 0x8b7cf8, opacity: opts.practitioner ? 0.95 : 0.45 },
+    contract: { color: 0xc76fd1, opacity: opts.practitioner ? 0.35 : 0.65 },
+    imports: { color: 0x55c47f, opacity: opts.practitioner ? 0.9 : 0.6 },
+    'shared-components': { color: 0x8b7cf8, opacity: opts.practitioner ? 0.95 : 0.5 },
   } as const;
-  const edgeObjects: { obj: THREE.LineSegments; kinds: Set<string> }[] = [];
+  const edgeObjects: { obj: THREE.LineSegments; kind: string; sourceId: string; targetId: string }[] = [];
+  const edgeHitMeshes: THREE.Mesh[] = [];
+
   for (const [kind, style] of Object.entries(edgeStyle)) {
-    const pts: THREE.Vector3[] = [];
     for (const { edge, a, b } of resolved) {
       if (edge.kind !== kind) continue;
-      pts.push(
-        new THREE.Vector3((a.x - 640) * WORLD_SCALE, (430 - a.y) * WORLD_SCALE, (((a.x * 13) % 7) + ((a.y * 7) % 5)) - 4),
-        new THREE.Vector3((b.x - 640) * WORLD_SCALE, (430 - b.y) * WORLD_SCALE, (((b.x * 13) % 7) + ((b.y * 7) % 5)) - 4),
+      const za = (((a.x * 13) % 7) + ((a.y * 7) % 5)) - 4;
+      const zb = (((b.x * 13) % 7) + ((b.y * 7) % 5)) - 4;
+      const start = new THREE.Vector3((a.x - 640) * WORLD_SCALE, (430 - a.y) * WORLD_SCALE, za);
+      const end = new THREE.Vector3((b.x - 640) * WORLD_SCALE, (430 - b.y) * WORLD_SCALE, zb);
+
+      // Visual line
+      const geo = new THREE.BufferGeometry().setFromPoints([start, end]);
+      const mat = new THREE.LineBasicMaterial({ color: style.color, transparent: true, opacity: style.opacity });
+      const line = new THREE.LineSegments(geo, mat);
+      scene.add(line);
+      edgeObjects.push({ obj: line, kind, sourceId: edge.source, targetId: edge.target });
+      disposables.push(geo, mat);
+
+      // Invisible thicker cylinder for raycasting
+      const dir = new THREE.Vector3().subVectors(end, start);
+      const length = dir.length();
+      const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+      const cylinder = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.15, 0.15, length, 8),
+        new THREE.MeshBasicMaterial({ visible: false }),
       );
+      cylinder.position.copy(mid);
+      cylinder.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+      cylinder.userData = { sourceId: edge.source, targetId: edge.target, kind };
+      scene.add(cylinder);
+      edgeHitMeshes.push(cylinder);
+      disposables.push(cylinder.geometry, cylinder.material);
     }
-    if (!pts.length) continue;
-    const geo = new THREE.BufferGeometry().setFromPoints(pts);
-    const mat = new THREE.LineBasicMaterial({ color: style.color, transparent: true, opacity: style.opacity });
-    const lines = new THREE.LineSegments(geo, mat);
-    scene.add(lines);
-    edgeObjects.push({ obj: lines, kinds: new Set([kind]) });
-    disposables.push(geo, mat);
   }
 
   // ---- interaction ----
@@ -174,20 +192,30 @@ export function create3DConstellation(
   let hovered: IndexNode | null = null;
   let downAt: { x: number; y: number } | null = null;
 
-  function pick(ev: PointerEvent): IndexNode | null {
+  function pick(ev: PointerEvent): { node?: IndexNode; edge?: { sourceId: string; targetId: string; kind: string } } | null {
     const rect = renderer.domElement.getBoundingClientRect();
     pointer.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObjects(nodeMeshes, false)[0];
-    return (hit?.object.userData?.node as IndexNode | undefined) ?? null;
+
+    // Prefer edges when close
+    const edgeHit = raycaster.intersectObjects(edgeHitMeshes, false)[0];
+    if (edgeHit) {
+      const ud = edgeHit.object.userData;
+      return { edge: { sourceId: ud.sourceId, targetId: ud.targetId, kind: ud.kind } };
+    }
+
+    const nodeHit = raycaster.intersectObjects(nodeMeshes, false)[0];
+    if (nodeHit) return { node: nodeHit.object.userData.node as IndexNode };
+    return null;
   }
 
   function onPointerMove(ev: PointerEvent): void {
-    const node = pick(ev);
+    const hit = pick(ev);
+    const node = hit?.node ?? null;
     if (node !== hovered) {
       hovered = node;
-      renderer.domElement.style.cursor = node ? 'pointer' : 'grab';
+      renderer.domElement.style.cursor = (node || hit?.edge) ? 'pointer' : 'grab';
     }
     opts.onHover(node, ev.clientX, ev.clientY);
   }
@@ -200,9 +228,14 @@ export function create3DConstellation(
     if (!downAt) return;
     const moved = Math.hypot(ev.clientX - downAt.x, ev.clientY - downAt.y);
     downAt = null;
-    if (moved > 6) return; // it was a drag, not a click
-    const node = pick(ev);
-    if (node) opts.onOpen(node);
+    if (moved > 6) return;
+    const hit = pick(ev);
+    if (hit?.node) opts.onOpen(hit.node);
+    else if (hit?.edge && opts.onEdgeOpen) {
+      const src = posById.get(hit.edge.sourceId)?.node;
+      const tgt = posById.get(hit.edge.targetId)?.node;
+      if (src && tgt) opts.onEdgeOpen(src, tgt, hit.edge.kind);
+    }
   }
 
   renderer.domElement.addEventListener('pointermove', onPointerMove);
@@ -235,8 +268,7 @@ export function create3DConstellation(
         const mat = mesh.material as THREE.MeshBasicMaterial;
         mat.opacity = visible ? (mesh.userData.node as IndexNode).group === 'infrastructure' ? 0.6 : 0.85 : 0.06;
       }
-      for (const { obj, kinds } of edgeObjects) {
-        const kind = [...kinds][0] ?? '';
+      for (const { obj, kind } of edgeObjects) {
         const style = edgeStyle[kind as keyof typeof edgeStyle];
         const anyVisible = placed.some((p) => groups.has(p.node.group));
         (obj.material as THREE.LineBasicMaterial).opacity = anyVisible ? style.opacity : 0.04;

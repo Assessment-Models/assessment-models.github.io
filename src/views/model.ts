@@ -3,9 +3,9 @@
  * dimensions → sub-dimensions → criteria → level anchors / evidence, plus
  * component imports, the contract handshake and the scale definition.
  */
-import type { ModelStructure, OpDimension, OpSubDimension, Scale } from '../types';
+import type { ModelStructure, OpDimension, OpSubDimension, Scale, IndexNode } from '../types';
 import { canonicalLabel, levelsFromScale } from '../scoring/engine';
-import { loadModelStructure } from '../data/loader';
+import { loadModelStructure, fetchManifest } from '../data/loader';
 import { getPersonaDef } from '../ui/persona';
 import { conformanceBadge, errorPanel, fetchNodeSafe, h, repoUrl } from './shared';
 
@@ -55,6 +55,10 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     ),
   );
   root.append(head);
+
+  // ---------- relationships ----------
+  const relPanel = await relationshipsPanel(node);
+  if (relPanel) root.append(relPanel);
 
   // ---------- line tabs + search ----------
   let content = h('div', {});
@@ -252,5 +256,37 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
             '* score range / effort from the canonical dea:maturity-bands-v2 instance (this scale’s band_reference)')
         : null,
     );
+  }
+}
+
+async function relationshipsPanel(node: IndexNode): Promise<HTMLElement | null> {
+  try {
+    const manifest = await fetchManifest();
+    const related = manifest.edges.filter((e) => e.source === node.id || e.target === node.id);
+    if (!related.length) return null;
+
+    const panel = h('div', { class: 'panel', style: 'margin-bottom:1.2rem' },
+      h('h2', {}, 'Relationships'),
+      h('p', { class: 'dim', style: 'font-size:.85rem' }, 'Handshakes, imports and shared components connecting this model to the ecosystem.'),
+    );
+
+    for (const edge of related) {
+      const otherId = edge.source === node.id ? edge.target : edge.source;
+      const other = manifest.nodes.find((n) => n.id === otherId);
+      if (!other) continue;
+      const direction = edge.source === node.id ? '→' : '←';
+      const kindLabel = edge.kind === 'contract' ? 'Handshake' : edge.kind === 'imports' ? 'Imports' : 'Shared';
+      const color = edge.kind === 'contract' ? 'var(--c-external)' : edge.kind === 'imports' ? 'var(--c-components)' : 'var(--c-maturity)';
+
+      panel.append(h('div', { style: 'display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border-soft)' },
+        h('span', { class: 'badge', style: `--badge-color:${color}` }, kindLabel),
+        h('span', { class: 'mono' }, direction),
+        h('a', { href: `#/model/${other.id}`, class: 'mono' }, other.name),
+        h('span', { class: 'dim', style: 'font-size:.8rem;margin-left:auto' }, other.group),
+      ));
+    }
+    return panel;
+  } catch {
+    return null;
   }
 }

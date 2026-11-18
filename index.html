@@ -1,39 +1,1147 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Assessment-Models gateway — explore the maturity-model ecosystem, drill into model structure, run trial assessments and generate reports. Client-side only." />
-    <title>Assessment-Models — Gateway</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  </head>
-  <body>
-    <header class="topbar">
-      <a class="brand" href="#/">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <circle cx="8" cy="10" r="3" class="mk-a" />
-          <circle cx="22" cy="6" r="2.5" class="mk-b" />
-          <circle cx="26" cy="20" r="3" class="mk-c" />
-          <circle cx="13" cy="24" r="2.5" class="mk-d" />
-          <line x1="8" y1="10" x2="22" y2="6" class="mk-l" />
-          <line x1="22" y1="6" x2="26" y2="20" class="mk-l" />
-          <line x1="26" y1="20" x2="13" y2="24" class="mk-l" />
-          <line x1="13" y1="24" x2="8" y2="10" class="mk-l" />
-        </svg>
-        <span class="brand-name">Assessment<b>-Models</b></span>
-        <span class="brand-tag">gateway</span>
-      </a>
-      <nav id="crumbs" class="crumbs" aria-label="Breadcrumb"></nav>
-      <div class="topbar-right">
-        <div id="persona-slot" class="persona-slot"></div>
-        <button id="help-btn" class="help-btn" title="Guided walkthrough" aria-label="Replay guided walkthrough">?</button>
-        <a class="gh-link" href="https://github.com/Assessment-Models" target="_blank" rel="noopener">GitHub ↗</a>
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maturity Assessment & Enterprise Blueprint Tools | Open Enterprise Standards</title>
+  <meta name="description" content="Openly developed, extensively moderated assessment frameworks, deterministic benchmarking engines, and predictive architectural models for enterprise governance.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration for Corporate Palette & Typography -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            alabaster: '#F8FAFC',
+            obsidian: '#0F172A',
+            steel: '#475569',
+            hairline: '#E2E8F0',
+            corpNavy: '#1E3A8A',
+            corpIndigo: '#1D4ED8',
+            slateTeal: '#0F766E',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Subtle Architectural Blueprint Grid Background */
+    .blueprint-grid {
+      background-color: #F8FAFC;
+      background-image: 
+        linear-gradient(to right, rgba(226, 232, 240, 0.7) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(226, 232, 240, 0.7) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .blueprint-grid-fade {
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 100%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 100%);
+    }
+
+    /* Crisp Hairline Elevation */
+    .card-surface {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .card-surface:hover {
+      border-color: #CBD5E1;
+      box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.05);
+    }
+
+    /* Custom Scrollbar for Code/Spec Previews */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="bg-alabaster text-obsidian font-sans antialiased selection:bg-corpNavy selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-hairline">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Brand Mark & Wordmark -->
+        <a href="#" class="flex items-center gap-3 group focus:outline-none">
+          <div class="w-9 h-9 rounded bg-obsidian flex items-center justify-center border border-slate-800 group-hover:bg-corpNavy transition-colors">
+            <!-- Custom Architectural Lattice Emblem SVG -->
+            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+              <line x1="15" y1="3" x2="15" y2="21" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <rect x="9" y="9" width="6" height="6" fill="currentColor" fill-opacity="0.25" />
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm sm:text-base font-semibold tracking-tight text-obsidian leading-tight">
+              Maturity Assessment &amp; Enterprise Blueprint Tools
+            </span>
+            <span class="hidden sm:inline-block font-mono text-[11px] text-steel tracking-wider uppercase">
+              assessment-models.github.io
+            </span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-steel">
+          <a href="/gateway/" class="hover:text-obsidian transition-colors">Assessment Gateway</a>
+          <a href="#pillars" class="hover:text-obsidian transition-colors">Frameworks</a>
+          <a href="#governance" class="hover:text-obsidian transition-colors">Architecture &amp; Governance</a>
+          <a href="#repositories" class="hover:text-obsidian transition-colors">Repositories</a>
+          <a href="#standards" class="hover:text-obsidian transition-colors">Standards Alignment</a>
+        </nav>
+
+        <!-- Primary External CTA & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+             class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-medium text-obsidian bg-white border border-slate-300 rounded hover:border-obsidian hover:bg-slate-50 transition-colors">
+            <span>GitHub Organization</span>
+            <svg class="w-3.5 h-3.5 text-steel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+            </svg>
+          </a>
+          
+          <!-- Mobile Menu Button -->
+          <button id="mobileMenuBtn" type="button" aria-label="Toggle Navigation"
+                  class="lg:hidden p-2 rounded border border-hairline text-steel hover:text-obsidian hover:bg-slate-100">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
-    </header>
-    <main id="app"></main>
-    <div id="tooltip" class="tooltip" hidden></div>
-    <div id="drawer" class="drawer" hidden></div>
-    <div id="toast" class="toast" hidden></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    </div>
+
+    <!-- Mobile Dropdown Navigation -->
+    <div id="mobileMenu" class="hidden lg:hidden bg-white border-t border-hairline px-4 pt-3 pb-4 space-y-2">
+      <a href="/gateway/" class="block px-3 py-2 rounded text-sm font-medium text-obsidian hover:bg-slate-50">Assessment Gateway</a>
+      <a href="#pillars" class="block px-3 py-2 rounded text-sm font-medium text-steel hover:text-obsidian hover:bg-slate-50">Frameworks</a>
+      <a href="#governance" class="block px-3 py-2 rounded text-sm font-medium text-steel hover:text-obsidian hover:bg-slate-50">Architecture &amp; Governance</a>
+      <a href="#repositories" class="block px-3 py-2 rounded text-sm font-medium text-steel hover:text-obsidian hover:bg-slate-50">Repositories</a>
+      <a href="#standards" class="block px-3 py-2 rounded text-sm font-medium text-steel hover:text-obsidian hover:bg-slate-50">Standards Alignment</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden border-b border-hairline">
+    <!-- Background Architectural Grid -->
+    <div class="absolute inset-0 blueprint-grid blueprint-grid-fade pointer-events-none" aria-hidden="true"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-16 lg:pt-20 lg:pb-24">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+        
+        <!-- Left Column: Executive Positioning -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-white border border-hairline shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-slateTeal"></span>
+            <span class="font-mono text-xs font-medium tracking-wider text-obsidian uppercase">
+              OPEN ENTERPRISE STANDARDS &amp; VALIDATION SUITE
+            </span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-[42px] font-bold tracking-tight text-obsidian leading-[1.15]">
+            Rigorous Organizational Capability Maturity &amp; Enterprise Blueprint Tooling
+          </h1>
+
+          <p class="text-base sm:text-lg text-steel leading-relaxed max-w-2xl">
+            Openly developed, extensively moderated assessment frameworks, deterministic benchmarking engines, and predictive architectural models built for enterprise transformation and executive governance.
+          </p>
+
+          <!-- Primary & Secondary CTAs -->
+          <div class="flex flex-wrap items-center gap-3.5 pt-2">
+            <a href="#repositories" 
+               class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-corpNavy rounded hover:bg-corpIndigo transition-colors shadow-xs">
+              Explore Repositories
+            </a>
+            <button type="button" id="openCharterBtn"
+                    class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-obsidian bg-white border border-slate-300 rounded hover:border-obsidian hover:bg-slate-50 transition-colors">
+              Read Governance Charter
+            </button>
+          </div>
+
+          <!-- Standards Taxonomy Strip -->
+          <div class="pt-6 border-t border-hairline/80">
+            <p class="font-mono text-[11px] uppercase tracking-wider text-steel mb-3">
+              Normative Alignment &amp; Structural Identifiers
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">MECE-STRICT</span>
+              <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">TMF-ODA-v4</span>
+              <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">DMM-CORE</span>
+              <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">OPENAPI-3.1</span>
+              <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">ISO/IEC-33001</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Architectural Specification & Live Audit Preview Panel -->
+        <div class="lg:col-span-5">
+          <div class="bg-white border border-slate-300 rounded-md shadow-sm overflow-hidden">
+            <!-- Panel Header -->
+            <div class="bg-slate-50 border-b border-hairline px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-corpNavy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="font-mono text-xs font-semibold text-obsidian tracking-tight">
+                  SPECIFICATION AUDIT SUMMARY
+                </span>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-50 border border-teal-200 font-mono text-[11px] font-medium text-slateTeal">
+                <span class="w-1.5 h-1.5 rounded-full bg-slateTeal"></span>
+                VERIFIED
+              </span>
+            </div>
+
+            <!-- Interactive Domain Selector Tabs -->
+            <div class="grid grid-cols-3 border-b border-hairline bg-slate-50/50 text-xs font-mono">
+              <button type="button" data-audit-tab="dmm" class="audit-tab active py-2 px-3 text-center font-semibold text-corpNavy border-b-2 border-corpNavy bg-white">
+                DMM-CORE
+              </button>
+              <button type="button" data-audit-tab="oda" class="audit-tab py-2 px-3 text-center text-steel hover:text-obsidian border-b-2 border-transparent">
+                ODA-MAP
+              </button>
+              <button type="button" data-audit-tab="pred" class="audit-tab py-2 px-3 text-center text-steel hover:text-obsidian border-b-2 border-transparent">
+                CAP-SIM
+              </button>
+            </div>
+
+            <!-- Dynamic Audit Telemetry Body -->
+            <div id="auditPanelBody" class="p-5 space-y-4">
+              <div class="flex items-center justify-between text-xs border-b border-slate-100 pb-3">
+                <span class="text-steel font-medium">Schema Identifier</span>
+                <span id="auditSchemaId" class="font-mono font-medium text-obsidian">org.assessment.dmm.v2.4.0</span>
+              </div>
+
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-obsidian font-medium">MECE Structural Integrity</span>
+                  <span id="auditMeceStatus" class="font-mono text-slateTeal font-medium">100% Orthogonal (0 Overlaps)</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-obsidian font-medium">Deterministic Scoring Engine</span>
+                  <span id="auditScoringStatus" class="font-mono text-obsidian">Weighted-DAG / Reproducible</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-obsidian font-medium">OpenAPI / Metamodel Alignment</span>
+                  <span id="auditMetaStatus" class="font-mono text-obsidian">JSON-Schema Draft 2020-12</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-obsidian font-medium">Audit Traceability</span>
+                  <span id="auditTraceStatus" class="font-mono text-slateTeal font-medium">SHA-256 Evidence Binding</span>
+                </div>
+              </div>
+
+              <!-- Structured Code Snippet Preview -->
+              <div class="bg-slate-900 rounded p-3.5 text-slate-200 font-mono text-[11px] leading-relaxed overflow-x-auto">
+                <div class="flex items-center justify-between text-slate-400 border-b border-slate-800 pb-1.5 mb-2">
+                  <span id="auditFileName">manifest.audit.json</span>
+                  <button type="button" id="copyManifestBtn" class="text-xs text-slate-300 hover:text-white underline">
+                    Copy
+                  </button>
+                </div>
+                <pre id="auditCodePreview" class="text-slate-200">{
+  "framework": "Digital Maturity Model (DMM)",
+  "governance_tier": "Board-Auditable",
+  "dimensions": 6,
+  "criteria_nodes": 184,
+  "variance_tolerance": 0.0000,
+  "license": "Apache-2.0 / CC-BY-4.0"
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Core Pillars (4-Card Structured Grid) -->
+  <section id="pillars" class="py-16 lg:py-24 border-b border-hairline bg-alabaster">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="max-w-3xl mb-12">
+        <p class="font-mono text-xs font-semibold tracking-wider text-corpNavy uppercase mb-2">
+          CORE ARCHITECTURAL CAPABILITIES
+        </p>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-obsidian">
+          Four Foundational Pillars of Enterprise Assessment
+        </h2>
+        <p class="mt-3 text-base text-steel leading-relaxed">
+          Every artifact published under the organization adheres to strict ontological boundaries, ensuring assessments remain repeatable across business units, audit cycles, and external advisory reviews.
+        </p>
+      </div>
+
+      <!-- 4-Card Structured Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Pillar 01 -->
+        <article class="card-surface rounded-md p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-mono text-xs font-semibold tracking-wider text-corpNavy bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded">
+                01 / CAPABILITY MATURITY
+              </span>
+              <svg class="w-6 h-6 text-steel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 20h18M5 20V14h3v6M10.5 20V9h3v11M16 20V4h3v16" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-obsidian tracking-tight mb-2.5">
+              Organizational Capability Maturity Assessments
+            </h3>
+            <p class="text-sm text-steel leading-relaxed">
+              Multi-dimensional, MECE-compliant maturity models engineered for digital and operational transformation. Eliminates ambiguous maturity descriptors in favor of verifiable capability evidence gates.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between font-mono text-xs text-steel">
+            <span>TAXONOMY: ISO-33001 ALIGNED</span>
+            <span class="text-slateTeal">MECE VERIFIED</span>
+          </div>
+        </article>
+
+        <!-- Pillar 02 -->
+        <article class="card-surface rounded-md p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-mono text-xs font-semibold tracking-wider text-corpNavy bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded">
+                02 / COMPARATIVE ANALYTICS
+              </span>
+              <svg class="w-6 h-6 text-steel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h14M18 10v8M15 14h6" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-obsidian tracking-tight mb-2.5">
+              Benchmarking &amp; Comparative Analytics
+            </h3>
+            <p class="text-sm text-steel leading-relaxed">
+              Standardized, reproducible industry benchmarking datasets and cross-domain baseline metrics. Supports longitudinal cohort tracking, percentile normalization, and anonymized peer calibration.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between font-mono text-xs text-steel">
+            <span>FORMAT: PARQUET / JSON-LD</span>
+            <span class="text-slateTeal">NORMALIZED BASELINES</span>
+          </div>
+        </article>
+
+        <!-- Pillar 03 -->
+        <article class="card-surface rounded-md p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-mono text-xs font-semibold tracking-wider text-corpNavy bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded">
+                03 / PREDICTIVE MODELING
+              </span>
+              <svg class="w-6 h-6 text-steel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8M17 7h4v4" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-obsidian tracking-tight mb-2.5">
+              Predictive Transformation Models
+            </h3>
+            <p class="text-sm text-steel leading-relaxed">
+              Quantitative modeling tools to project capability uplift, operational autonomy, and value realization across multi-quarter transformation roadmaps, accounting for architectural dependencies.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between font-mono text-xs text-steel">
+            <span>ENGINE: MONTE-CARLO / DAG</span>
+            <span class="text-slateTeal">SENSITIVITY BOUNDED</span>
+          </div>
+        </article>
+
+        <!-- Pillar 04 -->
+        <article class="card-surface rounded-md p-6 sm:p-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-mono text-xs font-semibold tracking-wider text-corpNavy bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded">
+                04 / QUALITY ASSURANCE
+              </span>
+              <svg class="w-6 h-6 text-steel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-obsidian tracking-tight mb-2.5">
+              Systematic Quality Assurance
+            </h3>
+            <p class="text-sm text-steel leading-relaxed">
+              Automated structural validation, ontological consistency checks, and deterministic scoring pipelines integrated into CI/CD workflows to prevent rubric drift and mathematical weighting anomalies.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between font-mono text-xs text-steel">
+            <span>CI PIPELINE: SCHEMA-LINT</span>
+            <span class="text-slateTeal">ZERO-DRIFT GUARANTEED</span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Governance & Engineering Principles (2-Column Executive Layout) -->
+  <section id="governance" class="py-16 lg:py-24 bg-white border-b border-hairline">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Left Column: Governance Narrative -->
+        <div class="lg:col-span-5 space-y-6">
+          <p class="font-mono text-xs font-semibold tracking-wider text-corpNavy uppercase">
+            GOVERNANCE &amp; ENGINEERING PRINCIPLES
+          </p>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-obsidian leading-tight">
+            Built for Auditability, Provenance, and Normative Rigor
+          </h2>
+          <p class="text-sm sm:text-base text-steel leading-relaxed">
+            Enterprise capability assessments frequently suffer from opaque weighting, subjective evaluator bias, and proprietary lock-in. Our specifications treat maturity models as version-controlled, formally verifiable software artifacts.
+          </p>
+
+          <div class="space-y-4 pt-2">
+            <div class="flex items-start gap-3.5">
+              <div class="mt-1 w-5 h-5 rounded bg-slate-100 border border-slate-300 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5 text-corpNavy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-obsidian">Open Peer Moderation &amp; RFC Lifecycle</h3>
+                <p class="text-xs sm:text-sm text-steel mt-0.5 leading-relaxed">
+                  All taxonomy revisions undergo public Request for Comments (RFC) review by enterprise architects and domain moderators prior to semantic version tagging.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+              <div class="mt-1 w-5 h-5 rounded bg-slate-100 border border-slate-300 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5 text-corpNavy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-obsidian">Deterministic Calculation Over Heuristic Guesswork</h3>
+                <p class="text-xs sm:text-sm text-steel mt-0.5 leading-relaxed">
+                  Every composite score is derived from explicit mathematical aggregation functions with documented sensitivity bounds and zero black-box heuristics.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+              <div class="mt-1 w-5 h-5 rounded bg-slate-100 border border-slate-300 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5 text-corpNavy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-obsidian">Full Provenance &amp; Evidence Traceability</h3>
+                <p class="text-xs sm:text-sm text-steel mt-0.5 leading-relaxed">
+                  Assessment outputs bind directly to immutable schema versions and verifiable architectural artifacts, satisfying internal audit and regulatory scrutiny.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Architectural Comparison Specification Matrix -->
+        <div class="lg:col-span-7">
+          <div class="border border-hairline rounded-md overflow-hidden bg-alabaster">
+            <div class="bg-slate-100/80 border-b border-hairline px-5 py-3.5 flex items-center justify-between">
+              <span class="font-mono text-xs font-semibold text-obsidian uppercase tracking-wider">
+                COMPARATIVE ARCHITECTURAL SPECIFICATION MATRIX
+              </span>
+              <span class="font-mono text-[11px] text-steel">REV 2026.4</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-hairline bg-white text-xs font-mono uppercase text-steel">
+                    <th class="py-3.5 px-4 sm:px-5 font-semibold w-1/4">Attribute</th>
+                    <th class="py-3.5 px-4 sm:px-5 font-semibold w-[35%]">Traditional Ad-Hoc Assessments</th>
+                    <th class="py-3.5 px-4 sm:px-5 font-semibold text-corpNavy bg-blue-50/40 w-[40%]">Open Blueprint Standard</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-hairline text-xs sm:text-sm bg-white">
+                  <tr>
+                    <td class="py-4 px-4 sm:px-5 font-semibold text-obsidian align-top">Scoring Methodology</td>
+                    <td class="py-4 px-4 sm:px-5 text-steel align-top">Subjective facilitator consensus; opaque spreadsheet macros.</td>
+                    <td class="py-4 px-4 sm:px-5 text-obsidian bg-blue-50/20 align-top font-medium">
+                      Deterministic, unit-tested scoring engines with formal mathematical proofs.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-4 px-4 sm:px-5 font-semibold text-obsidian align-top">Structural Logic</td>
+                    <td class="py-4 px-4 sm:px-5 text-steel align-top">Overlapping domains, double-counted capabilities, and narrative ambiguity.</td>
+                    <td class="py-4 px-4 sm:px-5 text-obsidian bg-blue-50/20 align-top font-medium">
+                      Strictly MECE-validated ontologies verified via automated graph linting.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-4 px-4 sm:px-5 font-semibold text-obsidian align-top">Data Governance</td>
+                    <td class="py-4 px-4 sm:px-5 text-steel align-top">Unversioned slide decks; non-reproducible historical baselines.</td>
+                    <td class="py-4 px-4 sm:px-5 text-obsidian bg-blue-50/20 align-top font-medium">
+                      Immutable semantic versioning, JSON-Schema validation, and SHA-256 audit logs.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-4 px-4 sm:px-5 font-semibold text-obsidian align-top">Standards Alignment</td>
+                    <td class="py-4 px-4 sm:px-5 text-steel align-top">Siloed vendor terminology incompatible with enterprise architecture repositories.</td>
+                    <td class="py-4 px-4 sm:px-5 text-obsidian bg-blue-50/20 align-top font-medium">
+                      Native cross-walks to TM Forum ODA, ISO/IEC 33001, and OpenAPI metamodels.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-4 px-4 sm:px-5 font-semibold text-obsidian align-top">Licensing &amp; Custody</td>
+                    <td class="py-4 px-4 sm:px-5 text-steel align-top">Proprietary consultancy IP; restricted internal redistribution rights.</td>
+                    <td class="py-4 px-4 sm:px-5 text-obsidian bg-blue-50/20 align-top font-medium">
+                      Permissive open-source licensing (<span class="font-mono text-xs">Apache-2.0</span> &amp; <span class="font-mono text-xs">CC-BY-4.0</span>).
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Featured Repositories & Tooling Catalog -->
+  <section id="repositories" class="py-16 lg:py-24 bg-alabaster border-b border-hairline">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Header & Filter Controls -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+        <div>
+          <p class="font-mono text-xs font-semibold tracking-wider text-corpNavy uppercase mb-2">
+            OPEN SOURCE ARTIFACT REGISTRY
+          </p>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-obsidian">
+            Featured Repositories &amp; Tooling Catalog
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-steel max-w-2xl">
+            Production-ready schemas, deterministic scoring libraries, and architectural blueprints maintained under the <span class="font-mono text-xs text-obsidian">assessment-models</span> GitHub organization.
+          </p>
+        </div>
+
+        <!-- Interactive Filter Tabs -->
+        <div class="inline-flex flex-wrap bg-white p-1 rounded-md border border-hairline self-start md:self-auto" role="tablist" aria-label="Filter repositories">
+          <button type="button" data-filter="all" class="repo-filter-btn active px-3.5 py-1.5 rounded text-xs font-medium bg-obsidian text-white transition-colors">
+            All Artifacts
+          </button>
+          <button type="button" data-filter="frameworks" class="repo-filter-btn px-3.5 py-1.5 rounded text-xs font-medium text-steel hover:text-obsidian transition-colors">
+            Frameworks
+          </button>
+          <button type="button" data-filter="engines" class="repo-filter-btn px-3.5 py-1.5 rounded text-xs font-medium text-steel hover:text-obsidian transition-colors">
+            Validation Engines
+          </button>
+          <button type="button" data-filter="blueprints" class="repo-filter-btn px-3.5 py-1.5 rounded text-xs font-medium text-steel hover:text-obsidian transition-colors">
+            Blueprints
+          </button>
+        </div>
+      </div>
+
+      <!-- Repository Grid -->
+      <div id="repoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Repo Card 1 -->
+        <article data-category="frameworks" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-obsidian border border-slate-200">
+                Framework
+              </span>
+              <span class="font-mono text-xs text-steel">v2.4.0</span>
+            </div>
+            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                enterprise-dmm-core
+              </a>
+            </h3>
+            <p class="text-sm text-steel leading-relaxed mb-5">
+              Canonical Digital Maturity Model specification spanning six orthogonal enterprise dimensions, complete with normalized capability rubrics and evidence verification criteria.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3 font-mono text-steel">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-corpIndigo"></span>JSON Schema
+              </span>
+              <span>CC-BY-4.0</span>
+            </div>
+            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
+              <span>Inspect</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+              </svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Repo Card 2 -->
+        <article data-category="engines" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-teal-50 text-slateTeal border border-teal-200">
+                Validation Engine
+              </span>
+              <span class="font-mono text-xs text-steel">v1.8.2</span>
+            </div>
+            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                mece-ontology-validator
+              </a>
+            </h3>
+            <p class="text-sm text-steel leading-relaxed mb-5">
+              Static analysis and graph-theoretic linter verifying mutual exclusivity and collective exhaustiveness across hierarchical capability taxonomies and weighting trees.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3 font-mono text-steel">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slateTeal"></span>Python
+              </span>
+              <span>Apache-2.0</span>
+            </div>
+            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
+              <span>Inspect</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+              </svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Repo Card 3 -->
+        <article data-category="blueprints" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-corpNavy border border-blue-200">
+                Blueprint
+              </span>
+              <span class="font-mono text-xs text-steel">v3.1.0</span>
+            </div>
+            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                oda-capability-blueprints
+              </a>
+            </h3>
+            <p class="text-sm text-steel leading-relaxed mb-5">
+              Reference architectural blueprints mapping functional capability blocks to Open Digital Architecture (ODA) components, integration fabrics, and governance gates.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3 font-mono text-steel">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slate-600"></span>YAML / OpenAPI
+              </span>
+              <span>CC-BY-4.0</span>
+            </div>
+            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
+              <span>Inspect</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+              </svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Repo Card 4 -->
+        <article data-category="engines" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-teal-50 text-slateTeal border border-teal-200">
+                Validation Engine
+              </span>
+              <span class="font-mono text-xs text-steel">v2.0.1</span>
+            </div>
+            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                deterministic-scoring-runtime
+              </a>
+            </h3>
+            <p class="text-sm text-steel leading-relaxed mb-5">
+              Zero-dependency calculation runtime executing deterministic maturity aggregations, confidence interval bounds, and cryptographic audit-trail generation.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3 font-mono text-steel">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-corpNavy"></span>TypeScript
+              </span>
+              <span>Apache-2.0</span>
+            </div>
+            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
+              <span>Inspect</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+              </svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Repo Card 5 -->
+        <article data-category="frameworks" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-obsidian border border-slate-200">
+                Framework
+              </span>
+              <span class="font-mono text-xs text-steel">v1.5.0</span>
+            </div>
+            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                autonomous-ops-benchmark
+              </a>
+            </h3>
+            <p class="text-sm text-steel leading-relaxed mb-5">
+              Cross-industry operational autonomy evaluation framework measuring closed-loop automation, incident self-healing, and policy-as-code enforcement maturity.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3 font-mono text-steel">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-corpIndigo"></span>JSON-LD
+              </span>
+              <span>CC-BY-4.0</span>
+            </div>
+            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
+              <span>Inspect</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+              </svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Repo Card 6 -->
+        <article data-category="blueprints" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-corpNavy border border-blue-200">
+                Blueprint
+              </span>
+              <span class="font-mono text-xs text-steel">v1.2.4</span>
+            </div>
+            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                transformation-uplift-simulator
+              </a>
+            </h3>
+            <p class="text-sm text-steel leading-relaxed mb-5">
+              Predictive transformation modeling suite projecting capability uplift trajectories, critical-path bottlenecks, and capital allocation sensitivity across enterprise portfolios.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3 font-mono text-steel">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slateTeal"></span>Python / R
+              </span>
+              <span>Apache-2.0</span>
+            </div>
+            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
+              <span>Inspect</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+              </svg>
+            </a>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Standards Alignment Banner -->
+      <div id="standards" class="mt-12 bg-white border border-hairline rounded-md p-6 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        <div class="space-y-1.5 max-w-2xl">
+          <div class="font-mono text-xs font-semibold text-slateTeal uppercase tracking-wider">
+            INTEROPERABILITY &amp; STANDARDS COMPLIANCE
+          </div>
+          <h3 class="text-lg font-semibold text-obsidian">
+            Designed for Seamless Integration into Enterprise Architecture Repositories
+          </h3>
+          <p class="text-sm text-steel leading-relaxed">
+            All assessment schemas export natively to standard metamodel formats, enabling direct ingestion into corporate governance platforms, risk registries, and BI pipelines.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+          <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-medium text-white bg-obsidian rounded hover:bg-slate-800 transition-colors">
+            <span>Browse Full Organization</span>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 6: Minimal Corporate Footer -->
+  <footer class="bg-white text-steel">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-hairline">
+        
+        <!-- Organization Identity -->
+        <div class="md:col-span-6 space-y-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded bg-obsidian flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="9" y1="3" x2="9" y2="21" />
+                <line x1="15" y1="3" x2="15" y2="21" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="3" y1="15" x2="21" y2="15" />
+              </svg>
+            </div>
+            <span class="text-sm font-semibold text-obsidian">
+              Maturity Assessment &amp; Enterprise Blueprint Tools
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-steel max-w-md leading-relaxed">
+            Open-source standards initiative dedicated to rigorous organizational capability maturity models, deterministic benchmarking engines, and auditable enterprise blueprints.
+          </p>
+        </div>
+
+        <!-- Governance & Documentation Links -->
+        <div class="md:col-span-3 space-y-2.5">
+          <h4 class="font-mono text-xs font-semibold uppercase tracking-wider text-obsidian">
+            Governance
+          </h4>
+          <ul class="space-y-2 text-xs sm:text-sm">
+            <li>
+              <button type="button" id="footerCharterBtn" class="hover:text-obsidian transition-colors text-left">
+                Governance Charter
+              </button>
+            </li>
+            <li>
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:text-obsidian transition-colors">
+                Contribution Guidelines
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:text-obsidian transition-colors">
+                RFC Moderation Process
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Technical Resources -->
+        <div class="md:col-span-3 space-y-2.5">
+          <h4 class="font-mono text-xs font-semibold uppercase tracking-wider text-obsidian">
+            Resources
+          </h4>
+          <ul class="space-y-2 text-xs sm:text-sm">
+            <li>
+              <a href="/gateway/" class="hover:text-obsidian transition-colors">
+                Assessment Gateway
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:text-obsidian transition-colors">
+                GitHub Organization
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:text-obsidian transition-colors">
+                Technical Documentation
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:text-obsidian transition-colors">
+                Licensing (Apache-2.0 / CC-BY-4.0)
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Legal & Licensing Row -->
+      <div class="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-steel">
+        <p>
+          &copy; <span id="currentYear">2026</span> Maturity Assessment &amp; Enterprise Blueprint Tools. Released under open-source governance.
+        </p>
+        <p class="font-mono text-[11px]">
+          SPDX-License-Identifier: Apache-2.0 AND CC-BY-4.0
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Governance Charter Modal (Replaces alert() with a formal executive dialog) -->
+  <div id="charterModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4" role="dialog" aria-modal="true" aria-labelledby="charterModalTitle">
+    <div class="bg-white border border-slate-300 rounded-md max-w-2xl w-full shadow-xl overflow-hidden">
+      <div class="bg-slate-50 border-b border-hairline px-6 py-4 flex items-center justify-between">
+        <div>
+          <span class="font-mono text-[11px] font-semibold uppercase tracking-wider text-corpNavy">
+            NORMATIVE GOVERNANCE DOCUMENT
+          </span>
+          <h3 id="charterModalTitle" class="text-lg font-bold text-obsidian">
+            Enterprise Assessment &amp; Blueprint Governance Charter
+          </h3>
+        </div>
+        <button type="button" id="closeCharterBtn" aria-label="Close modal" class="p-1.5 rounded text-steel hover:text-obsidian hover:bg-slate-200/60">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6 space-y-4 text-sm text-steel leading-relaxed max-h-[70vh] overflow-y-auto">
+        <p class="text-obsidian font-medium">
+          Article I — Normative Determinism &amp; Structural Integrity
+        </p>
+        <p>
+          All assessment models, maturity rubrics, and architectural blueprints published under <span class="font-mono text-xs text-obsidian">assessment-models.github.io</span> must satisfy Mutually Exclusive and Collectively Exhaustive (MECE) structural criteria. Subjective scoring heuristics without deterministic mathematical definitions are prohibited from core releases.
+        </p>
+        
+        <p class="text-obsidian font-medium">
+          Article II — Open Moderation &amp; Version Provenance
+        </p>
+        <p>
+          Schema modifications require peer review by at least two domain maintainers and automated CI verification via <span class="font-mono text-xs text-obsidian">mece-ontology-validator</span>. Every released artifact carries a cryptographic checksum and adheres strictly to Semantic Versioning (SemVer 2.0.0).
+        </p>
+
+        <p class="text-obsidian font-medium">
+          Article III — Permissive Enterprise Adoption
+        </p>
+        <p>
+          Software validation engines and scoring runtimes are licensed under <span class="font-mono text-xs text-obsidian">Apache-2.0</span>. Assessment taxonomies, documentation, and reference blueprints are licensed under <span class="font-mono text-xs text-obsidian">CC-BY-4.0</span> to guarantee unrestricted enterprise adoption and audit attribution.
+        </p>
+      </div>
+
+      <div class="bg-slate-50 border-t border-hairline px-6 py-3.5 flex items-center justify-between">
+        <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="font-mono text-xs font-medium text-corpNavy hover:underline">
+          View Full Charter on GitHub &rarr;
+        </a>
+        <button type="button" id="ackCharterBtn" class="px-4 py-2 text-xs font-medium text-white bg-obsidian rounded hover:bg-slate-800 transition-colors">
+          Close Document
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vanilla JavaScript for Interactive Audit Preview, Repository Filtering, and Modal Controls -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set current year dynamically
+      const yearEl = document.getElementById('currentYear');
+      if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+      }
+
+      // Mobile Navigation Toggle
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+      }
+
+      // Specification Audit Panel Interactive Data
+      const auditData = {
+        dmm: {
+          schemaId: 'org.assessment.dmm.v2.4.0',
+          mece: '100% Orthogonal (0 Overlaps)',
+          scoring: 'Weighted-DAG / Reproducible',
+          meta: 'JSON-Schema Draft 2020-12',
+          trace: 'SHA-256 Evidence Binding',
+          fileName: 'manifest.dmm.audit.json',
+          code: `{
+  "framework": "Digital Maturity Model (DMM)",
+  "governance_tier": "Board-Auditable",
+  "dimensions": 6,
+  "criteria_nodes": 184,
+  "variance_tolerance": 0.0000,
+  "license": "Apache-2.0 / CC-BY-4.0"
+}`
+        },
+        oda: {
+          schemaId: 'org.blueprint.oda.v3.1.0',
+          mece: 'Verified Functional Blocks',
+          scoring: 'Component Conformance Matrix',
+          meta: 'TMF-ODA-v4 / OpenAPI 3.1',
+          trace: 'Capability-to-API Lineage',
+          fileName: 'manifest.oda.blueprint.json',
+          code: `{
+  "blueprint": "ODA Reference Architecture",
+  "conformance_level": "Normative-Strict",
+  "functional_blocks": 5,
+  "open_apis_mapped": 64,
+  "lint_status": "PASS (0 warnings)",
+  "license": "CC-BY-4.0"
+}`
+        },
+        pred: {
+          schemaId: 'org.model.capsim.v1.2.4',
+          mece: 'Dependency-Bounded DAG',
+          scoring: 'Stochastic Uplift Projection',
+          meta: 'Parquet / Arrow / JSON-LD',
+          trace: 'Seed-Locked Reproducibility',
+          fileName: 'manifest.capsim.model.json',
+          code: `{
+  "model": "Transformation Uplift Simulator",
+  "solver": "Deterministic-MonteCarlo",
+  "horizon_quarters": 12,
+  "confidence_interval": "95% Bounded",
+  "drift_check": "VERIFIED",
+  "license": "Apache-2.0"
+}`
+        }
+      };
+
+      const auditTabs = document.querySelectorAll('.audit-tab');
+      auditTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const key = tab.getAttribute('data-audit-tab');
+          const data = auditData[key];
+          if (!data) return;
+
+          // Update active tab styling
+          auditTabs.forEach(t => {
+            t.classList.remove('active', 'font-semibold', 'text-corpNavy', 'border-corpNavy', 'bg-white');
+            t.classList.add('text-steel', 'border-transparent');
+          });
+          tab.classList.add('active', 'font-semibold', 'text-corpNavy', 'border-corpNavy', 'bg-white');
+          tab.classList.remove('text-steel', 'border-transparent');
+
+          // Populate audit panel fields
+          document.getElementById('auditSchemaId').textContent = data.schemaId;
+          document.getElementById('auditMeceStatus').textContent = data.mece;
+          document.getElementById('auditScoringStatus').textContent = data.scoring;
+          document.getElementById('auditMetaStatus').textContent = data.meta;
+          document.getElementById('auditTraceStatus').textContent = data.trace;
+          document.getElementById('auditFileName').textContent = data.fileName;
+          document.getElementById('auditCodePreview').textContent = data.code;
+        });
+      });
+
+      // Copy Manifest Snippet to Clipboard (using safe fallback)
+      const copyManifestBtn = document.getElementById('copyManifestBtn');
+      if (copyManifestBtn) {
+        copyManifestBtn.addEventListener('click', () => {
+          const codeText = document.getElementById('auditCodePreview').textContent;
+          const tempTextarea = document.createElement('textarea');
+          tempTextarea.value = codeText;
+          tempTextarea.style.position = 'fixed';
+          tempTextarea.style.opacity = '0';
+          document.body.appendChild(tempTextarea);
+          tempTextarea.select();
+          try {
+            document.execCommand('copy');
+            copyManifestBtn.textContent = 'Copied';
+            setTimeout(() => {
+              copyManifestBtn.textContent = 'Copy';
+            }, 1800);
+          } catch (err) {
+            copyManifestBtn.textContent = 'Failed';
+          }
+          document.body.removeChild(tempTextarea);
+        });
+      }
+
+      // Repository Catalog Filtering
+      const filterBtns = document.querySelectorAll('.repo-filter-btn');
+      const repoCards = document.querySelectorAll('.repo-card');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const selectedFilter = btn.getAttribute('data-filter');
+
+          // Update active button state
+          filterBtns.forEach(b => {
+            b.classList.remove('active', 'bg-obsidian', 'text-white');
+            b.classList.add('text-steel');
+          });
+          btn.classList.add('active', 'bg-obsidian', 'text-white');
+          btn.classList.remove('text-steel');
+
+          // Filter repository cards
+          repoCards.forEach(card => {
+            const category = card.getAttribute('data-category');
+            if (selectedFilter === 'all' || category === selectedFilter) {
+              card.classList.remove('hidden');
+            } else {
+              card.classList.add('hidden');
+            }
+          });
+        });
+      });
+
+      // Governance Charter Modal Controls
+      const charterModal = document.getElementById('charterModal');
+      const openCharterBtn = document.getElementById('openCharterBtn');
+      const footerCharterBtn = document.getElementById('footerCharterBtn');
+      const closeCharterBtn = document.getElementById('closeCharterBtn');
+      const ackCharterBtn = document.getElementById('ackCharterBtn');
+
+      const openModal = () => {
+        charterModal.classList.remove('hidden');
+        charterModal.classList.add('flex');
+      };
+
+      const closeModal = () => {
+        charterModal.classList.add('hidden');
+        charterModal.classList.remove('flex');
+      };
+
+      if (openCharterBtn) openCharterBtn.addEventListener('click', openModal);
+      if (footerCharterBtn) footerCharterBtn.addEventListener('click', openModal);
+      if (closeCharterBtn) closeCharterBtn.addEventListener('click', closeModal);
+      if (ackCharterBtn) ackCharterBtn.addEventListener('click', closeModal);
+
+      // Close modal when clicking backdrop
+      if (charterModal) {
+        charterModal.addEventListener('click', (e) => {
+          if (e.target === charterModal) {
+            closeModal();
+          }
+        });
+      }
+
+      // Close modal on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !charterModal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+    });
+  </script>
+</body>
 </html>

@@ -196,7 +196,7 @@
             </p>
             <div class="flex flex-wrap gap-2">
               <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">MECE-STRICT</span>
-              <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">TMF-ODA-v4</span>
+              <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">OPENDEA</span>
               <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">DMM-CORE</span>
               <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">OPENAPI-3.1</span>
               <span class="px-2.5 py-1 bg-white border border-hairline rounded font-mono text-xs text-obsidian">ISO/IEC-33001</span>
@@ -228,8 +228,8 @@
               <button type="button" data-audit-tab="dmm" class="audit-tab active py-2 px-3 text-center font-semibold text-corpNavy border-b-2 border-corpNavy bg-white">
                 DMM-CORE
               </button>
-              <button type="button" data-audit-tab="oda" class="audit-tab py-2 px-3 text-center text-steel hover:text-obsidian border-b-2 border-transparent">
-                ODA-MAP
+              <button type="button" data-audit-tab="opendea" class="audit-tab py-2 px-3 text-center text-steel hover:text-obsidian border-b-2 border-transparent">
+                OPENDEA
               </button>
               <button type="button" data-audit-tab="pred" class="audit-tab py-2 px-3 text-center text-steel hover:text-obsidian border-b-2 border-transparent">
                 CAP-SIM
@@ -514,7 +514,7 @@
                     <td class="py-4 px-4 sm:px-5 font-semibold text-obsidian align-top">Standards Alignment</td>
                     <td class="py-4 px-4 sm:px-5 text-steel align-top">Siloed vendor terminology incompatible with enterprise architecture repositories.</td>
                     <td class="py-4 px-4 sm:px-5 text-obsidian bg-blue-50/20 align-top font-medium">
-                      Native cross-walks to TM Forum ODA, ISO/IEC 33001, and OpenAPI metamodels.
+                      Native cross-walks to OpenDEA, ISO/IEC 33001, and OpenAPI metamodels.
                     </td>
                   </tr>
                   <tr>
@@ -548,161 +548,41 @@
             Featured Repositories &amp; Tooling Catalog
           </h2>
           <p class="mt-2 text-sm sm:text-base text-steel max-w-2xl">
-            Production-ready schemas, deterministic scoring libraries, and architectural blueprints maintained under the <span class="font-mono text-xs text-obsidian">assessment-models</span> GitHub organization.
+            Open reference architecture and assessment tooling maintained by the <span class="font-mono text-xs text-obsidian">Assessment-Models</span> organization and its OpenDEA partner, TechNeHub Labs.
           </p>
         </div>
 
-        <!-- Interactive Filter Tabs -->
-        <div class="inline-flex flex-wrap bg-white p-1 rounded-md border border-hairline self-start md:self-auto" role="tablist" aria-label="Filter repositories">
-          <button type="button" data-filter="all" class="repo-filter-btn active px-3.5 py-1.5 rounded text-xs font-medium bg-obsidian text-white transition-colors">
-            All Artifacts
-          </button>
-          <button type="button" data-filter="frameworks" class="repo-filter-btn px-3.5 py-1.5 rounded text-xs font-medium text-steel hover:text-obsidian transition-colors">
-            Frameworks
-          </button>
-          <button type="button" data-filter="engines" class="repo-filter-btn px-3.5 py-1.5 rounded text-xs font-medium text-steel hover:text-obsidian transition-colors">
-            Validation Engines
-          </button>
-          <button type="button" data-filter="blueprints" class="repo-filter-btn px-3.5 py-1.5 rounded text-xs font-medium text-steel hover:text-obsidian transition-colors">
-            Blueprints
-          </button>
-        </div>
-      </div>
+</div>
 
       <!-- Repository Grid -->
-      <div id="repoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <!-- Repo Card 1 -->
-        <article data-category="frameworks" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-obsidian border border-slate-200">
-                Framework
-              </span>
-              <span class="font-mono text-xs text-steel">v2.4.0</span>
-            </div>
-            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
-              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                enterprise-dmm-core
-              </a>
-            </h3>
-            <p class="text-sm text-steel leading-relaxed mb-5">
-              Canonical Digital Maturity Model specification spanning six orthogonal enterprise dimensions, complete with normalized capability rubrics and evidence verification criteria.
-            </p>
-          </div>
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-3 font-mono text-steel">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-corpIndigo"></span>JSON Schema
-              </span>
-              <span>CC-BY-4.0</span>
-            </div>
-            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
-              <span>Inspect</span>
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
-              </svg>
-            </a>
-          </div>
-        </article>
+<div id="repoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        <!-- Repo Card 2 -->
-        <article data-category="engines" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-teal-50 text-slateTeal border border-teal-200">
-                Validation Engine
-              </span>
-              <span class="font-mono text-xs text-steel">v1.8.2</span>
-            </div>
-            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
-              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                mece-ontology-validator
-              </a>
-            </h3>
-            <p class="text-sm text-steel leading-relaxed mb-5">
-              Static analysis and graph-theoretic linter verifying mutual exclusivity and collective exhaustiveness across hierarchical capability taxonomies and weighting trees.
-            </p>
-          </div>
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-3 font-mono text-steel">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-slateTeal"></span>Python
-              </span>
-              <span>Apache-2.0</span>
-            </div>
-            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
-              <span>Inspect</span>
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
-              </svg>
-            </a>
-          </div>
-        </article>
-
-        <!-- Repo Card 3 -->
+        <!-- OpenDEA Reference Architecture -->
         <article data-category="blueprints" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-corpNavy border border-blue-200">
-                Blueprint
+                Architecture Blueprint
               </span>
-              <span class="font-mono text-xs text-steel">v3.1.0</span>
+              <span class="font-mono text-xs text-steel">v1-alpha</span>
             </div>
             <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
-              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                oda-capability-blueprints
+              <a href="https://github.com/technehub-labs/dea-catalog-reference-architecture" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                OpenDEA
               </a>
             </h3>
             <p class="text-sm text-steel leading-relaxed mb-5">
-              Reference architectural blueprints mapping functional capability blocks to Open Digital Architecture (ODA) components, integration fabrics, and governance gates.
+              Digital Enterprise Reference Architecture (DERA): the L1 catalog that assembles the OpenDEA framework (metamodel, tenets, guardrails, patterns, blueprints, metrics) into a coherent, deliverable end-to-end enterprise blueprint.
             </p>
           </div>
           <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
             <div class="flex items-center gap-3 font-mono text-steel">
               <span class="inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-slate-600"></span>YAML / OpenAPI
-              </span>
-              <span>CC-BY-4.0</span>
-            </div>
-            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
-              <span>Inspect</span>
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
-              </svg>
-            </a>
-          </div>
-        </article>
-
-        <!-- Repo Card 4 -->
-        <article data-category="engines" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-teal-50 text-slateTeal border border-teal-200">
-                Validation Engine
-              </span>
-              <span class="font-mono text-xs text-steel">v2.0.1</span>
-            </div>
-            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
-              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                deterministic-scoring-runtime
-              </a>
-            </h3>
-            <p class="text-sm text-steel leading-relaxed mb-5">
-              Zero-dependency calculation runtime executing deterministic maturity aggregations, confidence interval bounds, and cryptographic audit-trail generation.
-            </p>
-          </div>
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-3 font-mono text-steel">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-corpNavy"></span>TypeScript
+                <span class="w-2 h-2 rounded-full bg-corpIndigo"></span>Markdown / YAML
               </span>
               <span>Apache-2.0</span>
             </div>
-            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
+            <a href="https://github.com/technehub-labs/dea-catalog-reference-architecture" target="_blank" rel="noopener noreferrer" 
                class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
               <span>Inspect</span>
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
@@ -711,77 +591,6 @@
             </a>
           </div>
         </article>
-
-        <!-- Repo Card 5 -->
-        <article data-category="frameworks" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-obsidian border border-slate-200">
-                Framework
-              </span>
-              <span class="font-mono text-xs text-steel">v1.5.0</span>
-            </div>
-            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
-              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                autonomous-ops-benchmark
-              </a>
-            </h3>
-            <p class="text-sm text-steel leading-relaxed mb-5">
-              Cross-industry operational autonomy evaluation framework measuring closed-loop automation, incident self-healing, and policy-as-code enforcement maturity.
-            </p>
-          </div>
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-3 font-mono text-steel">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-corpIndigo"></span>JSON-LD
-              </span>
-              <span>CC-BY-4.0</span>
-            </div>
-            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
-              <span>Inspect</span>
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
-              </svg>
-            </a>
-          </div>
-        </article>
-
-        <!-- Repo Card 6 -->
-        <article data-category="blueprints" class="repo-card card-surface rounded-md p-6 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-              <span class="font-mono text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-corpNavy border border-blue-200">
-                Blueprint
-              </span>
-              <span class="font-mono text-xs text-steel">v1.2.4</span>
-            </div>
-            <h3 class="font-mono text-base font-semibold text-corpNavy mb-2">
-              <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                transformation-uplift-simulator
-              </a>
-            </h3>
-            <p class="text-sm text-steel leading-relaxed mb-5">
-              Predictive transformation modeling suite projecting capability uplift trajectories, critical-path bottlenecks, and capital allocation sensitivity across enterprise portfolios.
-            </p>
-          </div>
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-3 font-mono text-steel">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-slateTeal"></span>Python / R
-              </span>
-              <span>Apache-2.0</span>
-            </div>
-            <a href="https://github.com/assessment-models" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center gap-1 font-medium text-obsidian hover:text-corpNavy">
-              <span>Inspect</span>
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
-              </svg>
-            </a>
-          </div>
-        </article>
-
       </div>
 
       <!-- Standards Alignment Banner -->
@@ -934,7 +743,7 @@
           Article II — Open Moderation &amp; Version Provenance
         </p>
         <p>
-          Schema modifications require peer review by at least two domain maintainers and automated CI verification via <span class="font-mono text-xs text-obsidian">mece-ontology-validator</span>. Every released artifact carries a cryptographic checksum and adheres strictly to Semantic Versioning (SemVer 2.0.0).
+          Schema modifications require peer review by at least two domain maintainers and automated CI verification via <span class="font-mono text-xs text-obsidian">assessment-ci</span>. Every released artifact carries a cryptographic checksum and adheres strictly to Semantic Versioning (SemVer 2.0.0).
         </p>
 
         <p class="text-obsidian font-medium">
@@ -992,20 +801,19 @@
   "license": "Apache-2.0 / CC-BY-4.0"
 }`
         },
-        oda: {
-          schemaId: 'org.blueprint.oda.v3.1.0',
-          mece: 'Verified Functional Blocks',
-          scoring: 'Component Conformance Matrix',
-          meta: 'TMF-ODA-v4 / OpenAPI 3.1',
-          trace: 'Capability-to-API Lineage',
-          fileName: 'manifest.oda.blueprint.json',
+        opendea: {
+          schemaId: 'technehub-labs/dea-metamodel v1.0.0',
+          mece: 'Normative Metamodel Source',
+          scoring: 'OpenDEAM v0.5.0 Pinned',
+          meta: 'JSON Schema / RDF TTL',
+          trace: 'Version-Pinned Catalogs',
+          fileName: 'dea-metamodel.yaml',
           code: `{
-  "blueprint": "ODA Reference Architecture",
-  "conformance_level": "Normative-Strict",
-  "functional_blocks": 5,
-  "open_apis_mapped": 64,
-  "lint_status": "PASS (0 warnings)",
-  "license": "CC-BY-4.0"
+  "metamodel": "dea-metamodel",
+  "version": "1.0.0",
+  "opendeam_pin": "v0.5.0",
+  "authority": "technehub-labs",
+  "license": "Apache-2.0"
 }`
         },
         pred: {
@@ -1075,34 +883,6 @@
           document.body.removeChild(tempTextarea);
         });
       }
-
-      // Repository Catalog Filtering
-      const filterBtns = document.querySelectorAll('.repo-filter-btn');
-      const repoCards = document.querySelectorAll('.repo-card');
-
-      filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const selectedFilter = btn.getAttribute('data-filter');
-
-          // Update active button state
-          filterBtns.forEach(b => {
-            b.classList.remove('active', 'bg-obsidian', 'text-white');
-            b.classList.add('text-steel');
-          });
-          btn.classList.add('active', 'bg-obsidian', 'text-white');
-          btn.classList.remove('text-steel');
-
-          // Filter repository cards
-          repoCards.forEach(card => {
-            const category = card.getAttribute('data-category');
-            if (selectedFilter === 'all' || category === selectedFilter) {
-              card.classList.remove('hidden');
-            } else {
-              card.classList.add('hidden');
-            }
-          });
-        });
-      });
 
       // Governance Charter Modal Controls
       const charterModal = document.getElementById('charterModal');

@@ -1,0 +1,34 @@
+name: Validate homepage artifact links
+
+# Guardrail: every repository the static marketing homepage (index.html)
+# advertises must really exist. Prevents fictional or renamed artifacts
+# (e.g. an ODA blueprint placeholder) from shipping on the site root.
+
+on:
+  pull_request:
+    paths:
+      - index.html
+      - scripts/validate-homepage-links.mjs
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - scripts/validate-homepage-links.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify every referenced repository exists
+        run: node scripts/validate-homepage-links.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

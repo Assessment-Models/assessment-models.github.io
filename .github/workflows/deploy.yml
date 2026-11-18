@@ -46,6 +46,10 @@ jobs:
           cache: npm
 
       - run: npm ci
+      - name: Validate homepage artifact links
+        run: node scripts/validate-homepage-links.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: node scripts/build-index.mjs --registry sources/assessment-registry --standard sources/maturity-model-standard --models sources/maturity-model-digital-transformation --snapshot-root sources
       - run: npm run build:site
 

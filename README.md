@@ -1,8 +1,11 @@
-# Assessment Models Gateway
+# Assessment Models — Site & Gateway
 
-The interactive GitHub Pages gateway for the [Assessment-Models](https://github.com/Assessment-Models) ecosystem — https://assessment-models.github.io
+The GitHub Pages site for the [Assessment-Models](https://github.com/Assessment-Models) ecosystem — https://assessment-models.github.io
 
-An application, not a documentation site: explore the model constellation, drill into any model's structure (dimensions → sub-dimensions → criteria → level anchors), run trial assessments with cascade scoring, and generate shareable reports — **all client-side, no backend**.
+Two entries, one Vite build:
+
+- **`/` — the site homepage** (`index.html`): the organization's marketing front page — pillars, governance matrix, and the repositories & tooling catalog — in the corporate blueprint design language (alabaster canvas, hairline cards, Inter/JetBrains Mono, corporate navy & indigo accents).
+- **`/gateway/` — the Assessment Gateway** (`gateway/index.html`): an application, not documentation. Explore the model constellation, drill into any model's structure (dimensions → sub-dimensions → criteria → level anchors), run trial assessments with cascade scoring, and generate shareable reports — **all client-side, no backend**. The gateway now shares the homepage's design ethos (light corporate theme; the 3D constellation stage deliberately stays dark, echoing the homepage's code panels). Hash routes are unchanged, now served under `/gateway/#/…`.
 
 ## How it works
 

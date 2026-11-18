@@ -202,7 +202,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     gapPanel.append(h('div', { class: 'gap-row' },
       h('span', { class: 'mono' }, g.id),
       h('span', { class: 'bar' }, h('i', {
-        style: `width:${Math.max(0, Math.min(100, g.score))}%;background:${gap != null && gap <= 0 ? 'var(--good)' : 'linear-gradient(90deg, var(--accent), #b9a8ff)'}`,
+        style: `width:${Math.max(0, Math.min(100, g.score))}%;background:${gap != null && gap <= 0 ? 'var(--good)' : 'linear-gradient(90deg, var(--accent), #60A5FA)'}`,
       })),
       h('span', { class: 'mono dim' },
         gap == null ? '—' : gap <= 0 ? `target ${g.target} ✓` : `${g.score} → ${g.target} (+${gap})`),
@@ -271,24 +271,24 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
       datasets: [{
         label: 'score (0–100)',
         data: report.dimensions.map((d) => d.score),
-        backgroundColor: 'rgba(124, 140, 248, 0.18)',
-        borderColor: '#7c8cf8',
-        pointBackgroundColor: '#b9a8ff',
+        backgroundColor: 'rgba(29, 78, 216, 0.15)',
+        borderColor: '#1D4ED8',
+        pointBackgroundColor: '#1E3A8A',
         borderWidth: 2,
       }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#8b98b8' } } },
+      plugins: { legend: { labels: { color: '#475569' } } },
       scales: {
         r: {
           min: 0,
           max: 100,
-          ticks: { color: '#5b6a8c', backdropColor: 'transparent', stepSize: 25 },
-          grid: { color: 'rgba(139, 152, 184, 0.15)' },
-          angleLines: { color: 'rgba(139, 152, 184, 0.15)' },
-          pointLabels: { color: '#d7deeb', font: { family: 'monospace', size: 11 } },
+          ticks: { color: '#64748B', backdropColor: 'transparent', stepSize: 25 },
+          grid: { color: 'rgba(15, 23, 42, 0.08)' },
+          angleLines: { color: 'rgba(15, 23, 42, 0.08)' },
+          pointLabels: { color: '#0F172A', font: { family: 'monospace', size: 11 } },
         },
       },
     },
@@ -301,8 +301,8 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
       datasets: [{
         label: 'score × weight',
         data: report.dimensions.map((d) => Math.round(d.score * d.weight * 100) / 100),
-        backgroundColor: 'rgba(85, 196, 127, 0.55)',
-        borderColor: '#55c47f',
+        backgroundColor: 'rgba(15, 118, 110, 0.55)',
+        borderColor: '#0F766E',
         borderWidth: 1,
         borderRadius: 6,
       }],
@@ -312,8 +312,8 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { ticks: { color: '#8b98b8', font: { family: 'monospace', size: 11 } }, grid: { display: false } },
-        y: { beginAtZero: true, ticks: { color: '#5b6a8c' }, grid: { color: 'rgba(139, 152, 184, 0.12)' } },
+        x: { ticks: { color: '#64748B', font: { family: 'monospace', size: 11 } }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { color: '#64748B' }, grid: { color: 'rgba(15, 23, 42, 0.08)' } },
       },
     },
   });

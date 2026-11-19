@@ -240,31 +240,6 @@
 
   renderLayer("governance");
 
-  // 4. Optional Hydration from data/ecosystem-registry.json (Phase 1 artifact)
-  fetch("data/ecosystem-registry.json", { cache: "no-cache" })
-    .then((res) => (res.ok ? res.json() : null))
-    .then((registry) => {
-      if (!registry || !registry.summary) return;
-      const totalEl = document.getElementById("stat-total-artifacts");
-      const modelsEl = document.getElementById("stat-models");
-      const syncEl = document.getElementById("stat-sync-status");
-      const lastSyncedEl = document.getElementById("catalog-last-synced");
-
-      if (totalEl) totalEl.textContent = String(registry.summary.total_artifacts ?? "—");
-      if (modelsEl && registry.summary.by_layer) {
-        modelsEl.textContent = String(registry.summary.by_layer["maturity-model"] ?? 0);
-      }
-      if (syncEl && registry.content_sha256) {
-        syncEl.textContent = `sha256:${registry.content_sha256.slice(0, 7)}`;
-      }
-      if (lastSyncedEl && registry.generated_at) {
-        lastSyncedEl.textContent = `Last synced: ${registry.generated_at}`;
-      }
-    })
-    .catch(() => {
-      // Safe fallback when data/ecosystem-registry.json has not yet been generated
-    });
-
   // 5. Header Scroll Cue & Active Section Tracking
   const header = document.querySelector("[data-elevate-on-scroll]");
   const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
@@ -330,4 +305,296 @@
       if (modal && !modal.hidden) closeModal();
     }
   });
+
+  // 7. Phase 3: Filterable Registry Catalog & Slide-Over Inspector Drawer
+  const FALLBACK_REGISTRY = {
+    generated_at: "seed-preview",
+    content_sha256: "seed000000000000000000000000000000000000000000000000000000000000",
+    summary: { total_artifacts: 2, by_layer: { "maturity-model": 1, "reference-blueprint": 1 } },
+    artifacts: [
+      {
+        id: "assessment-models-org",
+        name: "Assessment-Models Ecosystem",
+        full_name: "Assessment-Models/.github",
+        owner_type: "cardinal-org",
+        layer: "governance",
+        architectural_concern: "Organization Governance",
+        description:
+          "Cardinal organization governing enterprise & organizational maturity models, shared assessment capabilities, and OpenDEA-compatible blueprints.",
+        readme_excerpt:
+          "Each maturity model retains ownership of its domain semantics, assessment methodology and scoring logic while conforming to shared organizational standards.",
+        html_url: "https://github.com/Assessment-Models/",
+        default_branch: "main",
+        version: "v1.0.0",
+        license: "Apache-2.0",
+        primary_language: "Markdown / Mermaid",
+        topics: ["governance-standard", "ecosystem", "opendia"],
+        standards_alignment: ["MECE", "SemVer", "OpenDEA"],
+        locales: ["en"],
+        dimensions: ["Maturity Model Architecture", "Assessment Architecture", "Ecosystem Integration"],
+        conformance_status: "verified",
+        has_manifest: true,
+        updated_at: "2026-11-19T00:00:00Z",
+      },
+      {
+        id: "opendia-dera-l1",
+        name: "OpenDEA Reference Architecture",
+        full_name: "technehub-labs/dea-catalog-reference-architecture",
+        owner_type: "partner-ecosystem",
+        layer: "reference-blueprint",
+        architectural_concern: "Model Ecosystem Integration Architecture",
+        description:
+          "Digital Enterprise Reference Architecture (DERA): L1 catalog assembling metamodel, tenets, guardrails, patterns, blueprints, and metrics.",
+        readme_excerpt:
+          "Provides an end-to-end reference blueprint catalog aligned with enterprise architecture standards.",
+        html_url: "https://github.com/technehub-labs/dea-catalog-reference-architecture",
+        default_branch: "main",
+        version: "v1-alpha",
+        license: "Apache-2.0",
+        primary_language: "Markdown / YAML",
+        topics: ["reference-blueprint", "opendia", "enterprise-architecture"],
+        standards_alignment: ["OpenDEA", "DERA-L1", "Apache-2.0"],
+        locales: ["en"],
+        dimensions: ["Metamodel", "Tenets", "Guardrails", "Patterns", "Blueprints", "Metrics"],
+        conformance_status: "external-aligned",
+        has_manifest: false,
+        updated_at: "2026-11-19T00:00:00Z",
+      },
+    ],
+  };
+
+  const catalogGrid = document.getElementById("catalog-grid");
+  const countLabel = document.getElementById("catalog-count-label");
+  const searchInput = document.getElementById("repo-search-input");
+  const conformanceSelect = document.getElementById("conformance-filter-select");
+  const layerFilterButtons = document.querySelectorAll("[data-filter-layer]");
+
+  const drawer = document.getElementById("repo-drawer");
+  const drawerTitle = document.getElementById("drawer-title");
+  const drawerFullName = document.getElementById("drawer-full-name");
+  const drawerBody = document.getElementById("drawer-body");
+  const drawerGithubLink = document.getElementById("drawer-github-link");
+  const closeDrawerBtn = document.getElementById("close-drawer-btn");
+  const drawerDoneBtn = document.getElementById("drawer-done-btn");
+
+  let allArtifacts = [];
+  let selectedLayer = "all";
+  let lastDrawerTrigger = null;
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function statusBadgeClass(status) {
+    if (status === "verified") return "status-tag status-verified";
+    if (status === "external-aligned") return "status-tag status-external-aligned";
+    return "status-tag status-draft";
+  }
+
+  function openDrawer(artifact, triggerEl) {
+    if (!drawer || !artifact) return;
+    lastDrawerTrigger = triggerEl || document.activeElement;
+
+    if (drawerTitle) drawerTitle.textContent = artifact.name;
+    if (drawerFullName) drawerFullName.textContent = artifact.full_name;
+    if (drawerGithubLink) drawerGithubLink.href = artifact.html_url;
+
+    const dimsHtml =
+      Array.isArray(artifact.dimensions) && artifact.dimensions.length
+        ? `<ul class="dimension-list">${artifact.dimensions.map((d) => `<li>${escapeHtml(d)}</li>`).join("")}</ul>`
+        : `<p>No explicit dimension list declared yet in <code>assessment-manifest.json</code>.</p>`;
+
+    const standardsHtml =
+      Array.isArray(artifact.standardsAlignment) && artifact.standards_alignment.length
+        ? `<div class="tag-row">${artifact.standards_alignment.map((s) => `<span class="mini-tag">${escapeHtml(s)}</span>`).join("")}</div>`
+        : `<p>Standard metadata pending.</p>`;
+
+    if (drawerBody) {
+      drawerBody.innerHTML = `
+        <div class="drawer-meta-grid">
+          <div class="drawer-meta-box">
+            <span class="drawer-meta-label">Layer</span>
+            <span class="drawer-meta-value">${escapeHtml(artifact.layer)}</span>
+          </div>
+          <div class="drawer-meta-box">
+            <span class="drawer-meta-label">Version / License</span>
+            <span class="drawer-meta-value">${escapeHtml(artifact.version)} • ${escapeHtml(artifact.license)}</span>
+          </div>
+          <div class="drawer-meta-box">
+            <span class="drawer-meta-label">Conformance</span>
+            <span class="drawer-meta-value">${escapeHtml(artifact.conformance_status)}</span>
+          </div>
+          <div class="drawer-meta-box">
+            <span class="drawer-meta-label">Locales</span>
+            <span class="drawer-meta-value">${escapeHtml((artifact.locales || ["en"]).join(", "))}</span>
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <h3>Architectural Concern</h3>
+          <p>${escapeHtml(artifact.architectural_concern)}</p>
+        </div>
+
+        <div class="drawer-section">
+          <h3>Overview &amp; Scope</h3>
+          <p>${escapeHtml(artifact.description)}</p>
+          ${artifact.readme_excerpt ? `<p style="margin-top:0.5rem;color:var(--text-muted);">${escapeHtml(artifact.readme_excerpt)}</p>` : ""}
+        </div>
+
+        <div class="drawer-section">
+          <h3>Dimensions &amp; Structure</h3>
+          ${dimsHtml}
+        </div>
+
+        <div class="drawer-section">
+          <h3>Standards &amp; Crosswalks</h3>
+          ${standardsHtml}
+        </div>
+      `;
+    }
+
+    drawer.hidden = false;
+    closeDrawerBtn?.focus();
+  }
+
+  function closeDrawer() {
+    if (!drawer) return;
+    drawer.hidden = true;
+    if (lastDrawerTrigger && typeof lastDrawerTrigger.focus === "function") {
+      lastDrawerTrigger.focus();
+    }
+  }
+
+  closeDrawerBtn?.addEventListener("click", closeDrawer);
+  drawerDoneBtn?.addEventListener("click", closeDrawer);
+  drawer?.addEventListener("click", (e) => {
+    if (e.target === drawer) closeDrawer();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && drawer && !drawer.hidden) {
+      closeDrawer();
+    }
+  });
+
+  function renderCatalog() {
+    if (!catalogGrid) return;
+    const q = (searchInput?.value || "").trim().toLowerCase();
+    const conf = conformanceSelect?.value || "all";
+
+    const filtered = allArtifacts.filter((item) => {
+      if (selectedLayer !== "all" && item.layer !== selectedLayer) return false;
+      if (conf !== "all" && item.conformance_status !== conf) return false;
+      if (!q) return true;
+
+      const haystack = [
+        item.name,
+        item.full_name,
+        item.description,
+        item.layer,
+        item.architectural_concern,
+        ...(item.standards_alignment || []),
+        ...(item.topics || []),
+        ...(item.locales || []),
+        ...(item.dimensions || []),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+
+    if (countLabel) {
+      countLabel.textContent = `Showing ${filtered.length} of ${allArtifacts.length} artifacts`;
+    }
+
+    if (!filtered.length) {
+      catalogGrid.innerHTML = `<div class="empty-catalog-state">No repositories or blueprints match the current filter criteria.</div>`;
+      return;
+    }
+
+    catalogGrid.innerHTML = filtered
+      .map((item, idx) => {
+        const tags = (item.standards_alignment || [])
+          .slice(0, 3)
+          .map((t) => `<span class="mini-tag">${escapeHtml(t)}</span>`)
+          .join("");
+        return `
+          <article class="repo-card">
+            <div>
+              <div class="repo-card-top">
+                <span class="mono-label">${escapeHtml(item.layer)}</span>
+                <span class="${statusBadgeClass(item.conformance_status)}">${escapeHtml(item.conformance_status)}</span>
+              </div>
+              <h3>${escapeHtml(item.name)}</h3>
+              <p>${escapeHtml(item.description)}</p>
+              <div class="tag-row">${tags}</div>
+            </div>
+            <div class="repo-card-footer">
+              <span class="mono-label">${escapeHtml(item.version)} • ${escapeHtml(item.license)}</span>
+              <button type="button" class="inspect-btn" data-artifact-index="${idx}">
+                Inspect →
+              </button>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    catalogGrid.querySelectorAll("[data-artifact-index]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.getAttribute("data-artifact-index"));
+        if (!Number.isNaN(idx) && filtered[idx]) {
+          openDrawer(filtered[idx], btn);
+        }
+      });
+    });
+  }
+
+  layerFilterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectedLayer = btn.getAttribute("data-filter-layer") || "all";
+      layerFilterButtons.forEach((b) => b.classList.toggle("is-active", b === btn));
+      renderCatalog();
+    });
+  });
+
+  searchInput?.addEventListener("input", renderCatalog);
+  conformanceSelect?.addEventListener("change", renderCatalog);
+
+  // Hydrate catalog from data/ecosystem-registry.json with seed fallback
+  fetch("data/ecosystem-registry.json", { cache: "no-cache" })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((registry) => {
+      const activeReg = registry && Array.isArray(registry.artifacts) ? registry : FALLBACK_REGISTRY;
+      allArtifacts = activeReg.artifacts;
+
+      const totalEl = document.getElementById("stat-total-artifacts");
+      const modelsEl = document.getElementById("stat-models");
+      const syncEl = document.getElementById("stat-sync-status");
+      const lastSyncedEl = document.getElementById("catalog-last-synced");
+
+      if (totalEl) totalEl.textContent = String(activeReg.summary?.total_artifacts ?? allArtifacts.length);
+      if (modelsEl && activeReg.summary?.by_layer) {
+        modelsEl.textContent = String(activeReg.summary.by_layer["maturity-model"] ?? 0);
+      }
+      if (syncEl && activeReg.content_sha256) {
+        syncEl.textContent = `sha256:${activeReg.content_sha256.slice(0, 7)}`;
+      }
+      if (lastSyncedEl && activeReg.generated_at) {
+        lastSyncedEl.textContent = `Last synced: ${activeReg.generated_at}`;
+      }
+
+      renderCatalog();
+    })
+    .catch(() => {
+      allArtifacts = FALLBACK_REGISTRY.artifacts;
+      renderCatalog();
+    });
+
+  renderCatalog();
+
 })();

@@ -531,5 +531,37 @@
   </div>
 
   <script src="assets/js/ecosystem.js" defer></script>
+  
+    <!-- Slide-Over Model & Repository Inspector Drawer -->
+  <aside
+    id="repo-drawer"
+    class="drawer-backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="drawer-title"
+    hidden
+  >
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <div>
+          <span class="mono-label" id="drawer-kicker">ARTIFACT INSPECTOR</span>
+          <h2 id="drawer-title">Repository Name</h2>
+          <p id="drawer-full-name" class="mono-label muted-sub"></p>
+        </div>
+        <button type="button" class="icon-close-btn" id="close-drawer-btn" aria-label="Close inspector drawer">
+          ✕
+        </button>
+      </div>
+
+      <div id="drawer-body" class="drawer-body"></div>
+
+      <div class="drawer-footer">
+        <a id="drawer-github-link" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer">
+          Open on GitHub ↗
+        </a>
+        <button type="button" class="btn btn-secondary" id="drawer-done-btn">Close</button>
+      </div>
+    </div>
+  </aside>
 </body>
 </html>

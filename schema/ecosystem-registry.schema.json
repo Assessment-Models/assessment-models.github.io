@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assessment-models.github.io/schema/ecosystem-registry.schema.json",
+  "title": "Assessment Models Ecosystem Registry",
+  "description": "Deterministic catalog of repositories, maturity models, shared capabilities, and governance artifacts under Assessment-Models.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "organization",
+    "generated_at",
+    "content_sha256",
+    "summary",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "organization": {
+      "type": "object",
+      "required": ["login", "url", "pages_url"],
+      "properties": {
+        "login": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "pages_url": { "type": "string", "format": "uri" }
+      }
+    },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "content_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "summary": {
+      "type": "object",
+      "required": ["total_artifacts", "by_layer", "standards"],
+      "properties": {
+        "total_artifacts": { "type": "integer", "minimum": 0 },
+        "by_layer": {
+          "type": "object",
+          "properties": {
+            "governance": { "type": "integer", "minimum": 0 },
+            "maturity-model": { "type": "integer", "minimum": 0 },
+            "shared-capability": { "type": "integer", "minimum": 0 },
+            "integration": { "type": "integer", "minimum": 0 },
+            "reference-blueprint": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "standards": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "full_name",
+          "owner_type",
+          "layer",
+          "architectural_concern",
+          "description",
+          "html_url",
+          "version",
+          "license",
+          "conformance_status",
+          "updated_at"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "full_name": { "type": "string" },
+          "owner_type": { "type": "string", "enum": ["cardinal-org", "partner-ecosystem"] },
+          "layer": {
+            "type": "string",
+            "enum": [
+              "governance",
+              "maturity-model",
+              "shared-capability",
+              "integration",
+              "reference-blueprint"
+            ]
+          },
+          "architectural_concern": {
+            "type": "string",
+            "enum": [
+              "Maturity Model Architecture",
+              "Assessment Architecture",
+              "Model Ecosystem Integration Architecture",
+              "Organization Governance"
+            ]
+          },
+          "description": { "type": "string" },
+          "readme_excerpt": { "type": "string" },
+          "html_url": { "type": "string", "format": "uri" },
+          "default_branch": { "type": "string" },
+          "version": { "type": "string" },
+          "license": { "type": "string" },
+          "primary_language": { "type": "string" },
+          "topics": { "type": "array", "items": { "type": "string" } },
+          "standards_alignment": { "type": "array", "items": { "type": "string" } },
+          "locales": { "type": "array", "items": { "type": "string" } },
+          "dimensions": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "conformance_status": {
+            "type": "string",
+            "enum": ["verified", "draft", "external-aligned"]
+          },
+          "has_manifest": { "type": "boolean" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

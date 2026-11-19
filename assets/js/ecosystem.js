@@ -409,7 +409,7 @@
         : `<p>No explicit dimension list declared yet in <code>assessment-manifest.json</code>.</p>`;
 
     const standardsHtml =
-      Array.isArray(artifact.standardsAlignment) && artifact.standards_alignment.length
+      Array.isArray(artifact.standards_alignment) && artifact.standards_alignment.length
         ? `<div class="tag-row">${artifact.standards_alignment.map((s) => `<span class="mini-tag">${escapeHtml(s)}</span>`).join("")}</div>`
         : `<p>Standard metadata pending.</p>`;
 

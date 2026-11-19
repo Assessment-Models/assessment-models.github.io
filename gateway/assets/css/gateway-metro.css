@@ -1,0 +1,325 @@
+/* ============ Gateway — full-viewport Metro Map canvas ============ */
+/* Dark transit stage inside the light gateway shell (echoes the retired
+   constellation stage). Lines = corridors, stations = artifacts, transfer
+   nodes = touchpoints, interchange diamonds = handshakes. */
+
+.metro-shell {
+  position: relative;
+  width: 100%;
+  height: calc(100dvh - 64px);
+  min-height: 540px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.08), transparent 45%),
+    radial-gradient(circle at 80% 75%, rgba(167, 139, 250, 0.08), transparent 45%),
+    #090d16;
+  color: #f1f5f9;
+  font-family: "Inter", system-ui, sans-serif;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+}
+
+/* Inside the gateway SPA the shell mounts in <main id="app">; make it fill
+   the viewport below the topbar and drop the content max-width/padding. */
+body.metro-mode #app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  height: calc(100dvh - 56px);
+  min-height: 540px;
+}
+body.metro-mode #app .metro-shell {
+  height: 100%;
+  border-radius: 0;
+  border: none;
+}
+
+/* ---------- floating control bar ---------- */
+
+.metro-toolbar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.metro-toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.86);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  pointer-events: auto;
+}
+
+.metro-chip-btn,
+.metro-zoom-btn {
+  background: transparent;
+  color: #cbd5e1;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.metro-chip-btn:hover,
+.metro-zoom-btn:hover {
+  color: #ffffff;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.metro-chip-btn.is-active {
+  color: #e0f2fe;
+  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(56, 189, 248, 0.55);
+}
+
+.metro-select {
+  background: #0b1120;
+  color: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  max-width: 220px;
+}
+
+.metro-select:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.65);
+}
+
+/* ---------- canvas ---------- */
+
+.metro-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.metro-svg:active {
+  cursor: grabbing;
+}
+
+.metro-dimmed {
+  opacity: 0.18;
+  transition: opacity 200ms ease;
+}
+
+.metro-highlighted {
+  opacity: 1;
+  transition: opacity 200ms ease;
+}
+
+/* Animated route tracing — only under motion-safe preferences */
+@media (prefers-reduced-motion: no-preference) {
+  .metro-flow-active {
+    stroke-dasharray: 8 6;
+    animation: metroDashFlow 1.1s linear infinite;
+  }
+}
+
+@keyframes metroDashFlow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+.metro-station-label {
+  fill: #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.metro-station-sub {
+  fill: #94a3b8;
+  font-size: 10px;
+  font-family: "JetBrains Mono", monospace;
+  pointer-events: none;
+}
+
+/* Keyboard focus ring for stations, transfer nodes and interchange diamonds */
+.metro-svg [tabindex]:focus {
+  outline: none;
+}
+.metro-svg [tabindex]:focus-visible circle,
+.metro-svg [tabindex]:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.9);
+  outline-offset: 3px;
+}
+
+/* ---------- animated contextual tooltip ---------- */
+
+.metro-tooltip {
+  position: fixed;
+  z-index: 60;
+  max-width: 310px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+  transition: opacity 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.metro-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ---------- slide-over inspector sheet ---------- */
+
+.metro-inspector {
+  position: absolute;
+  top: 68px;
+  right: 14px;
+  bottom: 14px;
+  width: min(360px, calc(100vw - 28px));
+  z-index: 25;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  padding: 16px;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  font-size: 0.86rem;
+  color: #cbd5e1;
+}
+
+.metro-inspector[hidden] {
+  display: none;
+}
+
+.metro-inspector-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  padding-bottom: 10px;
+}
+
+.metro-inspector-kicker {
+  font-size: 0.7rem;
+  color: #38bdf8;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.metro-inspector-title {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  color: #f8fafc;
+}
+
+.metro-inspector-close {
+  background: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.metro-inspector-close:hover {
+  border-color: rgba(56, 189, 248, 0.55);
+}
+
+.metro-inspector-body {
+  margin-top: 12px;
+  font-size: 0.84rem;
+  color: #cbd5e1;
+}
+
+.metro-inspector-body p {
+  margin: 0.45rem 0;
+  line-height: 1.5;
+}
+
+.metro-inspector-body strong {
+  color: #e2e8f0;
+}
+
+.metro-inspector-links {
+  margin-top: 14px;
+}
+
+.metro-inspector-links a {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+/* ---------- empty state ---------- */
+
+.metro-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* ---------- motion safety ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .metro-shell,
+  .metro-shell *::before,
+  .metro-shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 720px) {
+  .metro-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .metro-shell {
+    min-height: 460px;
+  }
+  body.metro-mode #app {
+    min-height: 460px;
+  }
+  .metro-inspector {
+    top: auto;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    width: auto;
+    max-height: 46dvh;
+  }
+}

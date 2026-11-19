@@ -1,6 +1,6 @@
 /**
  * Guided walkthrough (blueprint §6.7) — a first-visit spotlight tour:
- * constellation → persona → model drill-down → trial → report.
+ * metro map → persona → model drill-down → trial → report.
  * Each step anchors to a selector; steps whose target is missing are skipped.
  * Replays via the topbar "?" button; suppressed after completion.
  */
@@ -19,9 +19,9 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    title: 'The constellation',
-    text: 'Every registered asset of the ecosystem, clustered by domain. Lines are component imports, shared components and contract handshakes. Hover to inspect a node, click it for details, drag to orbit, scroll to zoom.',
-    selector: '.constellation-wrap',
+    title: 'The metro map',
+    text: 'Every registered model, capability and blueprint as a transit network. Corridors are architectural lines, stations are artifacts — circles mark touchpoints, diamonds mark handshakes. Hover to inspect, click a station to trace its routes, drag to pan, scroll to zoom.',
+    selector: '.metro-shell',
     hash: '#/',
     waitMs: 900,
   },

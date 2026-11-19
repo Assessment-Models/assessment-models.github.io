@@ -129,6 +129,6 @@ export function errorPanel(title: string, detail?: string): HTMLElement {
   return h('div', { class: 'error-panel' },
     h('h2', {}, title),
     detail ? h('p', { class: 'dim' }, detail) : null,
-    h('a', { class: 'btn', href: '#/' }, '← Back to constellation'),
+    h('a', { class: 'btn', href: '#/' }, '← Back to the metro map'),
   );
 }

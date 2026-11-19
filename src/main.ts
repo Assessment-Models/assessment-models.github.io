@@ -1,6 +1,6 @@
 /**
  * Router + shell. Hash routes:
- *   #/                  → constellation (landing)
+ *   #/                  → metro map (landing)
  *   #/catalog           → model catalog
  *   #/model/:id         → model drill-down
  *   #/trial/:id         → trial assessment runner
@@ -10,7 +10,7 @@ import './styles/main.css';
 import { h, errorPanel } from './ui/dom';
 import { mountPersonaPicker, onPersonaChange } from './ui/persona';
 import { maybeRunWalkthrough, runWalkthrough } from './ui/walkthrough';
-import { renderConstellation } from './views/constellation';
+import { renderMetro, disposeActiveMetro } from './views/metro';
 import { renderCatalog } from './views/catalog';
 import { renderModel } from './views/model';
 import { renderTrial } from './views/trial';
@@ -24,8 +24,8 @@ type ViewFn = (root: HTMLElement, param?: string) => Promise<void> | void;
 const routes: { pattern: RegExp; view: ViewFn; crumb: (p?: string) => HTMLElement }[] = [
   {
     pattern: /^#?\/?$/,
-    view: (root) => renderConstellation(root),
-    crumb: () => h('span', { class: 'here' }, 'Constellation'),
+    view: (root) => renderMetro(root),
+    crumb: () => h('span', { class: 'here' }, 'Metro Map'),
   },
   {
     pattern: /^#\/catalog\/?$/,
@@ -56,7 +56,7 @@ const routes: { pattern: RegExp; view: ViewFn; crumb: (p?: string) => HTMLElemen
 
 function crumbs(...nodes: Node[]): HTMLElement {
   return h('span', {},
-    h('a', { href: '#/' }, 'Constellation'),
+    h('a', { href: '#/' }, 'Metro Map'),
     h('span', { class: 'sep' }, ' / '),
     ...nodes,
   );
@@ -68,6 +68,10 @@ async function render(): Promise<void> {
   const hash = location.hash || '#/';
   const seq = ++renderSeq;
   closeOverlays();
+
+  // unmount the metro canvas (listeners, observers, full-bleed mode)
+  document.body.classList.remove('metro-mode');
+  disposeActiveMetro();
 
   const route = routes.find((r) => r.pattern.test(hash));
   const crumbsEl = document.getElementById('crumbs')!;

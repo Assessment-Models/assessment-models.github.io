@@ -403,75 +403,57 @@
 
     <hr class="section-divider" />
 
-    <!-- Zone 5: Repository Catalog Placeholder (Wired in Phase 3 to data/ecosystem-registry.json) -->
+        <!-- Zone 5: Registry-Backed Repository Explorer -->
     <section id="repositories" class="section-block">
       <div class="container">
         <div class="section-heading">
-          <p class="eyebrow">CARDINAL ORG &amp; ECOSYSTEM ARTIFACTS</p>
-          <h2>Assessment-Models Repositories &amp; Blueprints</h2>
+          <p class="eyebrow">CENTRAL ASSESSMENT REGISTRY • LIVE CATALOG</p>
+          <h2>Explore Assessment-Models Repositories &amp; Blueprints</h2>
           <p>
-            Synchronized periodically from
-            <a href="https://github.com/Assessment-Models/" target="_blank" rel="noopener noreferrer">
-              github.com/Assessment-Models/
-            </a>
-            and aligned partners such as OpenDEA.
+            Filter repositories and aligned reference blueprints by ecosystem layer, conformance
+            status, or keyword, and open any artifact in the inspector drawer.
           </p>
         </div>
 
         <div id="catalog-status-bar" class="catalog-status-bar" aria-live="polite">
-          <span>Registry source: <code>data/ecosystem-registry.json</code></span>
-          <span id="catalog-last-synced">Ready for Phase 3 interactive explorer</span>
+          <span>Source: <code>data/ecosystem-registry.json</code></span>
+          <span id="catalog-count-label">Loading registry…</span>
+          <span id="catalog-last-synced">Sync status: pending</span>
         </div>
 
-        <div id="repo-preview-grid" class="three-col-grid">
-          <article class="surface-card">
-            <div class="card-index">GOVERNANCE &amp; ECOSYSTEM</div>
-            <h3>Assessment-Models Organization</h3>
-            <p>
-              Cardinal home for enterprise &amp; business operations maturity models, assessment
-              instruments, shared capabilities, and OpenDEA-compatible blueprints.
-            </p>
-            <a
-              class="inline-link"
-              href="https://github.com/Assessment-Models/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View organization on GitHub ↗
-            </a>
-          </article>
+        <!-- Multi-Facet Controls -->
+        <div class="catalog-controls" role="region" aria-label="Filter repositories">
+          <div class="filter-pills" id="layer-filter-group" role="group" aria-label="Filter by ecosystem layer">
+            <button type="button" class="filter-pill is-active" data-filter-layer="all">All Layers</button>
+            <button type="button" class="filter-pill" data-filter-layer="maturity-model">Maturity Models</button>
+            <button type="button" class="filter-pill" data-filter-layer="shared-capability">Shared Capabilities</button>
+            <button type="button" class="filter-pill" data-filter-layer="integration">Integration</button>
+            <button type="button" class="filter-pill" data-filter-layer="governance">Governance</button>
+            <button type="button" class="filter-pill" data-filter-layer="reference-blueprint">Reference Blueprints</button>
+          </div>
 
-          <article class="surface-card">
-            <div class="card-index">PARTNER BLUEPRINT • DERA L1</div>
-            <h3>OpenDEA Reference Architecture</h3>
-            <p>
-              Digital Enterprise Reference Architecture (<code>technehub-labs/dea-catalog-reference-architecture</code>)
-              assembling metamodel, tenets, guardrails, patterns, blueprints, and metrics.
-            </p>
-            <a
-              class="inline-link"
-              href="https://github.com/technehub-labs/dea-catalog-reference-architecture"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Inspect OpenDEA repository ↗
-            </a>
-          </article>
-
-          <article class="surface-card">
-            <div class="card-index">AUTOMATED SYNC</div>
-            <h3>Periodic Registry Pipeline</h3>
-            <p>
-              Scheduled GitHub Actions workflow + <code>scripts/sync_org_catalog.py</code> keeps
-              metadata, versions, and conformance summaries aligned with GitHub Pages.
-            </p>
-            <span class="mono-label">Phase 3 adds filterable drawer</span>
-          </article>
+          <div class="search-and-status">
+            <label class="sr-only" for="repo-search-input">Search repositories, standards, or dimensions</label>
+            <input
+              id="repo-search-input"
+              type="search"
+              class="search-input"
+              placeholder="Search repo, standard (e.g. OpenDEA), locale, or dimension…"
+            />
+            <label class="sr-only" for="conformance-filter-select">Filter by conformance status</label>
+            <select id="conformance-filter-select" class="select-input">
+              <option value="all">All Conformance</option>
+              <option value="verified">Verified (Manifest)</option>
+              <option value="external-aligned">External Aligned</option>
+              <option value="draft">Draft / Repo Metadata</option>
+            </select>
+          </div>
         </div>
+
+        <!-- Dynamic Artifact Grid -->
+        <div id="catalog-grid" class="catalog-grid" aria-live="polite"></div>
       </div>
     </section>
-
-    <hr class="section-divider" />
 
     <!-- Zone 6: Governance & Charter -->
     <section id="governance" class="section-block">

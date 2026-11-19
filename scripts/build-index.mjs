@@ -147,7 +147,15 @@ for (const [subdir, group] of Object.entries(GROUPS)) {
     continue;
   }
   for (const file of files) {
-    const rec = readYaml(file);
+    let rec;
+    try {
+      rec = readYaml(file);
+    } catch (err) {
+      // A malformed sibling-repo record must not take down the whole Pages
+      // deploy: skip it loudly and build the manifest from the healthy ones.
+      console.warn(`registry record skipped (YAML parse failed): ${file}: ${err.message}`);
+      continue;
+    }
     if (!rec?.id || !rec?.source?.repository) continue;
     const repo = rec.source.repository;
     const node = {

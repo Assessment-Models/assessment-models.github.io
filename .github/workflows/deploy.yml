@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_run:
+    # Registry sync commits are pushed by the bot with GITHUB_TOKEN, which does
+    # not fire `push` events — rebuild and redeploy when the sync completes,
+    # so /data/ecosystem-registry.json and the dist bundle stay current.
+    workflows: ["Sync Assessment-Models Ecosystem Registry"]
+    types: [completed]
   schedule:
     # weekly refresh so the constellation reflects org-side changes
     - cron: "0 6 * * 1"

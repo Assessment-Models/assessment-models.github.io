@@ -51,74 +51,66 @@ TOPIC_TO_LAYER = {
 }
 
 # Ecosystem relationship contracts (touchpoints & handshakes) used to seed the
-# registry on first run. Later runs prefer the contracts already recorded in
-# data/ecosystem-registry.json so curated contracts survive catalog syncs.
+# registry's architecture backbone. Endpoints use the artifact ids the sync
+# derives from the real org repositories (id = lowercase repo name when a
+# repository carries no root assessment-manifest.json). Curated contracts are
+# merged (by id) with those already recorded in data/ecosystem-registry.json,
+# then filtered so only contracts with live endpoints survive.
 SEED_TOUCHPOINTS: List[Dict[str, Any]] = [
     {
-        "id": "tp-evidence-digital-maturity",
-        "label": "Evidence Binding Touchpoint",
+        "id": "tp-standard-alignment",
+        "label": "Standard Alignment Touchpoint",
         "kind": "touchpoint",
-        "from_station_id": "enterprise-digital-maturity",
-        "to_station_id": "evidence-scoring-engine",
-        "line_id": "shared-capability",
-        "contract_summary": "Maps verified assessment evidence items to digital maturity criteria gates.",
-        "compatibility": ">=1.5.0",
+        "from_station_id": "maturity-model-digital-transformation",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Binds model criteria, scoring, and repository structure to the normative maturity-model repository standard.",
+        "compatibility": ">=1.0.0",
     },
     {
-        "id": "tp-autonomy-evidence",
-        "label": "Telemetry Evidence Touchpoint",
+        "id": "tp-registry-integration",
+        "label": "Registry Integration Touchpoint",
         "kind": "touchpoint",
-        "from_station_id": "operational-autonomy-maturity",
-        "to_station_id": "evidence-scoring-engine",
-        "line_id": "shared-capability",
-        "contract_summary": "Binds operational telemetry logs to deterministic autonomy scoring rubrics.",
-        "compatibility": ">=1.5.0",
+        "from_station_id": "maturity-model-digital-transformation",
+        "to_station_id": "assessment-registry",
+        "line_id": "integration",
+        "contract_summary": "Registers model metadata and assessment indexes in the ecosystem registry spine for cross-model discovery.",
+        "compatibility": ">=1.0.0",
     },
     {
-        "id": "tp-locale-encyclopedia",
-        "label": "Localized Instrument Touchpoint",
+        "id": "tp-component-reuse",
+        "label": "Shared Capability Touchpoint",
         "kind": "touchpoint",
-        "from_station_id": "enterprise-digital-maturity",
-        "to_station_id": "encyclopedia-localization-hub",
+        "from_station_id": "maturity-model-digital-transformation",
+        "to_station_id": "maturity-components",
         "line_id": "shared-capability",
-        "contract_summary": "Supplies localized questionnaires and glossary definitions without changing score math.",
-        "compatibility": ">=1.1.0",
+        "contract_summary": "Reuses governed maturity component packages for composite capability scoring across assessment dimensions.",
+        "compatibility": ">=1.0.0",
     },
 ]
 
 SEED_HANDSHAKES: List[Dict[str, Any]] = [
     {
-        "id": "hs-gov-models",
-        "label": "Conformance & Registry Handshake",
+        "id": "hs-operationalized-line",
+        "label": "Operationalized Line Handshake",
         "kind": "handshake",
-        "from_station_id": "org-governance-standard",
-        "to_station_id": "enterprise-digital-maturity",
+        "from_station_id": "maturity-model-digital-transformation",
+        "to_station_id": "maturity-model-digital-transformation-operationalized",
         "line_id": "integration",
         "direction": "bidirectional",
-        "contract_summary": "Validates model conformance, SemVer compatibility, and central registry registration.",
-        "compatibility": "^1.0.0",
+        "contract_summary": "Exchanges composite model findings and operationalized assessment results between the digital transformation lines.",
+        "compatibility": ">=1.0.0 <2.0.0",
     },
     {
-        "id": "hs-digital-autonomy",
-        "label": "Cross-Model Autonomy Handshake",
-        "kind": "handshake",
-        "from_station_id": "enterprise-digital-maturity",
-        "to_station_id": "operational-autonomy-maturity",
-        "line_id": "integration",
-        "direction": "bidirectional",
-        "contract_summary": "Exchanges governed capability findings and change-impact signals between sibling models.",
-        "compatibility": ">=1.2.0 <2.0.0",
-    },
-    {
-        "id": "hs-dmm-opendia",
+        "id": "hs-opendea-crosswalk",
         "label": "OpenDEA DERA-L1 Handshake",
         "kind": "handshake",
-        "from_station_id": "enterprise-digital-maturity",
-        "to_station_id": "opendia-dera-l1",
+        "from_station_id": "maturity-model-digital-transformation",
+        "to_station_id": "dea-catalog-reference-architecture",
         "line_id": "reference-blueprint",
         "direction": "unidirectional",
-        "contract_summary": "Crosswalks enterprise maturity profiles to OpenDEA L1 guardrails, patterns, and blueprints.",
-        "compatibility": "^2.4.0",
+        "contract_summary": "Crosswalks enterprise maturity profiles to OpenDEA DERA-L1 guardrails, patterns, and blueprints.",
+        "compatibility": "^1.0.0",
     },
 ]
 
@@ -272,6 +264,22 @@ def load_previous_contracts(existing_path: Path) -> (List[Dict[str, Any]], List[
     )
 
 
+def merge_contracts(
+    seed: List[Dict[str, Any]], previous: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """Merge curated seed contracts with previously recorded ones, by id.
+
+    Curated seed contracts always participate in the merge (they describe the
+    ecosystem's architecture backbone), while contracts recorded in a previous
+    sync are preserved and win on id conflicts (so curated edits stick).
+    """
+    merged: Dict[str, Dict[str, Any]] = {}
+    for c in seed + previous:
+        if isinstance(c, dict) and c.get("id"):
+            merged[c["id"]] = c
+    return list(merged.values())
+
+
 def filter_contracts(
     contracts: List[Dict[str, Any]], known_ids: set
 ) -> List[Dict[str, Any]]:
@@ -310,8 +318,8 @@ def main() -> int:
     # 3. Preserve touchpoint & handshake contracts (previous registry → seed)
     known_ids = {item["id"] for item in artifacts}
     prev_touchpoints, prev_handshakes = load_previous_contracts(output_path)
-    touchpoints = filter_contracts(prev_touchpoints or SEED_TOUCHPOINTS, known_ids)
-    handshakes = filter_contracts(prev_handshakes or SEED_HANDSHAKES, known_ids)
+    touchpoints = filter_contracts(merge_contracts(SEED_TOUCHPOINTS, prev_touchpoints), known_ids)
+    handshakes = filter_contracts(merge_contracts(SEED_HANDSHAKES, prev_handshakes), known_ids)
 
     # 4. Compute deterministic summary & SHA-256 hash
     by_layer = {

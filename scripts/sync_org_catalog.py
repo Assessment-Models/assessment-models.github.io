@@ -4,7 +4,13 @@ Deterministic synchronization script for https://assessment-models.github.io/
 Fetches public repositories from https://github.com/Assessment-Models/ and registered
 ecosystem partners, enriches them with `assessment-manifest.json` if present,
 validates against `schema/ecosystem-registry.schema.json`, and writes
-`data/ecosystem-registry.json`.
+`data/ecosystem-registry.json` (plus a deploy copy under `public/data/` for the
+Vite-built bundle).
+
+Touchpoint and handshake contracts are preserved across syncs: entries whose
+endpoints still exist in the regenerated artifact catalog are carried over
+from the previous registry (or seeded on first run), so the gateway metro map
+retains its relationship edges while repository metadata stays live.
 """
 
 import base64
@@ -43,6 +49,78 @@ TOPIC_TO_LAYER = {
     "integration-contract": ("integration", "Model Ecosystem Integration Architecture"),
     "reference-blueprint": ("reference-blueprint", "Model Ecosystem Integration Architecture"),
 }
+
+# Ecosystem relationship contracts (touchpoints & handshakes) used to seed the
+# registry on first run. Later runs prefer the contracts already recorded in
+# data/ecosystem-registry.json so curated contracts survive catalog syncs.
+SEED_TOUCHPOINTS: List[Dict[str, Any]] = [
+    {
+        "id": "tp-evidence-digital-maturity",
+        "label": "Evidence Binding Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "enterprise-digital-maturity",
+        "to_station_id": "evidence-scoring-engine",
+        "line_id": "shared-capability",
+        "contract_summary": "Maps verified assessment evidence items to digital maturity criteria gates.",
+        "compatibility": ">=1.5.0",
+    },
+    {
+        "id": "tp-autonomy-evidence",
+        "label": "Telemetry Evidence Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "operational-autonomy-maturity",
+        "to_station_id": "evidence-scoring-engine",
+        "line_id": "shared-capability",
+        "contract_summary": "Binds operational telemetry logs to deterministic autonomy scoring rubrics.",
+        "compatibility": ">=1.5.0",
+    },
+    {
+        "id": "tp-locale-encyclopedia",
+        "label": "Localized Instrument Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "enterprise-digital-maturity",
+        "to_station_id": "encyclopedia-localization-hub",
+        "line_id": "shared-capability",
+        "contract_summary": "Supplies localized questionnaires and glossary definitions without changing score math.",
+        "compatibility": ">=1.1.0",
+    },
+]
+
+SEED_HANDSHAKES: List[Dict[str, Any]] = [
+    {
+        "id": "hs-gov-models",
+        "label": "Conformance & Registry Handshake",
+        "kind": "handshake",
+        "from_station_id": "org-governance-standard",
+        "to_station_id": "enterprise-digital-maturity",
+        "line_id": "integration",
+        "direction": "bidirectional",
+        "contract_summary": "Validates model conformance, SemVer compatibility, and central registry registration.",
+        "compatibility": "^1.0.0",
+    },
+    {
+        "id": "hs-digital-autonomy",
+        "label": "Cross-Model Autonomy Handshake",
+        "kind": "handshake",
+        "from_station_id": "enterprise-digital-maturity",
+        "to_station_id": "operational-autonomy-maturity",
+        "line_id": "integration",
+        "direction": "bidirectional",
+        "contract_summary": "Exchanges governed capability findings and change-impact signals between sibling models.",
+        "compatibility": ">=1.2.0 <2.0.0",
+    },
+    {
+        "id": "hs-dmm-opendia",
+        "label": "OpenDEA DERA-L1 Handshake",
+        "kind": "handshake",
+        "from_station_id": "enterprise-digital-maturity",
+        "to_station_id": "opendia-dera-l1",
+        "line_id": "reference-blueprint",
+        "direction": "unidirectional",
+        "contract_summary": "Crosswalks enterprise maturity profiles to OpenDEA L1 guardrails, patterns, and blueprints.",
+        "compatibility": "^2.4.0",
+    },
+]
 
 
 def github_get(path: str, token: Optional[str] = None) -> Any:
@@ -177,10 +255,41 @@ def build_artifact_entry(
     }
 
 
+def load_previous_contracts(existing_path: Path) -> (List[Dict[str, Any]], List[Dict[str, Any]]):
+    """Read touchpoints & handshakes from the previous registry, if present."""
+    try:
+        existing = json.loads(existing_path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return [], []
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"[WARN] Could not read previous registry for contracts: {exc}")
+        return [], []
+    touchpoints = existing.get("touchpoints") if isinstance(existing, dict) else None
+    handshakes = existing.get("handshakes") if isinstance(existing, dict) else None
+    return (
+        touchpoints if isinstance(touchpoints, list) else [],
+        handshakes if isinstance(handshakes, list) else [],
+    )
+
+
+def filter_contracts(
+    contracts: List[Dict[str, Any]], known_ids: set
+) -> List[Dict[str, Any]]:
+    """Keep only contracts whose endpoints exist in the current artifact catalog."""
+    kept = []
+    for c in contracts:
+        if not isinstance(c, dict):
+            continue
+        if c.get("from_station_id") in known_ids and c.get("to_station_id") in known_ids:
+            kept.append(c)
+    return kept
+
+
 def main() -> int:
     token = os.environ.get("GITHUB_TOKEN")
     root_dir = Path(__file__).resolve().parents[1]
     output_path = root_dir / "data" / "ecosystem-registry.json"
+    public_output_path = root_dir / "public" / "data" / "ecosystem-registry.json"
     schema_path = root_dir / "schema" / "ecosystem-registry.schema.json"
 
     artifacts: List[Dict[str, Any]] = []
@@ -196,9 +305,15 @@ def main() -> int:
     for partner in PARTNER_REPOS:
         repo = github_get(f"/repos/{partner['full_name']}", token)
         if repo:
-            artifacts.append(build_artifact_entry(repo, "partner-ecosystem", token, partner))
+            artifacts.append(build_artifact_entry(repo, "partner-ecosystem", partner, token))
 
-    # 3. Compute deterministic summary & SHA-256 hash
+    # 3. Preserve touchpoint & handshake contracts (previous registry → seed)
+    known_ids = {item["id"] for item in artifacts}
+    prev_touchpoints, prev_handshakes = load_previous_contracts(output_path)
+    touchpoints = filter_contracts(prev_touchpoints or SEED_TOUCHPOINTS, known_ids)
+    handshakes = filter_contracts(prev_handshakes or SEED_HANDSHAKES, known_ids)
+
+    # 4. Compute deterministic summary & SHA-256 hash
     by_layer = {
         "governance": 0,
         "maturity-model": 0,
@@ -218,7 +333,7 @@ def main() -> int:
         "schema_version": "1.0.0",
         "organization": {
             "login": ORG_LOGIN,
-            "url": f"[https://github.com/](https://github.com/){ORG_LOGIN}",
+            "url": f"https://github.com/{ORG_LOGIN}",
             "pages_url": PAGES_URL,
         },
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -229,6 +344,8 @@ def main() -> int:
             "standards": sorted(standards_set),
         },
         "artifacts": artifacts,
+        "touchpoints": touchpoints,
+        "handshakes": handshakes,
     }
 
     # Optional JSON Schema validation if jsonschema is installed
@@ -241,9 +358,16 @@ def main() -> int:
     except ImportError:
         print("[INFO] jsonschema not installed; skipped schema validation.")
 
+    rendered = json.dumps(registry, indent=2) + "\n"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
-    print(f"[OK] Wrote {len(artifacts)} artifacts to {output_path} (sha256={content_sha256[:12]}...)")
+    output_path.write_text(rendered, encoding="utf-8")
+    # Deploy copy for the Vite-built bundle (public/ is served at the site root)
+    public_output_path.parent.mkdir(parents=True, exist_ok=True)
+    public_output_path.write_text(rendered, encoding="utf-8")
+    print(
+        f"[OK] Wrote {len(artifacts)} artifacts, {len(touchpoints)} touchpoints, "
+        f"{len(handshakes)} handshakes to {output_path} (sha256={content_sha256[:12]}...)"
+    )
     return 0
 
 

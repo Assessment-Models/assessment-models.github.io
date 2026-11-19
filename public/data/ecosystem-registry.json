@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.0.0",
+  "organization": {
+    "login": "Assessment-Models",
+    "url": "https://github.com/Assessment-Models",
+    "pages_url": "https://assessment-models.github.io"
+  },
+  "generated_at": "2026-11-19T16:54:00Z",
+  "content_sha256": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+  "summary": {
+    "total_artifacts": 6,
+    "by_layer": {
+      "governance": 1,
+      "maturity-model": 2,
+      "shared-capability": 2,
+      "reference-blueprint": 1
+    },
+    "standards": ["DERA-L1", "ISO/IEC-33001", "MECE-STRICT", "OpenDEA", "SemVer"]
+  },
+  "artifacts": [
+    {
+      "id": "org-governance-standard",
+      "name": "Ecosystem Governance & Registry",
+      "full_name": "Assessment-Models/.github",
+      "owner_type": "cardinal-org",
+      "layer": "governance",
+      "architectural_concern": "Organization Governance",
+      "description": "Canonical ecosystem standard, central registry rules, conformance policies, and model onboarding lifecycle.",
+      "readme_excerpt": "Each maturity model retains ownership of its domain semantics, assessment methodology and scoring logic while conforming to shared organizational standards.",
+      "html_url": "https://github.com/Assessment-Models/",
+      "version": "v1.0.0",
+      "license": "Apache-2.0",
+      "standards_alignment": ["MECE-STRICT", "SemVer", "OpenDEA"],
+      "locales": ["en"],
+      "dimensions": ["Maturity Model Standard", "Assessment Registry", "Conformance Governance", "Lifecycle Policies"],
+      "conformance_status": "verified",
+      "updated_at": "2026-11-19T00:00:00Z"
+    },
+    {
+      "id": "enterprise-digital-maturity",
+      "name": "Enterprise Digital Maturity Model",
+      "full_name": "Assessment-Models/enterprise-digital-maturity",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Maturity Model Architecture",
+      "description": "Domain-governed enterprise digital maturity model with progression tiers, criteria gates, and OpenDEA crosswalks.",
+      "readme_excerpt": "Defines domains, dimensions, capabilities, criteria, progression levels, and domain-specific assessment terminology.",
+      "html_url": "https://github.com/Assessment-Models/",
+      "version": "v2.4.0",
+      "license": "CC-BY-4.0",
+      "standards_alignment": ["MECE-STRICT", "ISO/IEC-33001", "OpenDEA"],
+      "locales": ["en", "fr", "de"],
+      "dimensions": ["Strategy & Governance", "Operations & Flows", "Architecture & Data", "Organization & Talent"],
+      "conformance_status": "verified",
+      "updated_at": "2026-11-19T00:00:00Z"
+    },
+    {
+      "id": "operational-autonomy-maturity",
+      "name": "Operational Autonomy Model",
+      "full_name": "Assessment-Models/operational-autonomy-maturity",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Maturity Model Architecture",
+      "description": "Evaluates closed-loop operational autonomy, human-in-the-loop guardrails, and resilience across business operations.",
+      "readme_excerpt": "Independently versioned autonomy maturity model linked via explicit touchpoints and handshakes to enterprise transformation models.",
+      "html_url": "https://github.com/Assessment-Models/",
+      "version": "v1.2.0",
+      "license": "CC-BY-4.0",
+      "standards_alignment": ["MECE-STRICT", "SemVer"],
+      "locales": ["en"],
+      "dimensions": ["Intent & Guardrails", "Closed-Loop Telemetry", "Human Escalation", "Autonomous Recovery"],
+      "conformance_status": "verified",
+      "updated_at": "2026-11-19T00:00:00Z"
+    },
+    {
+      "id": "evidence-scoring-engine",
+      "name": "Evidence & Deterministic Scoring",
+      "full_name": "Assessment-Models/evidence-scoring-engine",
+      "owner_type": "cardinal-org",
+      "layer": "shared-capability",
+      "architectural_concern": "Assessment Architecture",
+      "description": "Shared assessment capability for evidence validation, indicator mapping, deterministic scoring rubrics, and audit reporting.",
+      "readme_excerpt": "Provides reusable assessment execution, evidence management, deterministic scoring, and reporting across models.",
+      "html_url": "https://github.com/Assessment-Models/",
+      "version": "v1.5.0",
+      "license": "Apache-2.0",
+      "standards_alignment": ["MECE-STRICT", "SemVer"],
+      "locales": ["en"],
+      "dimensions": ["Evidence Validation", "Indicator Mapping", "Deterministic Rubrics", "Audit Reporting"],
+      "conformance_status": "verified",
+      "updated_at": "2026-11-19T00:00:00Z"
+    },
+    {
+      "id": "encyclopedia-localization-hub",
+      "name": "Encyclopedia & Localization Hub",
+      "full_name": "Assessment-Models/encyclopedia-localization-hub",
+      "owner_type": "cardinal-org",
+      "layer": "shared-capability",
+      "architectural_concern": "Assessment Architecture",
+      "description": "Shared authoritative knowledge encyclopedia and multilingual/regional localization capability for model instruments.",
+      "readme_excerpt": "Supports authoritative model knowledge resources and localized terminology without altering underlying scoring rules.",
+      "html_url": "https://github.com/Assessment-Models/",
+      "version": "v1.1.0",
+      "license": "Apache-2.0",
+      "standards_alignment": ["SemVer", "OpenDEA"],
+      "locales": ["en", "fr", "de", "es"],
+      "dimensions": ["Model Encyclopedia", "Term Glossary", "Locale Packs", "Regional Calibration"],
+      "conformance_status": "draft",
+      "updated_at": "2026-11-19T00:00:00Z"
+    },
+    {
+      "id": "opendia-dera-l1",
+      "name": "OpenDEA Reference Architecture",
+      "full_name": "technehub-labs/dea-catalog-reference-architecture",
+      "owner_type": "partner-ecosystem",
+      "layer": "reference-blueprint",
+      "architectural_concern": "Model Ecosystem Integration Architecture",
+      "description": "Digital Enterprise Reference Architecture (DERA): L1 catalog assembling metamodel, tenets, guardrails, patterns, blueprints, and metrics.",
+      "readme_excerpt": "Provides end-to-end enterprise reference blueprints aligned with OpenDEA metamodel and guardrails.",
+      "html_url": "https://github.com/technehub-labs/dea-catalog-reference-architecture",
+      "version": "v1-alpha",
+      "license": "Apache-2.0",
+      "standards_alignment": ["OpenDEA", "DERA-L1", "Apache-2.0"],
+      "locales": ["en"],
+      "dimensions": ["Metamodel", "Tenets", "Guardrails", "Patterns", "Blueprints", "Metrics"],
+      "conformance_status": "external-aligned",
+      "updated_at": "2026-11-19T00:00:00Z"
+    }
+  ],
+  "touchpoints": [
+    {
+      "id": "tp-evidence-digital-maturity",
+      "label": "Evidence Binding Touchpoint",
+      "kind": "touchpoint",
+      "from_station_id": "enterprise-digital-maturity",
+      "to_station_id": "evidence-scoring-engine",
+      "line_id": "shared-capability",
+      "contract_summary": "Maps verified assessment evidence items to digital maturity criteria gates.",
+      "compatibility": ">=1.5.0"
+    },
+    {
+      "id": "tp-autonomy-evidence",
+      "label": "Telemetry Evidence Touchpoint",
+      "kind": "touchpoint",
+      "from_station_id": "operational-autonomy-maturity",
+      "to_station_id": "evidence-scoring-engine",
+      "line_id": "shared-capability",
+      "contract_summary": "Binds operational telemetry logs to deterministic autonomy scoring rubrics.",
+      "compatibility": ">=1.5.0"
+    },
+    {
+      "id": "tp-locale-encyclopedia",
+      "label": "Localized Instrument Touchpoint",
+      "kind": "touchpoint",
+      "from_station_id": "enterprise-digital-maturity",
+      "to_station_id": "encyclopedia-localization-hub",
+      "line_id": "shared-capability",
+      "contract_summary": "Supplies localized questionnaires and glossary definitions without changing score math.",
+      "compatibility": ">=1.1.0"
+    }
+  ],
+  "handshakes": [
+    {
+      "id": "hs-gov-models",
+      "label": "Conformance & Registry Handshake",
+      "kind": "handshake",
+      "from_station_id": "org-governance-standard",
+      "to_station_id": "enterprise-digital-maturity",
+      "line_id": "integration",
+      "direction": "bidirectional",
+      "contract_summary": "Validates model conformance, SemVer compatibility, and central registry registration.",
+      "compatibility": "^1.0.0"
+    },
+    {
+      "id": "hs-digital-autonomy",
+      "label": "Cross-Model Autonomy Handshake",
+      "kind": "handshake",
+      "from_station_id": "enterprise-digital-maturity",
+      "to_station_id": "operational-autonomy-maturity",
+      "line_id": "integration",
+      "direction": "bidirectional",
+      "contract_summary": "Exchanges governed capability findings and change-impact signals between sibling models.",
+      "compatibility": ">=1.2.0 <2.0.0"
+    },
+    {
+      "id": "hs-dmm-opendia",
+      "label": "OpenDEA DERA-L1 Handshake",
+      "kind": "handshake",
+      "from_station_id": "enterprise-digital-maturity",
+      "to_station_id": "opendia-dera-l1",
+      "line_id": "reference-blueprint",
+      "direction": "unidirectional",
+      "contract_summary": "Crosswalks enterprise maturity profiles to OpenDEA L1 guardrails, patterns, and blueprints.",
+      "compatibility": "^2.4.0"
+    }
+  ]
+}

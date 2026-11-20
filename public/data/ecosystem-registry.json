@@ -5,16 +5,16 @@
     "url": "https://github.com/Assessment-Models",
     "pages_url": "https://assessment-models.github.io"
   },
-  "generated_at": "2026-11-20T10:27:26Z",
-  "content_sha256": "78a6cf23a2310018f68085652ff46c3cea9894487c7d8d84fd6f64115837ed68",
+  "generated_at": "2026-11-20T10:28:30Z",
+  "content_sha256": "7585b7d4efc9ef8f4055889411c864e3aa18f73d631e67ec6d392d9e424e577c",
   "summary": {
     "total_artifacts": 21,
     "by_layer": {
       "governance": 1,
-      "maturity-model": 10,
+      "maturity-model": 11,
       "assessment-model": 4,
       "shared-capability": 4,
-      "integration": 1,
+      "integration": 0,
       "reference-blueprint": 1
     },
     "standards": [
@@ -607,8 +607,8 @@
       "name": "dea-metamodel",
       "full_name": "technehub-labs/dea-metamodel",
       "owner_type": "partner-ecosystem",
-      "layer": "integration",
-      "architectural_concern": "Model Ecosystem Integration Architecture",
+      "layer": "maturity-model",
+      "architectural_concern": "Maturity Model Architecture",
       "description": "Digital Enterprise Architecture Metamodel: canonical entity definitions, relationships, and schemas for all DEA catalog repositories.",
       "readme_excerpt": "> Canonical entity definitions, relationships, and schemas for all DEA catalog repositories. The Open DEA Metamodel (OpenDEAM) is the foundation layer for the TechneHub Labs Enterprise Architecture space. Every entity, relationship, and attribute used across all dea-catalog-\u2026",
       "html_url": "https://github.com/technehub-labs/dea-metamodel",
@@ -638,7 +638,7 @@
         "modernization"
       ],
       "standards_alignment": [
-        "OpenDEA"
+        "MECE-STRICT"
       ],
       "locales": [
         "en"

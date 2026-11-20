@@ -19,6 +19,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -28,6 +29,12 @@ from typing import Any, Dict, List, Optional
 ORG_LOGIN = "Assessment-Models"
 PAGES_URL = "https://assessment-models.github.io"
 GITHUB_API = "https://api.github.com"
+
+# Transient failures worth retrying with backoff (secondary rate limits,
+# throttles, server hiccups). 404 stays a clean None; everything else
+# eventually surfaces as a clear RuntimeError.
+RETRYABLE_STATUS = {403, 408, 429, 500, 502, 503, 504}
+MAX_RETRIES = 4
 
 # Meta-repositories excluded from the domain artifact catalog
 EXCLUDED_REPOS = {".github", "assessment-models.github.io"}
@@ -126,6 +133,10 @@ SEED_HANDSHAKES: List[Dict[str, Any]] = [
 
 
 def github_get(path: str, token: Optional[str] = None) -> Any:
+    """GET a GitHub API path with 404-as-None semantics and bounded retry
+    with exponential backoff for transient failures (secondary rate limits,
+    5xx, network timeouts). Raises RuntimeError with full context when the
+    request is ultimately unsatisfiable, so CI failures are diagnosable."""
     url = path if path.startswith("http") else f"{GITHUB_API}{path}"
     headers = {
         "Accept": "application/vnd.github+json",
@@ -136,13 +147,38 @@ def github_get(path: str, token: Optional[str] = None) -> Any:
         headers["Authorization"] = f"Bearer {token}"
 
     req = urllib.request.Request(url, headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        if exc.code == 404:
-            return None
-        raise
+    last_error: Optional[BaseException] = None
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=25) as resp:
+                payload = resp.read().decode("utf-8")
+                return json.loads(payload) if payload.strip() else None
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return None
+            last_error = exc
+            if exc.code in RETRYABLE_STATUS and attempt < MAX_RETRIES:
+                wait = 2 ** attempt * 2
+                print(
+                    f"[WARN] GitHub API HTTP {exc.code} on {path}; "
+                    f"retrying in {wait}s (attempt {attempt + 1}/{MAX_RETRIES})"
+                )
+                time.sleep(wait)
+                continue
+            break
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            last_error = exc
+            if attempt < MAX_RETRIES:
+                wait = 2 ** attempt * 2
+                print(
+                    f"[WARN] Network error on {path} ({exc}); "
+                    f"retrying in {wait}s (attempt {attempt + 1}/{MAX_RETRIES})"
+                )
+                time.sleep(wait)
+                continue
+            break
+
+    raise RuntimeError(f"GitHub API request failed after retries: {path} ({last_error!r})")
 
 
 def fetch_repo_file_text(full_name: str, filepath: str, token: Optional[str]) -> Optional[str]:
@@ -153,13 +189,25 @@ def fetch_repo_file_text(full_name: str, filepath: str, token: Optional[str]) ->
     return raw
 
 
+def safe_fetch_repo_file_text(full_name: str, filepath: str, token: Optional[str]) -> Optional[str]:
+    """Fetch an optional enrichment file; degrade to None on persistent API failure."""
+    try:
+        return fetch_repo_file_text(full_name, filepath, token)
+    except RuntimeError as exc:
+        print(f"[WARN] Could not fetch {full_name}/{filepath} ({exc}); falling back to repo metadata.")
+        return None
+
+
 def fetch_latest_version(full_name: str, token: Optional[str]) -> str:
-    release = github_get(f"/repos/{full_name}/releases/latest", token)
-    if release and release.get("tag_name"):
-        return release["tag_name"]
-    tags = github_get(f"/repos/{full_name}/tags?per_page=1", token)
-    if isinstance(tags, list) and tags:
-        return tags[0].get("name", "v0.1.0-draft")
+    try:
+        release = github_get(f"/repos/{full_name}/releases/latest", token)
+        if release and release.get("tag_name"):
+            return release["tag_name"]
+        tags = github_get(f"/repos/{full_name}/tags?per_page=1", token)
+        if isinstance(tags, list) and tags:
+            return tags[0].get("name", "v0.1.0-draft")
+    except RuntimeError as exc:
+        print(f"[WARN] Could not fetch version for {full_name} ({exc}); using draft default.")
     return "v0.1.0-draft"
 
 
@@ -232,7 +280,7 @@ def build_artifact_entry(
     full_name = repo["full_name"]
     topics = sorted(repo.get("topics") or [])
 
-    manifest_raw = fetch_repo_file_text(full_name, "assessment-manifest.json", token)
+    manifest_raw = safe_fetch_repo_file_text(full_name, "assessment-manifest.json", token)
     manifest: Dict[str, Any] = {}
     has_manifest = False
     if manifest_raw:
@@ -242,7 +290,7 @@ def build_artifact_entry(
         except json.JSONDecodeError:
             print(f"[WARN] Invalid JSON in {full_name}/assessment-manifest.json; falling back to repo metadata.")
 
-    readme_raw = fetch_repo_file_text(full_name, "README.md", token)
+    readme_raw = safe_fetch_repo_file_text(full_name, "README.md", token)
     version = manifest.get("version") or fetch_latest_version(full_name, token)
 
     inferred_layer, inferred_concern = infer_layer_and_concern(
@@ -351,25 +399,35 @@ def main() -> int:
     #    page until exhausted so orgs with more than 100 repos stay covered)
     org_repos: List[Dict[str, Any]] = []
     page = 1
-    while page <= 20:  # hard cap: 20 x 100 = 2000 repos
-        batch = github_get(
-            f"/orgs/{ORG_LOGIN}/repos?type=public&per_page=100&page={page}&sort=full_name",
-            token,
-        )
-        if not isinstance(batch, list) or not batch:
-            break
-        org_repos.extend(batch)
-        if len(batch) < 100:
-            break
-        page += 1
+    try:
+        while page <= 20:  # hard cap: 20 x 100 = 2000 repos
+            batch = github_get(
+                f"/orgs/{ORG_LOGIN}/repos?type=public&per_page=100&page={page}&sort=full_name",
+                token,
+            )
+            if not isinstance(batch, list) or not batch:
+                break
+            org_repos.extend(batch)
+            if len(batch) < 100:
+                break
+            page += 1
+    except RuntimeError as exc:
+        print(f"[ERROR] Organization repository discovery failed: {exc}")
+        print("Not writing any registry output; keeping the previous catalog intact.")
+        return 1
     for repo in sorted(org_repos, key=lambda r: r["name"].lower()):
         if repo.get("archived") or repo["name"] in EXCLUDED_REPOS:
             continue
         artifacts.append(build_artifact_entry(repo, "cardinal-org", token))
 
-    # 2. Fetch registered partner repositories
+    # 2. Fetch registered partner repositories (a missing/inaccessible
+    #    partner degrades to a warning instead of failing the whole sync)
     for partner in PARTNER_REPOS:
-        repo = github_get(f"/repos/{partner['full_name']}", token)
+        try:
+            repo = github_get(f"/repos/{partner['full_name']}", token)
+        except RuntimeError as exc:
+            print(f"[WARN] Skipping partner {partner['full_name']}: {exc}")
+            continue
         if repo:
             artifacts.append(build_artifact_entry(repo, "partner-ecosystem", partner, token))
 
@@ -414,15 +472,41 @@ def main() -> int:
         "handshakes": handshakes,
     }
 
+    # ---- Safety guards: never publish a suspicious catalog ----
+    if not artifacts:
+        print(
+            "[ERROR] Zero artifacts discovered (org lookup empty or failed). "
+            "Refusing to overwrite the published registry; check GITHUB_TOKEN "
+            "permissions and org API access."
+        )
+        return 1
+    try:
+        previous_registry = json.loads(output_path.read_text(encoding="utf-8"))
+        previous_total = int(previous_registry.get("summary", {}).get("total_artifacts") or 0)
+    except (FileNotFoundError, json.JSONDecodeError, OSError, ValueError):
+        previous_total = 0
+    if previous_total and len(artifacts) * 2 < previous_total:
+        print(
+            f"[ERROR] Coverage collapse guard: discovered {len(artifacts)} artifacts "
+            f"but the published registry holds {previous_total}. Refusing to publish "
+            "a drastically smaller catalog — investigate org visibility/filters first."
+        )
+        return 1
+
     # Optional JSON Schema validation if jsonschema is installed
     try:
         import jsonschema  # type: ignore
-
-        schema = json.loads(schema_path.read_text(encoding="utf-8"))
-        jsonschema.validate(instance=registry, schema=schema)
-        print("[OK] Registry validated against ecosystem-registry.schema.json")
     except ImportError:
         print("[INFO] jsonschema not installed; skipped schema validation.")
+    else:
+        try:
+            schema = json.loads(schema_path.read_text(encoding="utf-8"))
+            jsonschema.validate(instance=registry, schema=schema)
+            print("[OK] Registry validated against ecosystem-registry.schema.json")
+        except jsonschema.ValidationError as exc:
+            print(f"[ERROR] Registry schema validation failed: {exc.message}")
+            print(f"[ERROR] Offending item at: {'/'.join(str(p) for p in exc.absolute_path)}")
+            return 1
 
     rendered = json.dumps(registry, indent=2) + "\n"
     output_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,6 +1,14 @@
 name: Sync Assessment-Models Ecosystem Registry
 
 on:
+  push:
+    # Verify the sync liveness whenever its logic changes (runs the real sync
+    # in CI and commits any registry drift; bot commits use [skip ci] so no
+    # recursion). User pushes fire this trigger — GITHUB_TOKEN pushes do not.
+    branches: [main]
+    paths:
+      - "scripts/sync_org_catalog.py"
+      - ".github/workflows/sync-catalog.yml"
   schedule:
     # Sync every 6 hours to keep GitHub Pages aligned with org repositories
     - cron: "0 */6 * * *"

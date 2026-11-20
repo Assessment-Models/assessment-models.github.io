@@ -26,6 +26,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # workflow_run fires on any conclusion — only redeploy when the triggering
+    # registry sync actually succeeded (push/dispatch/schedule always proceed).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v4
 

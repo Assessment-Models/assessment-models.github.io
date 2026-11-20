@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: "catalog-sync"
@@ -101,6 +102,67 @@ jobs:
               "https://api.github.com/orgs/Assessment-Models/repos?per_page=1"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Failure visibility: job logs and step summaries require sign-in, but
+      # issues are readable by everyone. On failure, post the sync log tail
+      # to a standing diagnostics issue so failures are diagnosable from
+      # outside the Actions UI.
+      - name: Report failure log to diagnostics issue (failure only)
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+
+          base = "https://api.github.com/repos/Assessment-Models/assessment-models.github.io"
+          token = os.environ["GITHUB_TOKEN"]
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "User-Agent": "assessment-models-catalog-sync/1.0",
+          }
+
+          def api(path, data=None, method=None):
+              req = urllib.request.Request(
+                  base + path,
+                  headers=headers,
+                  data=json.dumps(data).encode() if data is not None else None,
+                  method=method or ("POST" if data is not None else "GET"),
+              )
+              with urllib.request.urlopen(req) as resp:
+                  return json.loads(resp.read() or b"null")
+
+          title = "Catalog sync failed — diagnostics"
+          log_tail = ""
+          try:
+              with open("sync-output.log", encoding="utf-8", errors="replace") as fh:
+                  log_tail = fh.read()[-8000:]
+          except OSError:
+              log_tail = "(sync-output.log unavailable)"
+
+          body = (
+              "## Sync failure diagnostics\n\n"
+              f"Workflow run: {os.environ.get('WORKFLOW_URL', '')}\n\n"
+              "### Sync log tail\n\n```\n" + log_tail + "\n```\n"
+          )
+
+          existing = api("/issues?state=open&per_page=100")
+          target = next(
+              (i for i in existing if isinstance(i, dict) and i.get("title") == title),
+              None,
+          )
+          if target and target.get("number"):
+              api(
+                  f"/issues/{target['number']}/comments",
+                  {"body": body},
+              )
+              print(f"[OK] Commented on issue #{target['number']}")
+          else:
+              created = api("/issues", {"title": title, "body": body})
+              print(f"[OK] Created issue #{created.get('number')}")
+          PY
 
       # Coverage guardrail: surface every discovered repository, its layer,
       # version and manifest status so repos still missing an

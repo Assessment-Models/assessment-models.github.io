@@ -530,15 +530,19 @@ def main() -> int:
         artifacts.append(build_artifact_entry(repo, "cardinal-org", token))
 
     # 2. Fetch registered partner repositories (a missing/inaccessible
-    #    partner degrades to a warning instead of failing the whole sync)
+    #    partner degrades to a warning instead of failing the whole sync).
+    #    Partner fetches run WITHOUT the CI token: the Actions GITHUB_TOKEN is
+    #    repository-scoped and is rejected (HTTP 401) by the contents API of
+    #    repositories owned by other accounts; every partner datum we need is
+    #    public, so anonymous access is both sufficient and reliable.
     for partner in PARTNER_REPOS:
         try:
-            repo = github_get(f"/repos/{partner['full_name']}", token)
+            repo = github_get(f"/repos/{partner['full_name']}", None)
         except RuntimeError as exc:
             note(f"[WARN] Skipping partner {partner['full_name']}: {exc}")
             continue
         if repo:
-            artifacts.append(build_artifact_entry(repo, "partner-ecosystem", partner, token))
+            artifacts.append(build_artifact_entry(repo, "partner-ecosystem", partner, None))
 
     # 3. Preserve touchpoint & handshake contracts (previous registry → seed)
     known_ids = {item["id"] for item in artifacts}

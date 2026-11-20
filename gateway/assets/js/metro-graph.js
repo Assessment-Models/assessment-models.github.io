@@ -13,9 +13,10 @@
 export const METRO_LINES = [
   { id: "governance", label: "Governance Line", color: "#f59e0b", order: 0 },
   { id: "maturity-model", label: "Maturity Models Line", color: "#38bdf8", order: 1 },
-  { id: "shared-capability", label: "Shared Capabilities Line", color: "#34d399", order: 2 },
-  { id: "integration", label: "Integration & Handshakes Line", color: "#a78bfa", order: 3 },
-  { id: "reference-blueprint", label: "OpenDEA Blueprint Line", color: "#f472b6", order: 4 },
+  { id: "assessment-model", label: "Assessment Instruments Line", color: "#22d3ee", order: 2 },
+  { id: "shared-capability", label: "Shared Capabilities Line", color: "#34d399", order: 3 },
+  { id: "integration", label: "Integration & Handshakes Line", color: "#a78bfa", order: 4 },
+  { id: "reference-blueprint", label: "OpenDEA Blueprint Line", color: "#f472b6", order: 5 },
 ];
 
 /** Deterministic fallback graph (mirrors the seeded data/ecosystem-registry.json). */

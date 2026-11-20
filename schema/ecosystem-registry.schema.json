@@ -35,6 +35,7 @@
           "properties": {
             "governance": { "type": "integer", "minimum": 0 },
             "maturity-model": { "type": "integer", "minimum": 0 },
+            "assessment-model": { "type": "integer", "minimum": 0 },
             "shared-capability": { "type": "integer", "minimum": 0 },
             "integration": { "type": "integer", "minimum": 0 },
             "reference-blueprint": { "type": "integer", "minimum": 0 }
@@ -74,6 +75,7 @@
             "enum": [
               "governance",
               "maturity-model",
+              "assessment-model",
               "shared-capability",
               "integration",
               "reference-blueprint"
@@ -81,12 +83,8 @@
           },
           "architectural_concern": {
             "type": "string",
-            "enum": [
-              "Maturity Model Architecture",
-              "Assessment Architecture",
-              "Model Ecosystem Integration Architecture",
-              "Organization Governance"
-            ]
+            "minLength": 3,
+            "description": "Canonical registry concerns: 'Maturity Model Architecture', 'Assessment Architecture', 'Model Ecosystem Integration Architecture', 'Organization Governance'. Repositories with an assessment-manifest.json declare their own domain concern (e.g. 'Technology', 'Operations'), which is preserved verbatim per AM-MODEL-REPOSITORY-STANDARD (M3)."
           },
           "description": { "type": "string" },
           "readme_excerpt": { "type": "string" },
@@ -104,7 +102,15 @@
           },
           "conformance_status": {
             "type": "string",
-            "enum": ["verified", "draft", "external-aligned"]
+            "enum": [
+              "verified",
+              "draft",
+              "external-aligned",
+              "registered",
+              "structural",
+              "full"
+            ],
+            "description": "'registered', 'structural', and 'full' are the official AM-MODEL-REPOSITORY-STANDARD (M3) conformance levels declared by repository manifests; 'verified', 'draft', and 'external-aligned' are registry-inferred states for repositories without manifests."
           },
           "has_manifest": { "type": "boolean" },
           "updated_at": { "type": "string", "format": "date-time" }
@@ -128,6 +134,7 @@
             "enum": [
               "governance",
               "maturity-model",
+              "assessment-model",
               "shared-capability",
               "integration",
               "reference-blueprint"
@@ -155,6 +162,7 @@
             "enum": [
               "governance",
               "maturity-model",
+              "assessment-model",
               "shared-capability",
               "integration",
               "reference-blueprint"

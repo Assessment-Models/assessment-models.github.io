@@ -333,8 +333,12 @@ def build_artifact_entry(
     has_manifest = False
     if manifest_raw:
         try:
-            manifest = json.loads(manifest_raw)
-            has_manifest = True
+            parsed = json.loads(manifest_raw)
+            if isinstance(parsed, dict):
+                manifest = parsed
+                has_manifest = True
+            else:
+                note(f"[WARN] assessment-manifest.json in {full_name} is not a JSON object; falling back to repo metadata.")
         except json.JSONDecodeError:
             note(f"[WARN] Invalid JSON in {full_name}/assessment-manifest.json; falling back to repo metadata.")
 
@@ -554,6 +558,7 @@ def main() -> int:
     by_layer = {
         "governance": 0,
         "maturity-model": 0,
+        "assessment-model": 0,
         "shared-capability": 0,
         "integration": 0,
         "reference-blueprint": 0,

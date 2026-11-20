@@ -21,9 +21,10 @@
 const LAYER_BASE_COLUMN = {
   governance: 0,
   "maturity-model": 1,
-  "shared-capability": 2,
-  integration: 2,
-  "reference-blueprint": 3,
+  "assessment-model": 2,
+  "shared-capability": 3,
+  integration: 3,
+  "reference-blueprint": 4,
 };
 
 /** Label slot candidates, generated with clearances that keep every slot

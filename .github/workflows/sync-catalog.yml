@@ -37,6 +37,46 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/sync_org_catalog.py
 
+      # Coverage guardrail: surface every discovered repository, its layer,
+      # version and manifest status so repos still missing an
+      # assessment-manifest.json (or contracts) are immediately visible.
+      - name: Print catalog coverage summary
+        run: |
+          python - <<'PY'
+          import json
+
+          with open("data/ecosystem-registry.json", encoding="utf-8") as fh:
+              registry = json.load(fh)
+
+          artifacts = registry.get("artifacts", [])
+          endpoint_ids = {
+              ep
+              for key in ("touchpoints", "handshakes")
+              for contract in registry.get(key, [])
+              for ep in (contract.get("from_station_id"), contract.get("to_station_id"))
+          }
+          print(f"Coverage summary: {len(artifacts)} artifacts mapped\n")
+          unmanifested, unlinked = [], []
+          for art in artifacts:
+              has_manifest = bool(art.get("has_manifest"))
+              linked = art.get("id") in endpoint_ids
+              flag = "manifest" if has_manifest else "NO-MANIFEST"
+              link_flag = "contracts" if linked else "NO-CONTRACTS"
+              print(f"  {art['full_name']:<58} {art.get('layer', '?'):<20} "
+                    f"{art.get('version', '?'):<14} {flag} {link_flag} ({art.get('conformance_status', '?')})")
+              if not has_manifest:
+                  unmanifested.append(art["full_name"])
+              if not linked:
+                  unlinked.append(art["full_name"])
+
+          print(f"\nRepos needing assessment-manifest.json: {len(unmanifested)}")
+          for name in unmanifested:
+              print(f"  - {name}")
+          print(f"Repos needing touchpoints/handshakes: {len(unlinked)}")
+          for name in unlinked:
+              print(f"  - {name}")
+          PY
+
       # The script dual-writes the registry (data/ + public/data/). Commit both
       # copies so the deployed site and the repo source stay in sync. Deployment
       # itself is owned by deploy.yml, which rebuilds via workflow_run on this

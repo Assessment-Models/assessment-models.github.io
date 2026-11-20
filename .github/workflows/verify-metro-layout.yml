@@ -1,0 +1,63 @@
+name: Verify Metro Map Layout & Registry Schema
+
+on:
+  pull_request:
+    paths:
+      - "gateway/assets/js/metro-layout.js"
+      - "gateway/assets/js/metro-canvas.js"
+      - "gateway/assets/js/metro-graph.js"
+      - "data/ecosystem-registry.json"
+      - "schema/ecosystem-registry.schema.json"
+      - "scripts/verify-metro-layout.mjs"
+      - ".github/workflows/verify-metro-layout.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "gateway/assets/js/metro-layout.js"
+      - "gateway/assets/js/metro-canvas.js"
+      - "gateway/assets/js/metro-graph.js"
+      - "data/ecosystem-registry.json"
+      - "schema/ecosystem-registry.schema.json"
+      - "scripts/verify-metro-layout.mjs"
+      - ".github/workflows/verify-metro-layout.yml"
+  workflow_dispatch:
+
+jobs:
+  verify-layout-and-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate ecosystem-registry.json against schema
+        run: |
+          npx --yes --package ajv --package ajv-formats node -e '
+            const fs = require("node:fs");
+            const Ajv2020 = require("ajv/dist/2020");
+            const addFormats = require("ajv-formats");
+
+            const schema = JSON.parse(fs.readFileSync("schema/ecosystem-registry.schema.json", "utf8"));
+            const data = JSON.parse(fs.readFileSync("data/ecosystem-registry.json", "utf8"));
+
+            const ajv = new Ajv2020({ allErrors: true, strict: false });
+            addFormats(ajv);
+
+            const validate = ajv.compile(schema);
+            const valid = validate(data);
+
+            if (!valid) {
+              console.error("Schema validation failed for data/ecosystem-registry.json:");
+              console.error(JSON.stringify(validate.errors, null, 2));
+              process.exit(1);
+            }
+            console.log("OK: data/ecosystem-registry.json is valid against schema/ecosystem-registry.schema.json");
+          '
+
+      - name: Run Metro Map layout collision & coverage tests
+        run: node --test scripts/verify-metro-layout.mjs

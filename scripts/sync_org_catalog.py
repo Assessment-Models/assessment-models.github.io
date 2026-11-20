@@ -50,6 +50,16 @@ TOPIC_TO_LAYER = {
     "reference-blueprint": ("reference-blueprint", "Model Ecosystem Integration Architecture"),
 }
 
+# Repository-name fallback patterns (checked after topics, before the
+# maturity-model default) so repositories without topics or manifests still
+# land on the right corridor deterministically.
+NAME_PATTERN_TO_LAYER = [
+    (re.compile(r"blueprint|reference-architecture"), ("reference-blueprint", "Model Ecosystem Integration Architecture")),
+    (re.compile(r"governance|policy|-standard"), ("governance", "Organization Governance")),
+    (re.compile(r"integration|handshake|contract"), ("integration", "Model Ecosystem Integration Architecture")),
+    (re.compile(r"assessment-|capability|component|evidence|registry|encyclopedia|scoring"), ("shared-capability", "Assessment Architecture")),
+]
+
 # Ecosystem relationship contracts (touchpoints & handshakes) used to seed the
 # registry's architecture backbone. Endpoints use the artifact ids the sync
 # derives from the real org repositories (id = lowercase repo name when a
@@ -171,11 +181,45 @@ def extract_readme_excerpt(readme_md: Optional[str], max_len: int = 280) -> str:
     return excerpt
 
 
-def infer_layer_and_concern(topics: List[str], fallback_layer: str, fallback_concern: str):
+def infer_layer_and_concern(topics: List[str], fallback_layer: str, fallback_concern: str, repo_name: str = ""):
     for topic in topics:
         if topic in TOPIC_TO_LAYER:
             return TOPIC_TO_LAYER[topic]
+    lowered = (repo_name or "").lower()
+    if lowered:
+        for pattern, mapping in NAME_PATTERN_TO_LAYER:
+            if pattern.search(lowered):
+                return mapping
     return fallback_layer, fallback_concern
+
+
+def extract_readme_dimensions(readme_md: Optional[str], max_items: int = 12) -> List[str]:
+    """Fallback dimension discovery for repositories without a manifest:
+    parse bullet/numbered items listed under H2/H3 headings such as
+    'Dimensions', 'Maturity Levels', 'Capabilities' or 'Domains'."""
+    if not readme_md:
+        return []
+    dims: List[str] = []
+    in_section = False
+    section_pat = re.compile(r"^#{2,3}\s*(dimensions|maturity levels|levels|capabilities|domains)\s*$", re.I)
+    any_heading_pat = re.compile(r"^#{1,3}\s")
+    bullet_pat = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+(.{2,60})$")
+    for line in readme_md.splitlines():
+        if section_pat.match(line):
+            in_section = True
+            continue
+        if in_section:
+            if any_heading_pat.match(line):
+                in_section = False
+                continue
+            match = bullet_pat.match(line)
+            if match:
+                item = re.sub(r"[*_`]", "", match.group(1)).strip()
+                if item and item.lower() not in {d.lower() for d in dims}:
+                    dims.append(item)
+            if len(dims) >= max_items:
+                break
+    return dims
 
 
 def build_artifact_entry(
@@ -205,6 +249,7 @@ def build_artifact_entry(
         topics,
         defaults.get("default_layer", "maturity-model"),
         defaults.get("default_concern", "Maturity Model Architecture"),
+        repo["name"],
     )
 
     license_obj = repo.get("license") or {}
@@ -240,7 +285,7 @@ def build_artifact_entry(
             set(manifest.get("standards_alignment") or defaults.get("default_standards") or ["MECE-STRICT"])
         ),
         "locales": manifest.get("locales") or ["en"],
-        "dimensions": manifest.get("dimensions") or [],
+        "dimensions": manifest.get("dimensions") or (extract_readme_dimensions(readme_raw) if not has_manifest else []),
         "conformance_status": conformance,
         "has_manifest": has_manifest,
         "updated_at": repo.get("pushed_at") or repo.get("updated_at") or datetime.now(timezone.utc).isoformat(),
@@ -302,8 +347,21 @@ def main() -> int:
 
     artifacts: List[Dict[str, Any]] = []
 
-    # 1. Fetch cardinal organization repositories
-    org_repos = github_get(f"/orgs/{ORG_LOGIN}/repos?type=public&per_page=100&sort=updated", token) or []
+    # 1. Fetch cardinal organization repositories (paginated: follow every
+    #    page until exhausted so orgs with more than 100 repos stay covered)
+    org_repos: List[Dict[str, Any]] = []
+    page = 1
+    while page <= 20:  # hard cap: 20 x 100 = 2000 repos
+        batch = github_get(
+            f"/orgs/{ORG_LOGIN}/repos?type=public&per_page=100&page={page}&sort=full_name",
+            token,
+        )
+        if not isinstance(batch, list) or not batch:
+            break
+        org_repos.extend(batch)
+        if len(batch) < 100:
+            break
+        page += 1
     for repo in sorted(org_repos, key=lambda r: r["name"].lower()):
         if repo.get("archived") or repo["name"] in EXCLUDED_REPOS:
             continue
@@ -376,6 +434,32 @@ def main() -> int:
         f"[OK] Wrote {len(artifacts)} artifacts, {len(touchpoints)} touchpoints, "
         f"{len(handshakes)} handshakes to {output_path} (sha256={content_sha256[:12]}...)"
     )
+
+    # 5. Coverage summary: make every discovered repository + its provenance
+    #    visible in the workflow output so unmanifested drafts are easy to spot
+    contract_endpoint_ids = {
+        ep
+        for contracts in (touchpoints, handshakes)
+        for c in contracts
+        for ep in (c.get("from_station_id"), c.get("to_station_id"))
+    }
+    unmanifested = [a for a in artifacts if not a.get("has_manifest")]
+    unlinked = [a for a in artifacts if a["id"] not in contract_endpoint_ids]
+    print("\n[COVERAGE] Discovered repositories:")
+    for item in artifacts:
+        manifest_flag = "manifest" if item.get("has_manifest") else "NO-MANIFEST"
+        print(
+            f"  - {item['full_name']:<58} layer={item['layer']:<20} "
+            f"version={item['version']:<14} {manifest_flag} ({item['conformance_status']})"
+        )
+    print(
+        f"[COVERAGE] {len(artifacts)} artifacts total • {len(unmanifested)} without "
+        f"assessment-manifest.json • {len(unlinked)} without touchpoint/handshake contracts"
+    )
+    for item in unmanifested:
+        print(f"[COVERAGE]   needs manifest: {item['full_name']}")
+    for item in unlinked:
+        print(f"[COVERAGE]   needs contracts: {item['full_name']}")
     return 0
 
 

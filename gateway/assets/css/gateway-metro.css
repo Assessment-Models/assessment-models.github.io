@@ -289,6 +289,78 @@ body.metro-mode #app .metro-shell {
   padding: 2rem;
 }
 
+/* ---------- transit legend + coverage readout ---------- */
+
+.metro-legend {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  font-size: 0.74rem;
+  color: #cbd5e1;
+  max-width: min(720px, calc(100% - 28px));
+  pointer-events: none;
+}
+
+.metro-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.metro-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.legend-swatch-line {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: #38bdf8;
+}
+
+.legend-swatch-hub {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2.5px solid #f8fafc;
+  box-sizing: border-box;
+}
+
+.legend-swatch-tp {
+  width: 18px;
+  height: 0;
+  border-top: 2.5px dashed #34d399;
+}
+
+.legend-swatch-hs {
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  background: #1e1b4b;
+  border: 2px solid #a78bfa;
+  box-sizing: border-box;
+}
+
+.metro-legend-coverage {
+  color: #94a3b8;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+}
+
 /* ---------- motion safety ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -313,6 +385,15 @@ body.metro-mode #app .metro-shell {
   }
   body.metro-mode #app {
     min-height: 460px;
+  }
+  .metro-legend {
+    bottom: 8px;
+    left: 8px;
+    padding: 8px 10px;
+    font-size: 0.66rem;
+  }
+  .metro-legend-items {
+    gap: 4px 10px;
   }
   .metro-inspector {
     top: auto;

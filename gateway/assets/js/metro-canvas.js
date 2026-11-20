@@ -77,7 +77,10 @@ export class MetroCanvasController {
     jumpSelect.innerHTML =
       '<option value="">Jump to station…</option>' +
       this.graph.stations
-        .map((st) => `<option value="${escapeHtml(st.id)}">${escapeHtml(st.name)}</option>`)
+        .map(
+          (st) =>
+            `<option value="${escapeHtml(st.id)}">${escapeHtml(st.name)} (${escapeHtml(st.layer)} • ${escapeHtml(st.conformanceStatus)})</option>`
+        )
         .join("");
     jumpSelect.addEventListener("change", () => {
       if (!jumpSelect.value) return;
@@ -135,6 +138,16 @@ export class MetroCanvasController {
     this.viewportGroup.append(this.corridorsGroup, this.linksGroup, this.stationsGroup);
     this.svg.appendChild(this.viewportGroup);
 
+    // Directional arrowheads for handshake contract spurs (unidirectional
+    // gets one arrowhead; bidirectional gets a double-headed indicator).
+    const defs = svgEl("defs");
+    defs.innerHTML = `
+      <marker id="metro-hs-arrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 1 L 9 5 L 0 9 z" fill="#a78bfa" />
+      </marker>`;
+    this.svg.insertBefore(defs, this.viewportGroup);
+
     // Tooltip & Inspector
     this.tooltip = document.createElement("div");
     this.tooltip.className = "metro-tooltip";
@@ -145,7 +158,25 @@ export class MetroCanvasController {
     this.inspector.setAttribute("aria-label", "Selected artifact inspector");
     this.inspector.hidden = true;
 
-    this.container.append(toolbar, this.svg, this.tooltip, this.inspector);
+    // Bottom-left structured Transit Legend + coverage assurance readout
+    const unlinkedCount = this.graph.stations.filter(
+      (st) => st.touchpoints.length + st.handshakes.length === 0
+    ).length;
+    const legend = document.createElement("div");
+    legend.className = "metro-legend";
+    legend.setAttribute("role", "contentinfo");
+    legend.setAttribute("aria-label", "Metro map legend and coverage summary");
+    legend.innerHTML = `
+      <div class="metro-legend-items">
+        <span class="metro-legend-item"><span class="legend-swatch-line"></span>Corridor Track</span>
+        <span class="metro-legend-item"><span class="legend-swatch-hub"></span>Interchange Hub</span>
+        <span class="metro-legend-item"><span class="legend-swatch-tp"></span>Touchpoint (dashed + circle)</span>
+        <span class="metro-legend-item"><span class="legend-swatch-hs"></span>Handshake (solid + diamond, arrows mark direction)</span>
+      </div>
+      <div class="metro-legend-coverage">${this.graph.stations.length} Models &amp; Artifacts Mapped${unlinkedCount > 0 ? ` • ${unlinkedCount} awaiting contracts` : ""}</div>
+    `;
+
+    this.container.append(toolbar, this.svg, legend, this.tooltip, this.inspector);
   }
 
   _makeFilterBtn(label, lineId, active) {
@@ -269,23 +300,45 @@ export class MetroCanvasController {
     this.inspector.hidden = true;
   }
 
-  _isConnectedToFocus(stationId) {
-    if (!this.focusedStationId) return true;
-    if (stationId === this.focusedStationId) return true;
-    const linkedIds = new Set();
-    for (const e of [...this.graph.touchpoints, ...this.graph.handshakes]) {
-      if (e.from_station_id === this.focusedStationId) linkedIds.add(e.to_station_id);
-      if (e.to_station_id === this.focusedStationId) linkedIds.add(e.from_station_id);
+  /** Trace sets for sub-network highlighting: when a station is focused,
+   *  compute its directly connected stations and every corridor that passes
+   *  through them, so corridors (not just stations/links) dim out. */
+  _computeTraceSets() {
+    const connectedStations = new Set();
+    const activeLines = new Set();
+
+    if (!this.focusedStationId) {
+      return { hasFocus: false, connectedStations, activeLines };
     }
-    return linkedIds.has(stationId);
+
+    connectedStations.add(this.focusedStationId);
+    for (const edge of [...this.graph.touchpoints, ...this.graph.handshakes]) {
+      if (edge.from_station_id === this.focusedStationId) {
+        connectedStations.add(edge.to_station_id);
+      }
+      if (edge.to_station_id === this.focusedStationId) {
+        connectedStations.add(edge.from_station_id);
+      }
+    }
+
+    for (const st of this.layout.stations) {
+      if (connectedStations.has(st.id)) {
+        for (const lid of st.lineIds || [st.layer]) {
+          activeLines.add(lid);
+        }
+      }
+    }
+
+    return { hasFocus: true, connectedStations, activeLines };
   }
 
   /** Render touchpoint / handshake spur + clickable transfer node. */
   _renderLinkNode(link, isHandshake, traced, lineMatch) {
     const active = traced && lineMatch;
     const color = isHandshake ? "#a78bfa" : "#34d399";
+    const isBidirectional = !isHandshake || (link.direction || "bidirectional") === "bidirectional";
     const label = isHandshake
-      ? `${link.label} — ${link.direction} handshake from ${link.from_station_id} to ${link.to_station_id}`
+      ? `${link.label} — ${isBidirectional ? "bidirectional" : "unidirectional"} handshake from ${link.from_station_id} to ${link.to_station_id}`
       : `${link.label} — touchpoint from ${link.from_station_id} to ${link.to_station_id}`;
 
     const pathEl = svgEl("path", {
@@ -293,7 +346,14 @@ export class MetroCanvasController {
       fill: "none",
       stroke: color,
       "stroke-width": active ? (isHandshake ? 3 : 2.5) : isHandshake ? 1.75 : 1.5,
-      ...(isHandshake ? {} : { "stroke-dasharray": "5 4" }),
+      ...(isHandshake ? { "stroke-linecap": "round" } : { "stroke-dasharray": "5 4" }),
+      // Directional grammar: arrowhead at the target end, plus a start arrow
+      // (auto-start-reverse) when the handshake is bidirectional.
+      ...(isHandshake
+        ? isBidirectional
+          ? { "marker-end": "url(#metro-hs-arrow)", "marker-start": "url(#metro-hs-arrow)" }
+          : { "marker-end": "url(#metro-hs-arrow)" }
+        : {}),
       class: active ? "metro-flow-active" : "metro-dimmed",
     });
 
@@ -370,18 +430,22 @@ export class MetroCanvasController {
     this.linksGroup.innerHTML = "";
     this.stationsGroup.innerHTML = "";
 
-    // 1. Corridor tracks
+    const { hasFocus, connectedStations, activeLines } = this._computeTraceSets();
+
+    // 1. Corridor tracks: dim corridors outside the focused sub-network
     for (const corr of this.layout.corridorPaths) {
-      const lineActive = this.selectedLine === "all" || this.selectedLine === corr.lineId;
+      const filterActive = this.selectedLine === "all" || this.selectedLine === corr.lineId;
+      const focusActive = !hasFocus || activeLines.has(corr.lineId);
+      const isLit = filterActive && focusActive;
       this.corridorsGroup.appendChild(
         svgEl("path", {
           d: corr.d,
           fill: "none",
           stroke: corr.color,
-          "stroke-width": lineActive ? 5 : 3,
+          "stroke-width": isLit ? 5 : 3,
           "stroke-linecap": "round",
           "stroke-linejoin": "round",
-          class: lineActive ? "metro-highlighted" : "metro-dimmed",
+          class: isLit ? "metro-highlighted" : "metro-dimmed",
         })
       );
     }
@@ -415,10 +479,10 @@ export class MetroCanvasController {
       }
     }
 
-    // 3. Stations
+    // 3. Stations with collision-aware label slots from the layout engine
     for (const st of this.layout.stations) {
       const lineMatch = this.selectedLine === "all" || st.lineIds.includes(this.selectedLine);
-      const focusMatch = this._isConnectedToFocus(st.id);
+      const focusMatch = !hasFocus || connectedStations.has(st.id);
       const visible = lineMatch && focusMatch;
 
       const g = svgEl("g", {
@@ -444,22 +508,25 @@ export class MetroCanvasController {
       g.appendChild(
         svgEl("circle", {
           r: 8.5,
-          fill: "#38bdf8",
+          fill: this.focusedStationId === st.id ? "#f59e0b" : "#38bdf8",
           stroke: "#090d16",
           "stroke-width": 2,
         })
       );
 
+      const lp = st.labelPlacement || { dx: 18, dy: -3, anchor: "start" };
       const titleText = svgEl("text", {
-        x: 18,
-        y: -3,
+        x: lp.dx,
+        y: lp.dy,
+        "text-anchor": lp.anchor,
         class: "metro-station-label",
       });
       titleText.textContent = st.name;
 
       const metaText = svgEl("text", {
-        x: 18,
-        y: 12,
+        x: lp.dx,
+        y: lp.dy + 15,
+        "text-anchor": lp.anchor,
         class: "metro-station-sub",
         ...(showMicroLabels ? {} : { opacity: 0 }),
       });

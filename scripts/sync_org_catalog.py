@@ -62,6 +62,15 @@ EXCLUDED_REPOS = {".github", "assessment-models.github.io"}
 # Explicitly registered external partner repositories
 PARTNER_REPOS = [
     {
+        # External contract anchor: the maturity-scale-contract,
+        # opendea-assessment-metamodel and maturity-touchpoint-contract
+        # handshakes pin against the published suite in this repository.
+        "full_name": "technehub-labs/dea-metamodel",
+        "default_layer": "integration",
+        "default_concern": "Model Ecosystem Integration Architecture",
+        "default_standards": ["OpenDEA"],
+    },
+    {
         "full_name": "technehub-labs/dea-catalog-reference-architecture",
         "default_layer": "reference-blueprint",
         "default_concern": "Model Ecosystem Integration Architecture",
@@ -102,7 +111,137 @@ SEED_TOUCHPOINTS: List[Dict[str, Any]] = [
         "to_station_id": "maturity-model-standard",
         "line_id": "governance",
         "contract_summary": "Binds model criteria, scoring, and repository structure to the normative maturity-model repository standard.",
-        "compatibility": ">=1.0.0",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-standard-alignment-modernization",
+        "label": "Modernization Standard Alignment Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-modernization",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Declares AM-MODEL-REPOSITORY-STANDARD v1.0.1 adoption at structural conformance; the standard.yaml declaration cross-checks model identity and version coherence, validated by the reusable conformance workflow.",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-standard-alignment-services-delivery",
+        "label": "Services Delivery Standard Alignment Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-services-delivery",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Declares AM-MODEL-REPOSITORY-STANDARD v1.0.1 adoption at structural conformance; the standard.yaml declaration cross-checks model identity and version coherence, validated by the reusable conformance workflow.",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-standard-alignment-operations",
+        "label": "Operations Standard Alignment Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Declares AM-MODEL-REPOSITORY-STANDARD v1.0.1 adoption at structural conformance; the standard.yaml declaration cross-checks model identity and version coherence, validated by the reusable conformance workflow.",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-standard-alignment-technology",
+        "label": "Technology Standard Alignment Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-technology",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Declares AM-MODEL-REPOSITORY-STANDARD v1.0.1 adoption at structural conformance; the standard.yaml declaration cross-checks model identity and version coherence, validated by the reusable conformance workflow.",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-standard-alignment-autonomous-operations",
+        "label": "Autonomous Operations Standard Alignment Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-autonomous-operations",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Declares AM-MODEL-REPOSITORY-STANDARD v1.0.1 adoption at structural conformance; the standard.yaml declaration cross-checks model identity and version coherence, validated by the reusable conformance workflow.",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-standard-alignment-digital-transformation-operationalized",
+        "label": "Digital Transformation Operationalized Standard Alignment Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-digital-transformation-operationalized",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Declares AM-MODEL-REPOSITORY-STANDARD v1.0.1 adoption at structural conformance; the standard.yaml declaration cross-checks model identity and version coherence, validated by the reusable conformance workflow.",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-standard-scaffold",
+        "label": "Standard Scaffold Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-template",
+        "to_station_id": "maturity-model-standard",
+        "line_id": "governance",
+        "contract_summary": "Executable scaffold implementing the AM-MODEL-REPOSITORY-STANDARD for new maturity-model repositories; implementation, not authority.",
+        "compatibility": ">=1.0.0 <2.0.0"
+    },
+    {
+        "id": "tp-ops-x-autonomous-operations",
+        "label": "Operations / Autonomous Operations Seam",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-model-autonomous-operations",
+        "line_id": "integration",
+        "contract_summary": "CR-AM-13 seam: Operations D5 reliability evidence (observability, predictive detection, auto-remediation, SLO enforcement) feeds the peer's Technology and Operations dimensions; boundary - the peer owns closed-loop OODA autonomy, this model owns human/assisted operations.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "tp-ops-x-services-delivery",
+        "label": "Operations / Services Delivery Seam",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-model-services-delivery",
+        "line_id": "integration",
+        "contract_summary": "CR-AM-13 seam: Operations D1 daily-operating evidence (flow visibility, WIP, commitment reliability) feeds the peer's flow-efficiency and time-to-market criteria; internal flow health is owned here, customer-visible outcomes by the peer.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "tp-ops-x-technology",
+        "label": "Operations / Technology Seam",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-model-technology",
+        "line_id": "integration",
+        "contract_summary": "CR-AM-13 seam: this model assumes the peer's platform and tooling capability and scores only the effectiveness of tool use in live operations (D5); capability assessment belongs to the Technology model.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "tp-ops-x-digital-transformation",
+        "label": "Operations / Digital Transformation Seam",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-model-digital-transformation",
+        "line_id": "integration",
+        "contract_summary": "CR-AM-13 seam: the composite model's strategy and transformation-roadmap maturity informs this model's D6 criteria; transformation strategy is assessed by the peer, strategy-to-operations linkage here.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "tp-ops-x-dt-operationalized",
+        "label": "Operations / DT Operationalized Seam",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-model-digital-transformation-operationalized",
+        "line_id": "integration",
+        "contract_summary": "CR-AM-13 seam: explicit single-owner overlap between Operations D5/D6 and the peer's d4 operations and d5c2 TOM criteria; shared evidence (d4c2, d4c10, d4c11) is single-assessed once and cited by both models.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "tp-ops-x-modernization",
+        "label": "Operations / Modernization Seam",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-model-modernization",
+        "line_id": "integration",
+        "contract_summary": "CR-AM-13 seam: both models import the operations-modernization dimension package, single-sourced in maturity-components; component content is never duplicated and each model owns only its scoring of it.",
+        "compatibility": "^1.0"
     },
     {
         "id": "tp-registry-integration",
@@ -112,7 +251,7 @@ SEED_TOUCHPOINTS: List[Dict[str, Any]] = [
         "to_station_id": "assessment-registry",
         "line_id": "integration",
         "contract_summary": "Registers model metadata and assessment indexes in the ecosystem registry spine for cross-model discovery.",
-        "compatibility": ">=1.0.0",
+        "compatibility": ">=1.0.0"
     },
     {
         "id": "tp-component-reuse",
@@ -121,12 +260,279 @@ SEED_TOUCHPOINTS: List[Dict[str, Any]] = [
         "from_station_id": "maturity-model-digital-transformation",
         "to_station_id": "maturity-components",
         "line_id": "shared-capability",
-        "contract_summary": "Reuses governed maturity component packages for composite capability scoring across assessment dimensions.",
-        "compatibility": ">=1.0.0",
+        "contract_summary": "Reuses governed maturity component packages (digital-culture, technology-adoption, operations-modernization extend, services-delivery override) for composite capability scoring.",
+        "compatibility": ">=1.0.0"
     },
+    {
+        "id": "tp-component-reuse-operations",
+        "label": "Operations Component Reuse Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "maturity-components",
+        "line_id": "shared-capability",
+        "contract_summary": "Imports the operations-modernization dimension package (v1.0.0) for deployment and change-automation scoring; shared component content is single-sourced in the component registry.",
+        "compatibility": "^1.0.0"
+    },
+    {
+        "id": "tp-assessment-tools-catalog-modernization",
+        "label": "Modernization Assessment Tools Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-modernization",
+        "to_station_id": "dea-catalog-assessment-tools",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the Modernization instrument to the EA assessment tools umbrella catalog (v1.0.0-alpha anchor); the four instruments live in the catalog's four-domain set under the CR-AM-11 §15 handshake.",
+        "compatibility": "v1.0.0-alpha"
+    },
+    {
+        "id": "tp-assessment-tools-catalog-operations",
+        "label": "Operations Assessment Tools Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-operations",
+        "to_station_id": "dea-catalog-assessment-tools",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the Operations instrument to the EA assessment tools umbrella catalog (v1.0.0-alpha anchor); the four instruments live in the catalog's four-domain set under the CR-AM-11 §15 handshake.",
+        "compatibility": "v1.0.0-alpha"
+    },
+    {
+        "id": "tp-assessment-tools-catalog-services-delivery",
+        "label": "Services Delivery Assessment Tools Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-services-delivery",
+        "to_station_id": "dea-catalog-assessment-tools",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the Services Delivery instrument to the EA assessment tools umbrella catalog (v1.0.0-alpha anchor); the four instruments live in the catalog's four-domain set under the CR-AM-11 §15 handshake.",
+        "compatibility": "v1.0.0-alpha"
+    },
+    {
+        "id": "tp-assessment-tools-catalog-technology",
+        "label": "Technology Assessment Tools Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-technology",
+        "to_station_id": "dea-catalog-assessment-tools",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the Technology instrument to the EA assessment tools umbrella catalog (v1.0.0-alpha anchor); the four instruments live in the catalog's four-domain set under the CR-AM-11 §15 handshake.",
+        "compatibility": "v1.0.0-alpha"
+    },
+    {
+        "id": "tp-maturity-models-catalog-modernization",
+        "label": "Modernization Maturity Models Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-modernization",
+        "to_station_id": "dea-catalog-maturity-models",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the target dea:maturity-modernization model for scoring by immutable SHA reference to the EA maturity models catalog (dea:maturity-{dom}); the instrument scores against that published model.",
+        "compatibility": "fa2f9d57b75227a65d052fa13f426171c1cd295c"
+    },
+    {
+        "id": "tp-maturity-models-catalog-operations",
+        "label": "Operations Maturity Models Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-operations",
+        "to_station_id": "dea-catalog-maturity-models",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the target dea:maturity-operations model for scoring by immutable SHA reference to the EA maturity models catalog (dea:maturity-{dom}); the instrument scores against that published model.",
+        "compatibility": "fa2f9d57b75227a65d052fa13f426171c1cd295c"
+    },
+    {
+        "id": "tp-maturity-models-catalog-services-delivery",
+        "label": "Services Delivery Maturity Models Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-services-delivery",
+        "to_station_id": "dea-catalog-maturity-models",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the target dea:maturity-services-delivery model for scoring by immutable SHA reference to the EA maturity models catalog (dea:maturity-{dom}); the instrument scores against that published model.",
+        "compatibility": "fa2f9d57b75227a65d052fa13f426171c1cd295c"
+    },
+    {
+        "id": "tp-maturity-models-catalog-technology",
+        "label": "Technology Maturity Models Catalog Touchpoint",
+        "kind": "touchpoint",
+        "from_station_id": "dea-assessment-technology",
+        "to_station_id": "dea-catalog-maturity-models",
+        "line_id": "shared-capability",
+        "contract_summary": "Pins the target dea:maturity-technology model for scoring by immutable SHA reference to the EA maturity models catalog (dea:maturity-{dom}); the instrument scores against that published model.",
+        "compatibility": "fa2f9d57b75227a65d052fa13f426171c1cd295c"
+    }
 ]
 
+
 SEED_HANDSHAKES: List[Dict[str, Any]] = [
+    {
+        "id": "hs-scale-contract-modernization",
+        "label": "Modernization Scale Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-modernization",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: scoring is anchored to the canonical dea:maturity-bands-v2 five-level scale (L-0..L-4) and resolved by the reusable Level 2 conformance workflow against the pinned release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-scale-contract-services-delivery",
+        "label": "Services Delivery Scale Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-services-delivery",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: scoring is anchored to the canonical dea:maturity-bands-v2 five-level scale (L-0..L-4) and resolved by the reusable Level 2 conformance workflow against the pinned release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-scale-contract-operations",
+        "label": "Operations Scale Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: scoring is anchored to the canonical dea:maturity-bands-v2 five-level scale (L-0..L-4) and resolved by the reusable Level 2 conformance workflow against the pinned release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-scale-contract-technology",
+        "label": "Technology Scale Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-technology",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: scoring is anchored to the canonical dea:maturity-bands-v2 five-level scale (L-0..L-4) and resolved by the reusable Level 2 conformance workflow against the pinned release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-scale-contract-autonomous-operations",
+        "label": "Autonomous Operations Scale Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-autonomous-operations",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: scoring is anchored to the canonical dea:maturity-bands-v2 five-level scale (L-0..L-4) and resolved by the reusable Level 2 conformance workflow against the pinned release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-scale-contract-digital-transformation-operationalized",
+        "label": "Digital Transformation Operationalized Scale Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-digital-transformation-operationalized",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: scoring is anchored to the canonical dea:maturity-bands-v2 five-level scale (L-0..L-4) and resolved by the reusable Level 2 conformance workflow against the pinned release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-scale-contract-digital-transformation",
+        "label": "Digital Transformation Scale Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-digital-transformation",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: the composite model declares all three CI levels on the same repository, resolving contract family and version against the pinned release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-touchpoint-contract",
+        "label": "Touchpoint Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-operations",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "The Handshake & Touchpoint Model records are declared against maturity-touchpoint-contract v0.1.0-draft, published by the upstream dea-metamodel (issue #213); mirror reciprocity is validated by ecosystem CI.",
+        "compatibility": "^0.1"
+    },
+    {
+        "id": "hs-opendea-assessment-metamodel-modernization",
+        "label": "Modernization Metamodel Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-modernization",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the OpenDEA assessment metamodel contract suite (opendea-assessment-metamodel 1.0) for the {name} instrument; resolved by the reusable Level 2 workflow against the pinned dea-metamodel release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-opendea-assessment-metamodel-operations",
+        "label": "Operations Metamodel Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-operations",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the OpenDEA assessment metamodel contract suite (opendea-assessment-metamodel 1.0) for the {name} instrument; resolved by the reusable Level 2 workflow against the pinned dea-metamodel release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-opendea-assessment-metamodel-services-delivery",
+        "label": "Services Delivery Metamodel Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-services-delivery",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the OpenDEA assessment metamodel contract suite (opendea-assessment-metamodel 1.0) for the {name} instrument; resolved by the reusable Level 2 workflow against the pinned dea-metamodel release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-opendea-assessment-metamodel-technology",
+        "label": "Technology Metamodel Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-technology",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Pins the OpenDEA assessment metamodel contract suite (opendea-assessment-metamodel 1.0) for the {name} instrument; resolved by the reusable Level 2 workflow against the pinned dea-metamodel release.",
+        "compatibility": "^1.0"
+    },
+    {
+        "id": "hs-scores-against-modernization",
+        "label": "Modernization Scores-Against Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-modernization",
+        "to_station_id": "maturity-model-modernization",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "The Modernization assessment instrument scores its criteria against the dea:maturity-modernization maturity model; the gateway's trial scoring engine consumes the published model register and evidence definitions.",
+        "compatibility": ">=1.0.0"
+    },
+    {
+        "id": "hs-scores-against-operations",
+        "label": "Operations Scores-Against Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-operations",
+        "to_station_id": "maturity-model-operations",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "The Operations assessment instrument scores its criteria against the dea:maturity-operations maturity model; the gateway's trial scoring engine consumes the published model register and evidence definitions.",
+        "compatibility": ">=1.0.0"
+    },
+    {
+        "id": "hs-scores-against-services-delivery",
+        "label": "Services Delivery Scores-Against Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-services-delivery",
+        "to_station_id": "maturity-model-services-delivery",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "The Services Delivery assessment instrument scores its criteria against the dea:maturity-services-delivery maturity model; the gateway's trial scoring engine consumes the published model register and evidence definitions.",
+        "compatibility": ">=1.0.0"
+    },
+    {
+        "id": "hs-scores-against-technology",
+        "label": "Technology Scores-Against Handshake",
+        "kind": "handshake",
+        "from_station_id": "dea-assessment-technology",
+        "to_station_id": "maturity-model-technology",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "The Technology assessment instrument scores its criteria against the dea:maturity-technology maturity model; the gateway's trial scoring engine consumes the published model register and evidence definitions.",
+        "compatibility": ">=1.0.0"
+    },
     {
         "id": "hs-operationalized-line",
         "label": "Operationalized Line Handshake",
@@ -136,7 +542,7 @@ SEED_HANDSHAKES: List[Dict[str, Any]] = [
         "line_id": "integration",
         "direction": "bidirectional",
         "contract_summary": "Exchanges composite model findings and operationalized assessment results between the digital transformation lines.",
-        "compatibility": ">=1.0.0 <2.0.0",
+        "compatibility": ">=1.0.0 <2.0.0"
     },
     {
         "id": "hs-opendea-crosswalk",
@@ -147,9 +553,10 @@ SEED_HANDSHAKES: List[Dict[str, Any]] = [
         "line_id": "reference-blueprint",
         "direction": "unidirectional",
         "contract_summary": "Crosswalks enterprise maturity profiles to OpenDEA DERA-L1 guardrails, patterns, and blueprints.",
-        "compatibility": "^1.0.0",
-    },
+        "compatibility": "^1.0.0"
+    }
 ]
+
 
 
 def github_get(path: str, token: Optional[str] = None) -> Any:

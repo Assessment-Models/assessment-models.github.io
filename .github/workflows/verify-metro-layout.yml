@@ -35,9 +35,15 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Install schema validation dependencies
+        # npx --package does not put ad-hoc packages on `node -e`'s require
+        # resolution path, so `require("ajv/dist/2020")` fails no matter the
+        # data. Install into the workspace instead (no package.json needed).
+        run: npm install --no-save --no-package-lock --no-audit --no-fund ajv@8.20.0 ajv-formats@3.0.1
+
       - name: Validate ecosystem-registry.json against schema
         run: |
-          npx --yes --package ajv --package ajv-formats node -e '
+          node -e '
             const fs = require("node:fs");
             const Ajv2020 = require("ajv/dist/2020");
             const addFormats = require("ajv-formats");

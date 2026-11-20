@@ -953,7 +953,11 @@ def main() -> int:
             note(f"[WARN] Skipping partner {partner['full_name']}: {exc}")
             continue
         if repo:
-            artifacts.append(build_artifact_entry(repo, "partner-ecosystem", partner, None))
+            # Partner registry entries are anonymous fetches (cross-repo
+            # GITHUB_TOKEN access 401s); the partner descriptor feeds
+            # build_artifact_entry's *defaults* (layer/concern/standards),
+            # not its *token* slot.
+            artifacts.append(build_artifact_entry(repo, "partner-ecosystem", None, partner))
 
     # 3. Preserve touchpoint & handshake contracts (previous registry → seed)
     known_ids = {item["id"] for item in artifacts}

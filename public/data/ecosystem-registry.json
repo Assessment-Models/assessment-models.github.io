@@ -5,193 +5,684 @@
     "url": "https://github.com/Assessment-Models",
     "pages_url": "https://assessment-models.github.io"
   },
-  "generated_at": "2026-11-19T16:54:00Z",
-  "content_sha256": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+  "generated_at": "2026-11-20T05:35:06Z",
+  "content_sha256": "3e5f251bc12196530cc8af146f37e7790adcf6e97303970f644c72dc79d4dfb6",
   "summary": {
-    "total_artifacts": 6,
+    "total_artifacts": 20,
     "by_layer": {
       "governance": 1,
-      "maturity-model": 2,
-      "shared-capability": 2,
+      "maturity-model": 10,
+      "assessment-model": 4,
+      "shared-capability": 4,
+      "integration": 0,
       "reference-blueprint": 1
     },
-    "standards": ["DERA-L1", "ISO/IEC-33001", "MECE-STRICT", "OpenDEA", "SemVer"]
+    "standards": [
+      "AM-MODEL-REPOSITORY-STANDARD",
+      "ISO/IEC-33002",
+      "MECE",
+      "MECE-STRICT",
+      "OpenDEA"
+    ]
   },
   "artifacts": [
     {
-      "id": "org-governance-standard",
-      "name": "Ecosystem Governance & Registry",
-      "full_name": "Assessment-Models/.github",
+      "id": "assessment-ci",
+      "name": "assessment-ci",
+      "full_name": "Assessment-Models/assessment-ci",
+      "owner_type": "cardinal-org",
+      "layer": "shared-capability",
+      "architectural_concern": "Assessment Architecture",
+      "description": "Cross-repository validation and ecosystem integration logic for the Assessment-Models ecosystem \u2014 three-level CI (CR-AM-11 Phase 1). Owns no model content.",
+      "readme_excerpt": "Cross-repository validation and ecosystem integration logic for the Assessment-Models ecosystem (CR-AM-11 \u00a713). This repository owns no assessment model content. It provides the validation machinery for the three-level CI model (\u00a714): - schemas/model-manifest.schema.json \u2014 the\u2026",
+      "html_url": "https://github.com/Assessment-Models/assessment-ci",
+      "default_branch": "main",
+      "version": "v0.1.0-draft",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
+      "conformance_status": "draft",
+      "has_manifest": false,
+      "updated_at": "2026-11-13T09:08:11Z"
+    },
+    {
+      "id": "assessment-registry",
+      "name": "assessment-registry",
+      "full_name": "Assessment-Models/assessment-registry",
+      "owner_type": "cardinal-org",
+      "layer": "shared-capability",
+      "architectural_concern": "Assessment Architecture",
+      "description": "Ecosystem integration spine for OpenDEA-compatible assessment assets \u2014 registration, immutable references, compatibility and dependency resolution (CR-AM-11 Phase 1).",
+      "readme_excerpt": "The ecosystem integration spine for OpenDEA-compatible assets (CR-AM-11 \u00a710 + CR-AR-01 \u00a7Scope). This repository registers assets. It contains no model content \u2014 registration records carry metadata and immutable references only (\u00a711). Dimensions, criteria, levels, scoring rules\u2026",
+      "html_url": "https://github.com/Assessment-Models/assessment-registry",
+      "default_branch": "main",
+      "version": "v0.1.0-draft",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
+      "conformance_status": "draft",
+      "has_manifest": false,
+      "updated_at": "2026-11-19T17:37:15Z"
+    },
+    {
+      "id": "dea-assessment-modernization",
+      "name": "Architecture Modernization Assessment",
+      "full_name": "Assessment-Models/dea-assessment-modernization",
+      "owner_type": "cardinal-org",
+      "layer": "assessment-model",
+      "architectural_concern": "Architecture Modernization",
+      "description": "EA assessment instrument for the modernization domain: legacy migration, strangler-fig adoption, decomposition strategy. Scores against the dea:maturity-modernization model.",
+      "readme_excerpt": "Assess your organisation's approach to architecture modernisation \u2014 legacy migration, strangler-fig adoption, decomposition strategy, and modernisation programme maturity. This repository contains one assessment instrument for the modernization domain. It is part of the [DEA\u2026",
+      "html_url": "https://github.com/Assessment-Models/dea-assessment-modernization",
+      "default_branch": "main",
+      "version": "v1.1.0-alpha",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Modernisation Strategy",
+        "Migration Pattern Library",
+        "Execution & Wave Planning",
+        "Metrics & Outcomes",
+        "People & Culture"
+      ],
+      "conformance_status": "registered",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:07:00Z"
+    },
+    {
+      "id": "dea-assessment-operations",
+      "name": "Operations Assessment",
+      "full_name": "Assessment-Models/dea-assessment-operations",
+      "owner_type": "cardinal-org",
+      "layer": "assessment-model",
+      "architectural_concern": "Operations",
+      "description": "EA assessment instrument for the operations domain: incident response, observability, deployment automation, SLOs, SRE practices. Scores against the dea:maturity-operations model.",
+      "readme_excerpt": "Assess operations practice maturity \u2014 incident response, observability, deployment automation, SLOs, SRE practices, and operational culture. This repository contains one assessment instrument for the operations domain. It is part of the [DEA Assessment Tools\u2026",
+      "html_url": "https://github.com/Assessment-Models/dea-assessment-operations",
+      "default_branch": "main",
+      "version": "v1.1.0-alpha",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Incident Response",
+        "Observability",
+        "Deployment & Release Engineering",
+        "Reliability Engineering",
+        "Operational Culture"
+      ],
+      "conformance_status": "registered",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:07:04Z"
+    },
+    {
+      "id": "dea-assessment-services-delivery",
+      "name": "Services Delivery Assessment",
+      "full_name": "Assessment-Models/dea-assessment-services-delivery",
+      "owner_type": "cardinal-org",
+      "layer": "assessment-model",
+      "architectural_concern": "Services Delivery",
+      "description": "EA assessment instrument for the services-delivery domain: time-to-market, quality, customer outcomes, flow efficiency, team health. Scores against the dea:maturity-services-delivery model.",
+      "readme_excerpt": "Assess services delivery capability \u2014 time-to-market, quality, customer outcomes, flow efficiency, and team health. This repository contains one assessment instrument for the services-delivery domain. It is part of the [DEA Assessment Tools\u2026",
+      "html_url": "https://github.com/Assessment-Models/dea-assessment-services-delivery",
+      "default_branch": "main",
+      "version": "v1.1.0-alpha",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Delivery Predictability",
+        "Flow Metrics & Efficiency",
+        "Quality & Defect Management",
+        "Customer Outcomes & Value",
+        "Team Health & Practices"
+      ],
+      "conformance_status": "registered",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:55Z"
+    },
+    {
+      "id": "dea-assessment-technology",
+      "name": "Technology Assessment",
+      "full_name": "Assessment-Models/dea-assessment-technology",
+      "owner_type": "cardinal-org",
+      "layer": "assessment-model",
+      "architectural_concern": "Technology",
+      "description": "EA assessment instrument for the technology domain: stack fitness, technical debt, lifecycle management, skill coverage. Scores against the dea:maturity-technology model.",
+      "readme_excerpt": "Assess technology stack fitness, technical debt, lifecycle management, and skill coverage across your engineering organisation. This repository contains one assessment instrument for the technology domain. It is part of the [DEA Assessment Tools\u2026",
+      "html_url": "https://github.com/Assessment-Models/dea-assessment-technology",
+      "default_branch": "main",
+      "version": "v1.1.0-alpha",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Stack Fitness & Standardisation",
+        "Technical Debt Management",
+        "Lifecycle & End-of-Life Management",
+        "Skill Coverage & Knowledge Risk",
+        "Tooling Integration & Observability"
+      ],
+      "conformance_status": "registered",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:51Z"
+    },
+    {
+      "id": "dea-catalog-assessment-tools",
+      "name": "dea-catalog-assessment-tools",
+      "full_name": "Assessment-Models/dea-catalog-assessment-tools",
+      "owner_type": "cardinal-org",
+      "layer": "shared-capability",
+      "architectural_concern": "Assessment Architecture",
+      "description": "Architecture Assessment Tools \u2014 modernization, technology, operations and services delivery assessments for enterprise architecture.",
+      "readme_excerpt": "Enterprise Architecture Assessment Instruments \u2014 scoring rubrics, gap analysis, target state design across architecture modernization, technology, operations, and services delivery. This is the umbrella index for the assessment catalog. The actual instruments live in four\u2026",
+      "html_url": "https://github.com/Assessment-Models/dea-catalog-assessment-tools",
+      "default_branch": "main",
+      "version": "v1.0.0-alpha",
+      "license": "MIT",
+      "primary_language": "Markdown / YAML",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
+      "conformance_status": "draft",
+      "has_manifest": false,
+      "updated_at": "2026-10-30T12:20:16Z"
+    },
+    {
+      "id": "dea-catalog-maturity-models",
+      "name": "dea-catalog-maturity-models",
+      "full_name": "Assessment-Models/dea-catalog-maturity-models",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Maturity Model Architecture",
+      "description": "Enterprise Architecture Maturity Models \u2014 framework for assessing and advancing EA capability across domains.",
+      "readme_excerpt": "Enterprise Architecture Maturity Models \u2014 five-level progression framework for assessing and advancing EA capability across domains. This catalog defines maturity models for Enterprise Architecture practice with a bias for OpenDEA. Each model describes five levels of capability\u2026",
+      "html_url": "https://github.com/Assessment-Models/dea-catalog-maturity-models",
+      "default_branch": "main",
+      "version": "v0.1.0-draft",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
+      "conformance_status": "draft",
+      "has_manifest": false,
+      "updated_at": "2026-11-14T03:10:39Z"
+    },
+    {
+      "id": "maturity",
+      "name": "maturity",
+      "full_name": "Assessment-Models/maturity",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Maturity Model Architecture",
+      "description": "A comprehensive portfolio of maturity models.",
+      "readme_excerpt": "A comprehensive portfolio of maturity models.",
+      "html_url": "https://github.com/Assessment-Models/maturity",
+      "default_branch": "main",
+      "version": "v0.1.0-draft",
+      "license": "Apache-2.0",
+      "primary_language": "HTML",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
+      "conformance_status": "draft",
+      "has_manifest": false,
+      "updated_at": "2026-11-15T03:07:49Z"
+    },
+    {
+      "id": "maturity-components",
+      "name": "maturity-components",
+      "full_name": "Assessment-Models/maturity-components",
+      "owner_type": "cardinal-org",
+      "layer": "shared-capability",
+      "architectural_concern": "Assessment Architecture",
+      "description": "Reusable maturity component packages \u2014 taxonomy class: Reusable components (CR-AM-06)",
+      "readme_excerpt": "Reusable, versioned maturity component packages \u2014 dimension, criteria, level-expectation and evidence-requirement bundles consumed by maturity models under explicit import / extend / override kinds. The taxonomy assigns reusable components their own repository class\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-components",
+      "default_branch": "main",
+      "version": "v1.0.1",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
+      "conformance_status": "draft",
+      "has_manifest": false,
+      "updated_at": "2026-11-13T09:33:26Z"
+    },
+    {
+      "id": "maturity-model-autonomous-operations",
+      "name": "Autonomous Operations Maturity Model",
+      "full_name": "Assessment-Models/maturity-model-autonomous-operations",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Autonomous Operations",
+      "description": "Autonomous Operations (AO) maturity and assessment model \u2014 the enterprise operating model in which value streams are instrumented with AI, data and closed-loop control so that agents and autonomous systems learn, self-govern and self-adapt, with intent driving the closed loops.",
+      "readme_excerpt": "dea:maturity-autonomous-operations \u00b7 release 2.0.0 (adoption pending [dea-metamodel #214](https://github.com/technehub-labs/dea-metamodel/issues/214)) \u00b7 MIT license This model measures how mature an organization is at running Autonomous Operations: an operating model in which\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-autonomous-operations",
+      "default_branch": "main",
+      "version": "v2.0.0",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "AM-MODEL-REPOSITORY-STANDARD",
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Party",
+        "Strategy",
+        "Technology",
+        "Operations",
+        "Culture",
+        "Data"
+      ],
+      "conformance_status": "structural",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:39Z"
+    },
+    {
+      "id": "maturity-model-digital-transformation",
+      "name": "Digital Transformation Maturity Model",
+      "full_name": "Assessment-Models/maturity-model-digital-transformation",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Digital Transformation",
+      "description": "Composite maturity model spanning operations, technology, and services-delivery child models, plus the org's own adoption of OpenDEA itself. First independent model in the Assessment-Models ecosystem (CR-AM-11 \u00a731 first-model candidate).",
+      "readme_excerpt": "The first independent model in the Assessment-Models ecosystem. CR-AM-11 \u00a731 first-model candidate, demonstrating all three CI levels on the same repository (\u00a714): This model is a composite spanning operations, technology, and services-delivery child models. It uses the OpenDEA\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-digital-transformation",
+      "default_branch": "main",
+      "version": "v1.1.0-alpha",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "AM-MODEL-REPOSITORY-STANDARD",
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Leadership sponsorship",
+        "Shared DT vocabulary",
+        "Safe-to-fail experimentation",
+        "Reference architecture",
+        "Automation coverage",
+        "Service reliability",
+        "Incident response",
+        "DT instrumentation coverage",
+        "DT observability budget",
+        "Platform engineering"
+      ],
+      "conformance_status": "structural",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:36Z"
+    },
+    {
+      "id": "maturity-model-digital-transformation-operationalized",
+      "name": "Digital Transformation Operationalized Maturity & Assessment Model",
+      "full_name": "Assessment-Models/maturity-model-digital-transformation-operationalized",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Digital Business Transformation",
+      "description": "Digital-business maturity and assessment model. Positions digital transformation as the reimagining of the organization's business and operating model as a digital business: grounded in advanced digital technology adoption (AI, agentic AI, autonomous systems, composable cloud-native platforms, digital twins), expressed through novel operating models across all operating concerns, steered by customer- and ecosystem-centric digital strategy, and run as a deliberate working model between humans and software agents. Every criterion is MECE-placed, carries five evidence-anchored progression levels correlated to the org's canonical L-0..L-4 scale, and is independently assessable.",
+      "readme_excerpt": "Digital-business maturity and assessment model. Positions digital transformation as the reimagining of the organization's business and operating model as a digital business: grounded in advanced digital technology adoption (AI, agentic AI, autonomous systems, composable\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-digital-transformation-operationalized",
+      "default_branch": "main",
+      "version": "v1.0.1",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "AM-MODEL-REPOSITORY-STANDARD",
+        "ISO/IEC-33002",
+        "MECE",
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Customer & Ecosystem Value",
+        "Strategy, Business Model & Value",
+        "Digital Platforms & Technology Enablement",
+        "Operations & Autonomous Service Delivery",
+        "People, Culture & Human-Agent Teaming",
+        "Data & the Intelligent Enterprise"
+      ],
+      "conformance_status": "structural",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:47Z"
+    },
+    {
+      "id": "maturity-model-modernization",
+      "name": "Architecture Modernization Maturity Model",
+      "full_name": "Assessment-Models/maturity-model-modernization",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Architecture Modernization",
+      "description": "Architecture Modernization Maturity Model \u2014 assesses the capability to modernise legacy estates and platforms: strategy, sequencing, execution and technical-debt reduction.",
+      "readme_excerpt": "> One modernization assessment foundation. Multiple architectural interpretations. Coordinated realization. This repository is the home of architecture modernization assessment under the Assessment-Models organisation. It carries two coordinated assets: 1. AMAF, the\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-modernization",
+      "default_branch": "main",
+      "version": "v1.1.0",
+      "license": "MIT",
+      "primary_language": "JavaScript",
+      "topics": [],
+      "standards_alignment": [
+        "AM-MODEL-REPOSITORY-STANDARD",
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Strategy & Direction",
+        "Sequencing & Migration Patterns",
+        "Execution & Operations",
+        "Technical Debt & Outcomes"
+      ],
+      "conformance_status": "structural",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:24Z"
+    },
+    {
+      "id": "maturity-model-operations",
+      "name": "Operations Maturity Model",
+      "full_name": "Assessment-Models/maturity-model-operations",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Operations",
+      "description": "Operations Maturity Model \u2014 assesses enterprise operations: how day-to-day activities leverage key organizational capabilities to deliver outcomes. Covers value-stream and daily operations, capability orchestration, service and process management, workforce and ways of working, technology and infrastructure operations, and strategy alignment with the operating blueprint.",
+      "readme_excerpt": "Operations Maturity Model \u2014 assesses incident response, observability, deployment automation, SLOs and SRE practice. 1.0.0 \u00b7 stable \u2014 canonical v2 bands, independently released This repository is the independent home of the dea:maturity-operations maturity model. Under the\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-operations",
+      "default_branch": "main",
+      "version": "v2.0.0",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "AM-MODEL-REPOSITORY-STANDARD",
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Value-Stream & Daily Operations",
+        "Capability Orchestration",
+        "Service & Process Management",
+        "Workforce & Ways of Working",
+        "Technology & Infrastructure Operations",
+        "Strategy Alignment & Operating Blueprint"
+      ],
+      "conformance_status": "structural",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:32Z"
+    },
+    {
+      "id": "maturity-model-services-delivery",
+      "name": "Services Delivery Maturity Model",
+      "full_name": "Assessment-Models/maturity-model-services-delivery",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Services Delivery",
+      "description": "Services Delivery Maturity Model \u2014 assesses time-to-market, quality, customer outcomes, flow efficiency and team health.",
+      "readme_excerpt": "Services Delivery Maturity Model \u2014 assesses time-to-market, quality, customer outcomes, flow efficiency and team health. 1.0.0 \u00b7 stable \u2014 canonical v2 bands, independently released This repository is the independent home of the dea:maturity-services-delivery maturity model.\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-services-delivery",
+      "default_branch": "main",
+      "version": "v1.1.0",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "AM-MODEL-REPOSITORY-STANDARD",
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Time-to-Market",
+        "Quality",
+        "Customer Outcomes",
+        "Flow Efficiency",
+        "Team Health"
+      ],
+      "conformance_status": "structural",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:28Z"
+    },
+    {
+      "id": "maturity-model-standard",
+      "name": "maturity-model-standard",
+      "full_name": "Assessment-Models/maturity-model-standard",
       "owner_type": "cardinal-org",
       "layer": "governance",
       "architectural_concern": "Organization Governance",
-      "description": "Canonical ecosystem standard, central registry rules, conformance policies, and model onboarding lifecycle.",
-      "readme_excerpt": "Each maturity model retains ownership of its domain semantics, assessment methodology and scoring logic while conforming to shared organizational standards.",
-      "html_url": "https://github.com/Assessment-Models/",
-      "version": "v1.0.0",
-      "license": "Apache-2.0",
-      "standards_alignment": ["MECE-STRICT", "SemVer", "OpenDEA"],
-      "locales": ["en"],
-      "dimensions": ["Maturity Model Standard", "Assessment Registry", "Conformance Governance", "Lifecycle Policies"],
-      "conformance_status": "verified",
-      "updated_at": "2026-11-19T00:00:00Z"
-    },
-    {
-      "id": "enterprise-digital-maturity",
-      "name": "Enterprise Digital Maturity Model",
-      "full_name": "Assessment-Models/enterprise-digital-maturity",
-      "owner_type": "cardinal-org",
-      "layer": "maturity-model",
-      "architectural_concern": "Maturity Model Architecture",
-      "description": "Domain-governed enterprise digital maturity model with progression tiers, criteria gates, and OpenDEA crosswalks.",
-      "readme_excerpt": "Defines domains, dimensions, capabilities, criteria, progression levels, and domain-specific assessment terminology.",
-      "html_url": "https://github.com/Assessment-Models/",
-      "version": "v2.4.0",
-      "license": "CC-BY-4.0",
-      "standards_alignment": ["MECE-STRICT", "ISO/IEC-33001", "OpenDEA"],
-      "locales": ["en", "fr", "de"],
-      "dimensions": ["Strategy & Governance", "Operations & Flows", "Architecture & Data", "Organization & Talent"],
-      "conformance_status": "verified",
-      "updated_at": "2026-11-19T00:00:00Z"
-    },
-    {
-      "id": "operational-autonomy-maturity",
-      "name": "Operational Autonomy Model",
-      "full_name": "Assessment-Models/operational-autonomy-maturity",
-      "owner_type": "cardinal-org",
-      "layer": "maturity-model",
-      "architectural_concern": "Maturity Model Architecture",
-      "description": "Evaluates closed-loop operational autonomy, human-in-the-loop guardrails, and resilience across business operations.",
-      "readme_excerpt": "Independently versioned autonomy maturity model linked via explicit touchpoints and handshakes to enterprise transformation models.",
-      "html_url": "https://github.com/Assessment-Models/",
-      "version": "v1.2.0",
-      "license": "CC-BY-4.0",
-      "standards_alignment": ["MECE-STRICT", "SemVer"],
-      "locales": ["en"],
-      "dimensions": ["Intent & Guardrails", "Closed-Loop Telemetry", "Human Escalation", "Autonomous Recovery"],
-      "conformance_status": "verified",
-      "updated_at": "2026-11-19T00:00:00Z"
-    },
-    {
-      "id": "evidence-scoring-engine",
-      "name": "Evidence & Deterministic Scoring",
-      "full_name": "Assessment-Models/evidence-scoring-engine",
-      "owner_type": "cardinal-org",
-      "layer": "shared-capability",
-      "architectural_concern": "Assessment Architecture",
-      "description": "Shared assessment capability for evidence validation, indicator mapping, deterministic scoring rubrics, and audit reporting.",
-      "readme_excerpt": "Provides reusable assessment execution, evidence management, deterministic scoring, and reporting across models.",
-      "html_url": "https://github.com/Assessment-Models/",
-      "version": "v1.5.0",
-      "license": "Apache-2.0",
-      "standards_alignment": ["MECE-STRICT", "SemVer"],
-      "locales": ["en"],
-      "dimensions": ["Evidence Validation", "Indicator Mapping", "Deterministic Rubrics", "Audit Reporting"],
-      "conformance_status": "verified",
-      "updated_at": "2026-11-19T00:00:00Z"
-    },
-    {
-      "id": "encyclopedia-localization-hub",
-      "name": "Encyclopedia & Localization Hub",
-      "full_name": "Assessment-Models/encyclopedia-localization-hub",
-      "owner_type": "cardinal-org",
-      "layer": "shared-capability",
-      "architectural_concern": "Assessment Architecture",
-      "description": "Shared authoritative knowledge encyclopedia and multilingual/regional localization capability for model instruments.",
-      "readme_excerpt": "Supports authoritative model knowledge resources and localized terminology without altering underlying scoring rules.",
-      "html_url": "https://github.com/Assessment-Models/",
-      "version": "v1.1.0",
-      "license": "Apache-2.0",
-      "standards_alignment": ["SemVer", "OpenDEA"],
-      "locales": ["en", "fr", "de", "es"],
-      "dimensions": ["Model Encyclopedia", "Term Glossary", "Locale Packs", "Regional Calibration"],
+      "description": "Normative source of truth for the maturity-model repository standard across Assessment-Models: specifications, schemas, reusable conformance workflow and the portfolio conformance registry (CR-AM-ORG-RES-000).",
+      "readme_excerpt": "Normative source of truth for the maturity-model repository standard across the [Assessment-Models](https://github.com/Assessment-Models) organization. Established by [CR-AM-ORG-RES-000 \u2014 Organization-Wide Maturity Model Repository Standardization, Architecture and Global\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-standard",
+      "default_branch": "main",
+      "version": "v0.1.0-draft",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
       "conformance_status": "draft",
-      "updated_at": "2026-11-19T00:00:00Z"
+      "has_manifest": false,
+      "updated_at": "2026-11-14T05:47:21Z"
     },
     {
-      "id": "opendia-dera-l1",
-      "name": "OpenDEA Reference Architecture",
+      "id": "maturity-model-technology",
+      "name": "Technology Maturity Model",
+      "full_name": "Assessment-Models/maturity-model-technology",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Technology",
+      "description": "Technology Maturity Model \u2014 assesses stack fitness, technical debt, lifecycle management and skill coverage.",
+      "readme_excerpt": "Technology Maturity Model \u2014 assesses stack fitness, technical debt, lifecycle management and skill coverage. 1.0.0 \u00b7 stable \u2014 canonical v2 bands, independently released This repository is the independent home of the dea:maturity-technology maturity model. Under the\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-technology",
+      "default_branch": "main",
+      "version": "v1.1.0",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "AM-MODEL-REPOSITORY-STANDARD",
+        "OpenDEA"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [
+        "Stack Fitness",
+        "Technical Debt",
+        "Lifecycle Management",
+        "Skill Coverage",
+        "Platform & Tooling Capability"
+      ],
+      "conformance_status": "structural",
+      "has_manifest": true,
+      "updated_at": "2026-11-20T05:06:43Z"
+    },
+    {
+      "id": "maturity-model-template",
+      "name": "maturity-model-template",
+      "full_name": "Assessment-Models/maturity-model-template",
+      "owner_type": "cardinal-org",
+      "layer": "maturity-model",
+      "architectural_concern": "Maturity Model Architecture",
+      "description": "Reusable Maturity Model GitHub template repository implementing the AM-MODEL-REPOSITORY-STANDARD: scaffold for new maturity-model-* repositories (CR-AM-ORG-RES-000).",
+      "readme_excerpt": "Executable scaffold for a conformant maturity-model repository in the [Assessment-Models](https://github.com/Assessment-Models) organization. > Implementation, not authority. The normative source of truth is\u2026",
+      "html_url": "https://github.com/Assessment-Models/maturity-model-template",
+      "default_branch": "main",
+      "version": "v0.1.0-draft",
+      "license": "MIT",
+      "primary_language": "Python",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
+      "conformance_status": "draft",
+      "has_manifest": false,
+      "updated_at": "2026-11-14T05:40:01Z"
+    },
+    {
+      "id": "dea-catalog-reference-architecture",
+      "name": "dea-catalog-reference-architecture",
       "full_name": "technehub-labs/dea-catalog-reference-architecture",
       "owner_type": "partner-ecosystem",
       "layer": "reference-blueprint",
       "architectural_concern": "Model Ecosystem Integration Architecture",
-      "description": "Digital Enterprise Reference Architecture (DERA): L1 catalog assembling metamodel, tenets, guardrails, patterns, blueprints, and metrics.",
-      "readme_excerpt": "Provides end-to-end enterprise reference blueprints aligned with OpenDEA metamodel and guardrails.",
+      "description": "Digital Enterprise Reference Architecture \u2014 canonical reference model assembling all DEA framework layers into a practical delivery blueprint.",
+      "readme_excerpt": "> Canonical reference model assembling the full TechNeHub Labs DEA framework into a practical enterprise delivery blueprint. The Digital Enterprise Reference Architecture (DERA) is the synthesising L1 catalog that assembles all other DEA framework catalogs into a coherent,\u2026",
       "html_url": "https://github.com/technehub-labs/dea-catalog-reference-architecture",
-      "version": "v1-alpha",
+      "default_branch": "main",
+      "version": "v0.1.0-draft",
       "license": "Apache-2.0",
-      "standards_alignment": ["OpenDEA", "DERA-L1", "Apache-2.0"],
-      "locales": ["en"],
-      "dimensions": ["Metamodel", "Tenets", "Guardrails", "Patterns", "Blueprints", "Metrics"],
+      "primary_language": "Markdown / YAML",
+      "topics": [],
+      "standards_alignment": [
+        "MECE-STRICT"
+      ],
+      "locales": [
+        "en"
+      ],
+      "dimensions": [],
       "conformance_status": "external-aligned",
-      "updated_at": "2026-11-19T00:00:00Z"
+      "has_manifest": false,
+      "updated_at": "2026-08-16T13:51:44Z"
     }
   ],
   "touchpoints": [
     {
-      "id": "tp-evidence-digital-maturity",
-      "label": "Evidence Binding Touchpoint",
+      "id": "tp-standard-alignment",
+      "label": "Standard Alignment Touchpoint",
       "kind": "touchpoint",
-      "from_station_id": "enterprise-digital-maturity",
-      "to_station_id": "evidence-scoring-engine",
-      "line_id": "shared-capability",
-      "contract_summary": "Maps verified assessment evidence items to digital maturity criteria gates.",
-      "compatibility": ">=1.5.0"
+      "from_station_id": "maturity-model-digital-transformation",
+      "to_station_id": "maturity-model-standard",
+      "line_id": "governance",
+      "contract_summary": "Binds model criteria, scoring, and repository structure to the normative maturity-model repository standard.",
+      "compatibility": ">=1.0.0"
     },
     {
-      "id": "tp-autonomy-evidence",
-      "label": "Telemetry Evidence Touchpoint",
+      "id": "tp-registry-integration",
+      "label": "Registry Integration Touchpoint",
       "kind": "touchpoint",
-      "from_station_id": "operational-autonomy-maturity",
-      "to_station_id": "evidence-scoring-engine",
-      "line_id": "shared-capability",
-      "contract_summary": "Binds operational telemetry logs to deterministic autonomy scoring rubrics.",
-      "compatibility": ">=1.5.0"
+      "from_station_id": "maturity-model-digital-transformation",
+      "to_station_id": "assessment-registry",
+      "line_id": "integration",
+      "contract_summary": "Registers model metadata and assessment indexes in the ecosystem registry spine for cross-model discovery.",
+      "compatibility": ">=1.0.0"
     },
     {
-      "id": "tp-locale-encyclopedia",
-      "label": "Localized Instrument Touchpoint",
+      "id": "tp-component-reuse",
+      "label": "Shared Capability Touchpoint",
       "kind": "touchpoint",
-      "from_station_id": "enterprise-digital-maturity",
-      "to_station_id": "encyclopedia-localization-hub",
+      "from_station_id": "maturity-model-digital-transformation",
+      "to_station_id": "maturity-components",
       "line_id": "shared-capability",
-      "contract_summary": "Supplies localized questionnaires and glossary definitions without changing score math.",
-      "compatibility": ">=1.1.0"
+      "contract_summary": "Reuses governed maturity component packages for composite capability scoring across assessment dimensions.",
+      "compatibility": ">=1.0.0"
     }
   ],
   "handshakes": [
     {
-      "id": "hs-gov-models",
-      "label": "Conformance & Registry Handshake",
+      "id": "hs-operationalized-line",
+      "label": "Operationalized Line Handshake",
       "kind": "handshake",
-      "from_station_id": "org-governance-standard",
-      "to_station_id": "enterprise-digital-maturity",
+      "from_station_id": "maturity-model-digital-transformation",
+      "to_station_id": "maturity-model-digital-transformation-operationalized",
       "line_id": "integration",
       "direction": "bidirectional",
-      "contract_summary": "Validates model conformance, SemVer compatibility, and central registry registration.",
-      "compatibility": "^1.0.0"
+      "contract_summary": "Exchanges composite model findings and operationalized assessment results between the digital transformation lines.",
+      "compatibility": ">=1.0.0 <2.0.0"
     },
     {
-      "id": "hs-digital-autonomy",
-      "label": "Cross-Model Autonomy Handshake",
-      "kind": "handshake",
-      "from_station_id": "enterprise-digital-maturity",
-      "to_station_id": "operational-autonomy-maturity",
-      "line_id": "integration",
-      "direction": "bidirectional",
-      "contract_summary": "Exchanges governed capability findings and change-impact signals between sibling models.",
-      "compatibility": ">=1.2.0 <2.0.0"
-    },
-    {
-      "id": "hs-dmm-opendia",
+      "id": "hs-opendea-crosswalk",
       "label": "OpenDEA DERA-L1 Handshake",
       "kind": "handshake",
-      "from_station_id": "enterprise-digital-maturity",
-      "to_station_id": "opendia-dera-l1",
+      "from_station_id": "maturity-model-digital-transformation",
+      "to_station_id": "dea-catalog-reference-architecture",
       "line_id": "reference-blueprint",
       "direction": "unidirectional",
-      "contract_summary": "Crosswalks enterprise maturity profiles to OpenDEA L1 guardrails, patterns, and blueprints.",
-      "compatibility": "^2.4.0"
+      "contract_summary": "Crosswalks enterprise maturity profiles to OpenDEA DERA-L1 guardrails, patterns, and blueprints.",
+      "compatibility": "^1.0.0"
     }
   ]
 }

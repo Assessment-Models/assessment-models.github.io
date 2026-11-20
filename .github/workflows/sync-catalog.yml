@@ -58,6 +58,19 @@ jobs:
               tail -n 60 sync-output.log
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
+            # Surface the failure reason as annotations too: job summaries
+            # need the web UI, but annotations are readable from the public
+            # run page and the REST API without sign-in.
+            grep -E '^\[(ERROR|DIAG|WARN)\]|Traceback|^Error:|CRASHED' sync-output.log | tail -n 10 > diag-lines.txt || true
+            if [ -s diag-lines.txt ]; then
+              while IFS= read -r line; do
+                safe="${line//[\`\"]/}"
+                safe="${safe//:/;}"
+                echo "::error title=catalog-sync::${safe:0:240}"
+              done < diag-lines.txt
+            else
+              echo "::error title=catalog-sync::sync failed with exit code $rc and printed no diagnostics; inspect the raw log"
+            fi
           fi
           exit "$rc"
 

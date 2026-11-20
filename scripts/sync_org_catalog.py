@@ -175,7 +175,17 @@ def github_get(path: str, token: Optional[str] = None) -> Any:
         try:
             with urllib.request.urlopen(req, timeout=25) as resp:
                 payload = resp.read().decode("utf-8")
-                return json.loads(payload) if payload.strip() else None
+                if not payload.strip():
+                    return None
+                try:
+                    return json.loads(payload)
+                except json.JSONDecodeError as exc:
+                    last_error = exc
+                    note(f"[WARN] GitHub API returned malformed JSON for {path} ({exc}); retrying")
+                    if attempt < MAX_RETRIES:
+                        time.sleep(2 ** attempt * 2)
+                        continue
+                    break
         except urllib.error.HTTPError as exc:
             if exc.code == 404:
                 return None
@@ -219,7 +229,11 @@ def fetch_repo_file_text(full_name: str, filepath: str, token: Optional[str]) ->
     payload = github_get(f"/repos/{full_name}/contents/{filepath}", token)
     if not payload or "content" not in payload:
         return None
-    raw = base64.b64decode(payload["content"]).decode("utf-8", errors="replace")
+    try:
+        raw = base64.b64decode(payload["content"]).decode("utf-8", errors="replace")
+    except (ValueError, TypeError) as exc:
+        note(f"[WARN] Could not decode {full_name}/{filepath} ({exc}); ignoring file.")
+        return None
     return raw
 
 

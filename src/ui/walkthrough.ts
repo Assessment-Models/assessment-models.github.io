@@ -1,8 +1,6 @@
 /**
- * Guided walkthrough (blueprint §6.7) — a first-visit spotlight tour:
- * metro map → persona → model drill-down → trial → report.
- * Each step anchors to a selector; steps whose target is missing are skipped.
- * Replays via the topbar "?" button; suppressed after completion.
+ * Guided walkthrough — spotlight tour synchronized to the four corporate viewports:
+ * Metro Map -> Viewport Switcher -> Interactions & CI -> Model Drill-Down -> Trial -> Report -> Conformance.
  */
 import { h } from './dom';
 
@@ -11,7 +9,6 @@ const DONE_KEY = 'am-walkthrough-done';
 interface Step {
   title: string;
   text: string;
-  /** selector to spotlight; the tour navigates to the step's hash first when given */
   selector: string;
   hash?: string;
   waitMs?: number;
@@ -19,44 +16,44 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    title: 'The metro map',
-    text: 'Every registered model, capability and blueprint as a transit network. Corridors are architectural lines, stations are artifacts — circles mark touchpoints, diamonds mark handshakes. Hover to inspect, click a station to trace its routes, drag to pan, scroll to zoom.',
+    title: 'Ecosystem Metro Map',
+    text: 'Every governed maturity model, assessment instrument, and OpenDEA blueprint appears as a station across architectural corridors. Transfer nodes mark touchpoints; interchange diamonds mark contract handshakes.',
     selector: '.metro-shell',
     hash: '#/',
     waitMs: 900,
   },
   {
-    title: 'Choose your persona',
-    text: 'Your persona tailors entry points and default actions: Assessors run trials, Assessses review expectations, Practitioners trace reuse, Certifying Bodies check conformance.',
+    title: 'Persona Viewports',
+    text: 'Switch between Business Transformation Executives, Assessors, Assessees, and Agents. Each viewport adapts default guidance, key metrics, and callout links across both the overview and the gateway.',
     selector: '.persona-select',
   },
   {
-    title: 'Drill into a model',
-    text: 'Every model page exposes its full structure: dimensions → sub-dimensions → criteria → level anchors and evidence, plus its scale and component imports.',
+    title: 'Inter-Model Interactions & CI',
+    text: 'Inspect how existing models coordinate via CR-AM-13 touchpoints and how future repositories from maturity-model-template propagate automatically via 3-level GitHub Actions CI.',
+    selector: '.ci-stage',
+    hash: '#/interactions',
+    waitMs: 700,
+  },
+  {
+    title: 'Model Structure & Contracts',
+    text: 'Drill into every model’s dimensions, criteria, L-0 to L-4 anchors, required evidence, touchpoints.yaml seams, and assessment-manifest.json declarations.',
     selector: '.model-head',
     hash: '#/model/maturity-model-digital-transformation',
-    waitMs: 1400,
+    waitMs: 1200,
   },
   {
-    title: 'Run a trial assessment',
-    text: 'Score each criterion against its evidence-anchored levels. The cascade sidebar computes live — dimension roll-ups, weighted overall, band and resolved level — entirely in your browser.',
+    title: 'Browser-Local Trial Assessment',
+    text: 'Score each criterion directly in your browser. Dimension roll-ups, effort-adjusted calculations, and mandatory level gates compute live without sending data off-device.',
     selector: '.trial-side',
     hash: '#/trial/maturity-model-digital-transformation',
-    waitMs: 1600,
+    waitMs: 1300,
   },
   {
-    title: 'Generate a report',
-    text: 'Reports combine an executive summary, radar and cascade charts, gap-to-target analysis and your evidence notes — printable and exportable as JSON.',
-    selector: '.report-hero',
-    hash: '#/report/maturity-model-digital-transformation',
-    waitMs: 2000,
-  },
-  {
-    title: 'Verify the portfolio',
-    text: 'The conformance dashboard shows repository-standard adoption across every repo — the Certifying Body view.',
+    title: 'Executive Report & Portfolio Conformance',
+    text: 'Export JSON/PDF assessment reports or review AM-MODEL-REPOSITORY-STANDARD adoption across every repository on the Conformance Dashboard.',
     selector: '.conf-table',
     hash: '#/conformance',
-    waitMs: 900,
+    waitMs: 800,
   },
 ];
 
@@ -103,7 +100,9 @@ async function play(): Promise<void> {
     if (e.key === 'Escape' || e.key === 'Enter') finish();
   };
   window.addEventListener('keydown', onKey);
-  overlay.addEventListener('click', finish);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) finish();
+  });
 
   for (const step of STEPS) {
     if (aborted) break;
@@ -114,12 +113,11 @@ async function play(): Promise<void> {
     if (step.waitMs) await new Promise((r) => setTimeout(r, step.waitMs));
     if (aborted) break;
     const target = document.querySelector(step.selector);
-    if (!target) continue; // step's screen isn't reachable — skip gracefully
+    if (!target) continue;
 
     const rect = target.getBoundingClientRect();
     overlay.innerHTML = '';
 
-    // spotlight cutout (box-shadow trick)
     const spot = h('div', { class: 'walkthrough-spot' });
     spot.style.top = `${Math.max(0, rect.top - 8)}px`;
     spot.style.left = `${Math.max(0, rect.left - 8)}px`;
@@ -127,26 +125,25 @@ async function play(): Promise<void> {
     spot.style.height = `${rect.height + 16}px`;
     overlay.append(spot);
 
-    // popover near the spotlight; "Got it" advances, "Skip tour" ends the tour
     await new Promise<void>((resolveStep) => {
       const pop = h('div', { class: 'walkthrough-pop' },
         h('h3', {}, step.title),
         h('p', { class: 'dim' }, step.text),
         (() => {
-          const bar = h('div', { style: 'display:flex;gap:.5rem;justify-content:flex-end;margin-top:.6rem' });
+          const bar = h('div', { style: 'display:flex;gap:.5rem;justify-content:flex-end;margin-top:.65rem' });
           const skip = h('button', { class: 'btn small' }, 'Skip tour');
           skip.addEventListener('click', () => finish());
-          const gotIt = h('button', { class: 'btn primary small' }, 'Got it');
+          const gotIt = h('button', { class: 'btn primary small' }, 'Next');
           gotIt.addEventListener('click', () => resolveStep());
           bar.append(skip, gotIt);
           return bar;
         })(),
       );
-      const popWidth = 340;
+      const popWidth = 350;
       const left = Math.min(Math.max(12, rect.left), window.innerWidth - popWidth - 12);
-      const below = rect.bottom + 14 < window.innerHeight - 190;
+      const below = rect.bottom + 14 < window.innerHeight - 200;
       pop.style.left = `${left}px`;
-      pop.style.top = below ? `${rect.bottom + 14}px` : `${Math.max(12, rect.top - 190)}px`;
+      pop.style.top = below ? `${rect.bottom + 14}px` : `${Math.max(12, rect.top - 200)}px`;
       pop.style.width = `${popWidth}px`;
       overlay.append(pop);
     });

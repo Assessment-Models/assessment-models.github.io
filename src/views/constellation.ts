@@ -60,10 +60,10 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
 
   // Refined persona landing card
   const personaHints: Record<string, string[]> = {
+    executive: ['Check conformance', 'Verify portfolio alignment', 'Review OpenDEA DERA-L1'],
     assessor: ['Start with a model', 'Run a trial', 'Generate a report'],
     assessee: ['Review expectations', 'Explore dimensions', 'Understand evidence'],
-    practitioner: ['Trace reuse', 'Inspect handshakes', 'Compare structures'],
-    certifier: ['Check conformance', 'Verify contracts', 'Review coverage'],
+    agent: ['Trace reuse', 'Inspect handshakes', 'Check CI contracts'],
   };
   const hints = personaHints[persona.id] ?? [];
   const personaPanel = h('div', { class: 'panel persona-panel landing-persona no-print' },
@@ -91,7 +91,7 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
   }
 
   const wrap = h('div', {
-    class: `constellation-wrap landing-stage${persona.id === 'practitioner' ? ' persona-practitioner' : ''}`,
+    class: `constellation-wrap landing-stage${persona.id === 'agent' ? ' persona-practitioner' : ''}`,
   });
   const stage = h('div', { class: 'constellation-stage' });
   wrap.append(stage);
@@ -114,7 +114,7 @@ export async function renderConstellation(root: HTMLElement): Promise<void> {
   if (use3D) {
     const { create3DConstellation } = await import('../constellation3d');
     renderer = create3DConstellation(stage, manifest, {
-      practitioner: persona.id === 'practitioner',
+      practitioner: persona.id === 'agent',
       onHover: (node, x, y) => {
         if (node) showTooltip(tooltipHtml(node, GROUP_COLORS[node.group]), x, y);
         else hideTooltip();

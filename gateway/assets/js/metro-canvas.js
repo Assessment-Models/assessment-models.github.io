@@ -521,7 +521,7 @@ export class MetroCanvasController {
         "text-anchor": lp.anchor,
         class: "metro-station-label",
       });
-      titleText.textContent = st.name;
+      titleText.textContent = st.name.length > 34 ? `${st.name.slice(0, 32)}…` : st.name;
 
       const metaText = svgEl("text", {
         x: lp.dx,

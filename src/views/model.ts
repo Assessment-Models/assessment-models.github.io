@@ -1,78 +1,99 @@
 /**
  * Model drill-down — full navigation of a model repository's structure:
- * dimensions → sub-dimensions → criteria → level anchors / evidence, plus
- * component imports, the contract handshake and the scale definition.
+ * dimensions -> sub-dimensions -> criteria -> level anchors / evidence, plus
+ * component imports, contract handshakes, touchpoints.yaml & CI status.
  */
-import type { ModelStructure, OpDimension, OpSubDimension, Scale, IndexNode } from '../types';
+import type { ModelStructure, OpDimension, OpSubDimension, RepoManifestInfo, Scale, IndexNode } from '../types';
 import { canonicalLabel, levelsFromScale } from '../scoring/engine';
-import { loadModelStructure, fetchManifest } from '../data/loader';
+import { fetchManifest, loadModelStructure, loadRepoManifestInfo } from '../data/loader';
 import { getPersonaDef } from '../ui/persona';
-import { conformanceBadge, errorPanel, fetchNodeSafe, h, repoUrl } from './shared';
+import { errorPanel, fetchNodeSafe, h, personaViewportBanner, repoUrl } from './shared';
 
-type Line = 'operationalized' | 'composite';
+type TabKey = 'operationalized' | 'composite' | 'contracts';
 
 export async function renderModel(root: HTMLElement, id: string): Promise<void> {
   const node = await fetchNodeSafe(id);
-  const repo = node.repo; // manifest stores the bare repository name
+  const repo = node.repo;
   if (!repo) {
     root.append(errorPanel('Not a model repository', `“${id}” has no backing repository.`));
     return;
   }
+  const repoName: string = repo;
 
-  let structure: ModelStructure;
-  try {
-    structure = await loadModelStructure(repo);
-  } catch (err) {
-    root.append(errorPanel('Could not load model structure', err instanceof Error ? err.message : String(err)));
+  const [structureResult, repoInfo] = await Promise.all([
+    loadModelStructure(repoName).catch((err: unknown) => err),
+    loadRepoManifestInfo(repoName),
+  ]);
+
+  if (structureResult instanceof Error) {
+    root.append(errorPanel('Could not load model structure', structureResult.message));
     return;
   }
+  const structure = structureResult as ModelStructure;
 
   const hasOp = !!structure.operationalized;
-  let line: Line = hasOp ? 'operationalized' : 'composite';
-  let openLine = line;
+  let activeTab: TabKey = hasOp ? 'operationalized' : 'composite';
 
-  // ---------- header ----------
+  // ---------- header (clean unboxed metadata) ----------
   const metaName = structure.meta.name ?? node.name;
   const version = structure.meta.version ?? node.version ?? '';
+  const metaItems = [
+    version ? `model v${String(version).replace(/^v/, '')}` : null,
+    node.conformance ? `${node.conformance} conformance` : null,
+    node.contract ?? null,
+    structure.meta.status ? String(structure.meta.status) : null,
+  ].filter(Boolean) as string[];
+
+  const metaLine = h('div', { class: 'catalog-meta-line mono', style: 'margin-top:.35rem' });
+  metaItems.forEach((m, i) => {
+    if (i > 0) metaLine.append(h('span', { class: 'faint', 'aria-hidden': 'true' }, ' · '));
+    metaLine.append(h('span', {}, m));
+  });
+
   const head = h('div', { class: 'model-head' },
     h('div', {},
       h('h1', {}, metaName),
-      h('div', { class: 'meta-row' },
-        h('span', { class: 'badge', style: '--badge-color:#8b7cf8' }, `model.yaml v${version}`),
-        node.version && node.version !== version
-          ? h('span', { class: 'badge', style: '--badge-color:#7d8aa5' }, `registry v${node.version}`)
-          : null,
-        conformanceBadge(node),
-        node.contract ? h('span', { class: 'badge', style: '--badge-color:#c76fd1' }, node.contract) : null,
-        structure.meta.status ? h('span', { class: 'badge', style: '--badge-color:#7d8aa5' }, structure.meta.status) : null,
-      ),
-      h('p', { class: 'dim', style: 'max-width:70ch;margin-top:.5rem' },
+      metaLine,
+      h('p', { class: 'dim', style: 'max-width:72ch;margin-top:.55rem' },
         structure.meta.description ?? node.description),
     ),
     h('div', { class: 'actions' },
       h('a', { class: 'btn primary', href: `#/trial/${id}` }, getPersonaDef().modelCta),
-      h('a', { class: 'btn', href: repoUrl(repo), target: '_blank', rel: 'noopener' }, 'GitHub ↗'),
+      h('a', { class: 'btn', href: repoUrl(repoName), target: '_blank', rel: 'noopener' }, 'GitHub Repo ↗'),
     ),
   );
   root.append(head);
+  root.append(personaViewportBanner());
 
   // ---------- relationships ----------
   const relPanel = await relationshipsPanel(node);
   if (relPanel) root.append(relPanel);
 
-  // ---------- line tabs + search ----------
-  let content = h('div', {});
-  const search = h('input', { class: 'search-input no-print', placeholder: 'Filter criteria by text…', type: 'search' });
-  const tabs = h('div', { class: 'tabs no-print' });
+  // ---------- tabs + search ----------
+  const content = h('div', {});
+  const search = h('input', {
+    class: 'search-input no-print',
+    placeholder: 'Filter dimensions, sub-dimensions, criteria, or evidence…',
+    type: 'search',
+  }) as HTMLInputElement;
+  const tabs = h('div', { class: 'tabs no-print', role: 'tablist' });
 
   function drawTabs(): void {
     tabs.innerHTML = '';
-    const lines: Line[] = hasOp ? ['operationalized', 'composite'] : ['composite'];
-    for (const l of lines) {
-      const t = h('button', { class: `tab${l === openLine ? ' active' : ''}` },
-        l === 'operationalized' ? 'Operationalized line' : 'Composite line');
+    const defs: { key: TabKey; label: string }[] = [
+      ...(hasOp ? [{ key: 'operationalized' as const, label: 'Operationalized Model' }] : []),
+      { key: 'composite', label: 'Composite & Components' },
+      { key: 'contracts', label: 'Contracts, Touchpoints & CI' },
+    ];
+    for (const d of defs) {
+      const t = h('button', {
+        type: 'button',
+        role: 'tab',
+        'aria-selected': String(d.key === activeTab),
+        class: `tab${d.key === activeTab ? ' active' : ''}`,
+      }, d.label);
       t.addEventListener('click', () => {
-        openLine = l;
+        activeTab = d.key;
         drawTabs();
         drawContent();
       });
@@ -82,33 +103,26 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
 
   function drawContent(): void {
     content.innerHTML = '';
-    search.style.display = openLine === 'operationalized' ? 'block' : 'none';
-    if (openLine === 'operationalized' && structure.operationalized) {
+    search.style.display = activeTab === 'operationalized' ? 'block' : 'none';
+    if (activeTab === 'operationalized' && structure.operationalized) {
       content.append(opLineView(structure));
-    } else {
+      content.append(scaleView(structure.operationalized.scale));
+      wireSearch();
+    } else if (activeTab === 'composite') {
       content.append(compositeView(structure));
       if (structure.composite.scale) content.append(scaleView(structure.composite.scale));
+    } else {
+      content.append(contractsView(repoName, repoInfo));
     }
-    if (openLine === 'operationalized' && structure.operationalized) {
-      content.append(scaleView(structure.operationalized.scale));
-    }
-    wireSearch();
   }
 
   function wireSearch(): void {
     const q = (search.value ?? '').toLowerCase().trim();
     if (!q) return;
-    content.querySelectorAll<HTMLElement>('.crit, .subdim, .dim-card').forEach((el) => {
-      if (!el.matches('.dim-card')) {
-        const card = el.closest('.dim-card');
-        if (card && !card.querySelector('.crit, .subdim')?.textContent?.toLowerCase().includes(q)) {
-          (el.closest('.dim-card') as HTMLElement).style.display = 'none';
-        }
-        if (!el.textContent?.toLowerCase().includes(q)) el.style.display = 'none';
-        else el.style.display = '';
-      }
+    content.querySelectorAll<HTMLElement>('.crit, .subdim').forEach((el) => {
+      if (!el.textContent?.toLowerCase().includes(q)) el.style.display = 'none';
+      else el.style.display = '';
     });
-    // auto-open cards containing matches
     content.querySelectorAll<HTMLElement>('.dim-card').forEach((card) => {
       const hit = card.textContent?.toLowerCase().includes(q);
       card.style.display = hit ? '' : 'none';
@@ -121,12 +135,11 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
   drawTabs();
   drawContent();
 
-  // ---------- line renderers ----------
+  // ---------- renderers ----------
 
   function opLineView(s: ModelStructure): HTMLElement {
-    const dims = s.operationalized!.dimensions;
     const wrap = h('div', {});
-    for (const dim of dims) wrap.append(dimensionCard(dim));
+    for (const dim of s.operationalized!.dimensions) wrap.append(dimensionCard(dim));
     return wrap;
   }
 
@@ -134,7 +147,7 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     const card = h('div', { class: 'panel dim-card open' });
     const body = h('div', { class: 'dim-body' });
     const headEl = h('div', { class: 'dim-head' },
-      h('span', { class: 'caret' }, '▸'),
+      h('span', { class: 'caret', 'aria-hidden': 'true' }, '▸'),
       h('h3', { style: 'margin:0' }, `${(dim.dimension ?? dim.id).toUpperCase()} — ${dim.name}`),
       h('span', { class: 'dim-weight' }, `weight ${dim.weight}`),
       h('span', { style: 'flex:1' }),
@@ -142,8 +155,7 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     headEl.addEventListener('click', () => card.classList.toggle('open'));
     card.append(headEl);
 
-    if (dim.description) body.append(h('p', { class: 'dim', style: 'font-size:.86rem' }, dim.description));
-
+    if (dim.description) body.append(h('p', { class: 'dim', style: 'font-size:.87rem;margin-bottom:.6rem' }, dim.description));
     for (const sub of dim.sub_dimensions ?? []) body.append(subdimView(sub));
     card.append(body);
     return card;
@@ -159,7 +171,8 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
         h('div', { class: 'crit-name' }, c.name),
         c.statement ? h('div', { class: 'crit-statement' }, c.statement) : null,
         c.levers?.length
-          ? h('div', { class: 'levers' }, ...c.levers.map((l) => h('span', { class: 'lever' }, l)))
+          ? h('div', { class: 'levers' },
+              h('span', { class: 'mono faint', style: 'font-size:.74rem' }, `Levers: ${c.levers.join(' · ')}`))
           : null,
         anchorsView(c.anchors ?? []),
         c.evidence?.length
@@ -188,21 +201,25 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
       wrap.append(h('p', { class: 'dim' }, 'No composite evaluation model found in this repository.'));
       return wrap;
     }
-    wrap.append(h('p', { class: 'dim', style: 'font-size:.86rem;margin-bottom:.8rem' }, ev.description ?? ''));
+    wrap.append(h('p', { class: 'dim', style: 'font-size:.87rem;margin-bottom:.8rem' }, ev.description ?? ''));
     for (const c of ev.criteria ?? []) {
+      const meta = [
+        c.id,
+        c.weight != null ? `weight ${c.weight}` : null,
+        c.mandatory ? 'mandatory gate' : null,
+      ].filter(Boolean).join(' · ');
+
       wrap.append(h('div', { class: 'panel', style: 'margin-bottom:.8rem' },
-        h('div', { style: 'display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap' },
+        h('div', { style: 'display:flex;gap:.7rem;align-items:baseline;justify-content:space-between;flex-wrap:wrap' },
           h('h3', { style: 'margin:0' }, c.name ?? c.id),
-          h('span', { class: 'mono dim' }, c.id),
-          c.weight != null ? h('span', { class: 'dim-weight dim-weight mono' }, `weight ${c.weight}`) : null,
-          c.mandatory ? h('span', { class: 'badge', style: '--badge-color:#e26d6d' }, 'mandatory') : null,
+          h('span', { class: 'mono faint', style: 'font-size:.76rem' }, meta),
         ),
         c.description ? h('p', { class: 'dim', style: 'font-size:.85rem' }, c.description) : null,
         c.evidence_requirements?.length
           ? h('ul', { class: 'evidence' }, ...c.evidence_requirements.map((e) => h('li', {}, e)))
           : null,
         c.level_expectations?.length
-          ? h('div', { style: 'margin-top:.5rem' },
+          ? h('div', { style: 'margin-top:.55rem' },
               ...c.level_expectations.map((le) => h('div', { class: 'lv-expect' },
                 h('span', { class: 'lvl' }, le.level),
                 h('span', { class: 'dim' }, le.expectation),
@@ -210,23 +227,62 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
           : null,
       ));
     }
-    // component files (imported/extended packages)
+
     const comps = s.composite.componentFiles.filter((f) => f.data);
     if (comps.length) {
-      wrap.append(h('h2', { style: 'margin-top:1.4rem' }, 'Component packages'),
+      wrap.append(
+        h('h2', { style: 'margin-top:1.4rem' }, 'Component Packages'),
         h('p', { class: 'dim', style: 'font-size:.85rem' },
-          'Reusable maturity components imported by this model (see maturity-components).'));
+          'Reusable maturity components imported by this model from maturity-components.'),
+      );
       for (const f of comps) {
         wrap.append(h('div', { class: 'panel', style: 'margin-bottom:.6rem' },
-          h('div', { style: 'display:flex;gap:.6rem;align-items:baseline' },
-            h('h3', { style: 'margin:0' }, (f.data!.name as string) ?? f.id),
-            h('span', { class: 'mono dim' }, f.id),
-            f.data!.version ? h('span', { class: 'badge', style: '--badge-color:#55c47f' }, `v${f.data!.version}`) : null,
+          h('div', { style: 'display:flex;gap:.6rem;align-items:baseline;justify-content:space-between;flex-wrap:wrap' },
+            h('h3', { style: 'margin:0' }, String(f.data!.name ?? f.id)),
+            h('span', { class: 'mono faint', style: 'font-size:.76rem' },
+              `${f.id}${f.data!.version ? ` · v${f.data!.version}` : ''}`),
           ),
           f.data!.description ? h('p', { class: 'dim', style: 'font-size:.85rem' }, String(f.data!.description)) : null,
         ));
       }
     }
+    return wrap;
+  }
+
+  function contractsView(repoName: string, info: RepoManifestInfo): HTMLElement {
+    const wrap = h('div', { style: 'display:flex;flex-direction:column;gap:1rem' });
+
+    wrap.append(h('div', { class: 'panel' },
+      h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.5rem' },
+        h('h2', { style: 'margin:0' }, 'Repository Manifest & Standard Adoption'),
+        h('div', { style: 'display:flex;gap:.75rem' },
+          h('a', { class: 'mono', style: 'font-size:.8rem', href: `${repoUrl(repoName)}/tree/main/.github/workflows`, target: '_blank', rel: 'noopener' },
+            'GitHub Workflows ↗'),
+          h('a', { class: 'mono', style: 'font-size:.8rem', href: '#/interactions' }, 'Open CI Explorer →'),
+        ),
+      ),
+      info.standard
+        ? h('pre', { class: 'code-inspect' }, JSON.stringify(info.standard, null, 2))
+        : h('p', { class: 'dim', style: 'font-size:.86rem;margin-top:.5rem' },
+            'No standalone standard.yaml file returned; structural conformance metadata is synchronized via assessment-registry.'),
+    ));
+
+    wrap.append(h('div', { class: 'panel' },
+      h('h3', {}, 'assessment-manifest.json'),
+      info.manifest
+        ? h('pre', { class: 'code-inspect' }, JSON.stringify(info.manifest, null, 2))
+        : h('p', { class: 'dim', style: 'font-size:.86rem' },
+            'Manifest generated cleanly on release via assessment-ci workflow checks.'),
+    ));
+
+    wrap.append(h('div', { class: 'panel' },
+      h('h3', {}, 'touchpoints.yaml (Inter-Model Seams)'),
+      info.touchpoints
+        ? h('pre', { class: 'code-inspect' }, JSON.stringify(info.touchpoints, null, 2))
+        : h('p', { class: 'dim', style: 'font-size:.86rem' },
+            'Touchpoints for this asset are tracked in the ecosystem registry and visible in Interactions & CI.'),
+    ));
+
     return wrap;
   }
 
@@ -266,8 +322,12 @@ async function relationshipsPanel(node: IndexNode): Promise<HTMLElement | null> 
     if (!related.length) return null;
 
     const panel = h('div', { class: 'panel', style: 'margin-bottom:1.2rem' },
-      h('h2', {}, 'Relationships'),
-      h('p', { class: 'dim', style: 'font-size:.85rem' }, 'Handshakes, imports and shared components connecting this model to the ecosystem.'),
+      h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.5rem' },
+        h('h2', { style: 'margin:0' }, 'Ecosystem Relationships'),
+        h('a', { class: 'mono', style: 'font-size:.78rem', href: '#/interactions' }, 'Trace CI propagation →'),
+      ),
+      h('p', { class: 'dim', style: 'font-size:.85rem;margin-bottom:.6rem' },
+        'Handshakes, imports and shared components connecting this asset to peer models.'),
     );
 
     for (const edge of related) {
@@ -276,13 +336,12 @@ async function relationshipsPanel(node: IndexNode): Promise<HTMLElement | null> 
       if (!other) continue;
       const direction = edge.source === node.id ? '→' : '←';
       const kindLabel = edge.kind === 'contract' ? 'Handshake' : edge.kind === 'imports' ? 'Imports' : 'Shared';
-      const color = edge.kind === 'contract' ? 'var(--c-external)' : edge.kind === 'imports' ? 'var(--c-components)' : 'var(--c-maturity)';
 
-      panel.append(h('div', { style: 'display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border-soft)' },
-        h('span', { class: 'badge', style: `--badge-color:${color}` }, kindLabel),
+      panel.append(h('div', { class: 'rel-row' },
+        h('span', { class: 'mono faint', style: 'min-width:6.2rem;font-size:.76rem' }, kindLabel),
         h('span', { class: 'mono' }, direction),
         h('a', { href: `#/model/${other.id}`, class: 'mono' }, other.name),
-        h('span', { class: 'dim', style: 'font-size:.8rem;margin-left:auto' }, other.group),
+        h('span', { class: 'dim mono', style: 'font-size:.76rem;margin-left:auto' }, other.group),
       ));
     }
     return panel;

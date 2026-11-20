@@ -141,9 +141,15 @@ export interface CriteriaRegister {
   description?: string;
   status?: string;
   scoring?: { mechanism?: string } & Record<string, unknown>;
-  /** dimensions → sub-dimensions → criteria (same shape as the DT operationalized line) */
+  /** dimensions → sub-dimensions → criteria */
   dimensions?: OpDimension[];
   [k: string]: unknown;
+}
+
+export interface RepoManifestInfo {
+  manifest: Record<string, unknown> | null;
+  touchpoints: Record<string, unknown> | null;
+  standard: Record<string, unknown> | null;
 }
 
 // ---------- resolved structure for the drill-down / trial ----------

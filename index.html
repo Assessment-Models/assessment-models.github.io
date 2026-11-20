@@ -6,13 +6,18 @@
   <title>Assessment Models — Enterprise Maturity &amp; Blueprint Ecosystem</title>
   <meta
     name="description"
-    content="Open, governed ecosystem of enterprise and organizational maturity models, assessment systems, shared capabilities, and OpenDEA-compatible blueprints for Assessment-Models."
+    content="Governed enterprise and organizational maturity models, OpenDEA assessment instruments, cross-model handshake contracts, and automated CI conformance for Assessment-Models."
+  />
+  <meta property="og:title" content="Assessment Models — Enterprise Maturity &amp; Blueprint Ecosystem" />
+  <meta
+    property="og:description"
+    content="Open ecosystem of domain-autonomous maturity models, assessment tools, and automated GitHub Actions conformance."
   />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="assets/css/ecosystem.css" />
@@ -20,24 +25,23 @@
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <!-- Top Navigation -->
+  <!-- Top Navigation (3-zone corporate bar) -->
   <header class="site-header" data-elevate-on-scroll>
     <div class="container header-inner">
       <a class="brand-link" href="#top" aria-label="Assessment Models home">
         <span class="brand-mark" aria-hidden="true">AM</span>
         <span class="brand-text">
           <span class="brand-title">Assessment Models</span>
-          <span class="brand-subtitle">assessment-models.github.io</span>
+          <span class="brand-subtitle">Enterprise Maturity Ecosystem</span>
         </span>
       </a>
 
       <nav class="primary-nav" aria-label="Primary sections">
-        <a href="#concerns" data-nav-link>Concerns</a>
-        <a href="#layers" data-nav-link>4 Layers</a>
-        <a href="#lifecycle" data-nav-link>Lifecycle</a>
-        <a href="#repositories" data-nav-link>Repositories</a>
-        <a href="#governance" data-nav-link>Governance</a>
-        <a href="/gateway/" data-nav-link>Gateway</a>
+        <a href="#viewports" data-nav-link>Viewports</a>
+        <a href="#models" data-nav-link>Models</a>
+        <a href="#ci-interactions" data-nav-link>CI &amp; Seams</a>
+        <a href="#architecture" data-nav-link>Architecture</a>
+        <a href="#repositories" data-nav-link>Registry</a>
       </nav>
 
       <div class="header-actions">
@@ -47,83 +51,73 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          Assessment-Models Org ↗
+          GitHub Org ↗
         </a>
+        <a class="btn btn-primary" href="/gateway/">Open Gateway →</a>
       </div>
     </div>
   </header>
 
   <main id="main-content" tabindex="-1">
-    <!-- Zone 1: Hero & Interactive Ecosystem Control Plane -->
+    <!-- Zone 1: Executive Hero & Live Contract Inspector -->
     <section id="top" class="hero-section">
-      <div class="hero-ambient" aria-hidden="true"></div>
       <div class="container hero-grid">
         <div class="hero-copy">
-          <div class="status-pill">
-            <span class="pulse-dot" aria-hidden="true"></span>
-            <span>CARDINAL ECOSYSTEM • MODEL INDEPENDENCE &amp; INTEROPERABILITY</span>
-          </div>
+          <p class="hero-kicker">Model Independence with Governed Interoperability</p>
 
           <h1>
-            Governed Maturity Models &amp; Interoperable Assessment Systems
+            Enterprise Maturity Models Built for Domain Autonomy &amp; Continuous Conformance
           </h1>
 
           <p class="hero-lead">
-            An open ecosystem for <strong>Assessment-Models</strong> where domain maturity models
-            keep semantic autonomy while connecting through shared assessment capabilities,
-            verifiable evidence contracts, and
-            <button
-              type="button"
-              class="term-trigger"
-              data-tooltip="Open Digital Enterprise Reference Architecture (DERA L1): aligns metamodel, tenets, guardrails, patterns, blueprints, and metrics."
-            >
-              OpenDEA
-            </button>
-            compatibility.
+            An open governance and assessment ecosystem for <strong>Assessment-Models</strong>. Each
+            domain model owns its dimensions, L-0 to L-4 anchors, and deterministic scoring logic while
+            connecting through OpenDEA metamodel handshakes, shared component packages, and three-level
+            GitHub Actions CI.
           </p>
 
           <div class="hero-cta-row">
-            <a class="btn btn-primary" href="#layers">Explore 4-Layer Architecture</a>
-            <a class="btn btn-secondary" href="#repositories">Browse Org Catalog</a>
+            <a class="btn btn-primary" href="/gateway/">Launch Assessment Gateway →</a>
+            <a class="btn btn-secondary" href="#viewports">Select Role Viewport</a>
           </div>
 
-          <!-- Live Telemetry Strip (hydrated from data/ecosystem-registry.json) -->
-          <dl class="telemetry-strip" aria-label="Ecosystem registry summary">
+          <!-- Registry-Hydrated Executive Telemetry Strip -->
+          <dl class="telemetry-strip" aria-label="Ecosystem registry metrics">
             <div class="telemetry-item">
               <dt>
                 <button
                   type="button"
                   class="term-trigger"
-                  data-tooltip="Total repositories and aligned blueprints indexed in data/ecosystem-registry.json."
+                  data-tooltip="Repositories and OpenDEA partner blueprints indexed in data/ecosystem-registry.json."
                 >
                   Indexed Artifacts
                 </button>
               </dt>
-              <dd id="stat-total-artifacts">4+</dd>
+              <dd id="stat-total-artifacts">21</dd>
             </div>
             <div class="telemetry-item">
               <dt>
                 <button
                   type="button"
                   class="term-trigger"
-                  data-tooltip="Independently versioned maturity models retaining domain semantics."
+                  data-tooltip="Maturity model repositories and operationalized portfolios retaining domain semantics."
                 >
-                  Maturity Models
+                  Maturity Repos
                 </button>
               </dt>
-              <dd id="stat-models">Active</dd>
+              <dd id="stat-models">10</dd>
             </div>
             <div class="telemetry-item">
               <dt>
                 <button
                   type="button"
                   class="term-trigger"
-                  data-tooltip="Reusable capabilities: execution, evidence, scoring, encyclopedia, localization, and analytics."
+                  data-tooltip="Published CR-AM-13 touchpoints and CR-AM-11 metamodel handshakes."
                 >
-                  Shared Capabilities
+                  Verified Seams
                 </button>
               </dt>
-              <dd>6 Core</dd>
+              <dd id="stat-seams">26</dd>
             </div>
             <div class="telemetry-item">
               <dt>
@@ -132,22 +126,22 @@
                   class="term-trigger"
                   data-tooltip="SHA-256 digest of the latest synchronized catalog snapshot."
                 >
-                  Registry Sync
+                  Registry Digest
                 </button>
               </dt>
-              <dd id="stat-sync-status">Automated</dd>
+              <dd id="stat-sync-status">sha256</dd>
             </div>
           </dl>
         </div>
 
-        <!-- Interactive Manifest & Contract Inspector -->
-        <aside class="inspector-card" aria-label="Ecosystem specification inspector">
+        <!-- Dark Slate Live Contract & CI Spec Inspector -->
+        <aside class="inspector-card" aria-label="Live repository contract inspector">
           <div class="inspector-header">
             <div>
-              <span class="inspector-kicker">LIVE ECOSYSTEM CONTRACT</span>
-              <h2 class="inspector-title">Interoperability &amp; Manifest Preview</h2>
+              <span class="inspector-kicker">VERIFIED REPOSITORY CONTRACTS</span>
+              <h2 class="inspector-title">Manifest, Touchpoint &amp; CI Dispatch</h2>
             </div>
-            <span class="badge badge-verified">MECE + SEMVER</span>
+            <span class="inspector-meta-tag">MECE · SemVer</span>
           </div>
 
           <div class="tablist" role="tablist" aria-label="Specification view">
@@ -156,7 +150,6 @@
               role="tab"
               id="tab-manifest"
               aria-selected="true"
-              aria-controls="panel-manifest"
               class="tab-btn is-active"
               data-spec-tab="manifest"
             >
@@ -165,270 +158,393 @@
             <button
               type="button"
               role="tab"
-              id="tab-handshake"
+              id="tab-touchpoint"
               aria-selected="false"
-              aria-controls="panel-handshake"
               class="tab-btn"
-              data-spec-tab="handshake"
+              data-spec-tab="touchpoint"
             >
-              Handshake Contract
+              Touchpoint Seam
             </button>
             <button
               type="button"
               role="tab"
-              id="tab-evidence"
+              id="tab-ci"
               aria-selected="false"
-              aria-controls="panel-evidence"
               class="tab-btn"
-              data-spec-tab="evidence"
+              data-spec-tab="ci"
             >
-              Evidence Binding
+              CI Dispatch
             </button>
           </div>
 
           <div class="inspector-body">
             <div class="code-toolbar">
-              <span id="spec-filename" class="mono-label">assessment-manifest.json</span>
+              <span id="spec-filename" class="mono-label">maturity-model-digital-transformation/assessment-manifest.json</span>
               <button type="button" class="copy-btn" id="copy-spec-btn" aria-live="polite">
-                Copy snippet
+                Copy
               </button>
             </div>
             <pre id="spec-code-block" class="code-block" tabindex="0"><code>{
   "org": "Assessment-Models",
-  "principle": "model-independence-with-interoperability",
-  "architectural_concern": "Maturity Model Architecture",
-  "layer": "maturity-model",
-  "version": "v2.4.0",
-  "locales": ["en", "fr", "de"],
-  "crosswalk": ["OpenDEA", "ISO/IEC-33001"],
-  "scoring": "deterministic-weighted-rubric"
+  "repo": "maturity-model-digital-transformation",
+  "model_id": "dea:maturity-digital-transformation",
+  "version": "1.1.0-alpha",
+  "conformance": "structural",
+  "scale_contract": "dea:maturity-bands-v2",
+  "imported_components": ["digital-culture", "technology-adoption"]
 }</code></pre>
             <p id="spec-note" class="inspector-footnote">
-              Every model owns its domain semantics and scoring logic while declaring standardized
-              metadata for registry discovery and cross-model touchpoints.
+              Every domain repository declares its semantic identity, conformance standard, and
+              upstream OpenDEA scale contract in machine-readable YAML and JSON.
             </p>
           </div>
         </aside>
       </div>
     </section>
 
-    <!-- Zone 2: Three Connected Architectural Concerns -->
-    <section id="concerns" class="section-block">
+    <hr class="section-divider" />
+
+    <!-- Zone 2: Persona Viewports (Executives, Assessors, Assessees, Agents) -->
+    <section id="viewports" class="section-block">
       <div class="container">
         <div class="section-heading">
-          <p class="eyebrow">SECTION 2 • ECOSYSTEM ARCHITECTURE</p>
-          <h2>Three Connected Architectural Concerns</h2>
+          <p class="eyebrow">Role-Tailored Viewports</p>
+          <h2>Purpose-Built Perspectives Across the Assessment Lifecycle</h2>
           <p>
-            Shared infrastructure never erases domain differences. Each model governs what it
-            measures, how assessments run, and how it exchanges governed signals with sibling models.
+            Select your role to surface relevant workflows, key metrics, and direct entry points.
+            Your selection automatically persists across the Assessment Gateway.
           </p>
         </div>
 
-        <div class="three-col-grid">
-          <article class="surface-card concern-card">
-            <div class="card-index">01 / WHAT IS ASSESSED</div>
+        <div class="viewport-tabs" role="tablist" aria-label="Persona Viewports">
+          <button type="button" role="tab" class="viewport-tab is-active" data-persona-tab="executive" aria-selected="true">
+            Business Transformation Executives
+          </button>
+          <button type="button" role="tab" class="viewport-tab" data-persona-tab="assessor" aria-selected="false">
+            Assessors
+          </button>
+          <button type="button" role="tab" class="viewport-tab" data-persona-tab="assessee" aria-selected="false">
+            Assessees
+          </button>
+          <button type="button" role="tab" class="viewport-tab" data-persona-tab="agent" aria-selected="false">
+            Agents
+          </button>
+        </div>
+
+        <div id="viewport-stage" class="viewport-stage" aria-live="polite">
+          <div class="viewport-main">
+            <div>
+              <p class="viewport-kicker" id="vp-kicker">Viewport · Business Transformation Executive</p>
+              <h3 id="vp-title">Portfolio Posture &amp; Transformation Horizon</h3>
+              <p id="vp-summary" class="viewport-summary">
+                Compare capability maturity across Operations, Technology, Services Delivery, Modernization,
+                and Autonomous Operations — linking effort-adjusted investment directly to OpenDEA DERA-L1 guardrails.
+              </p>
+              <div class="viewport-actions">
+                <a id="vp-primary-cta" class="btn btn-primary" href="/gateway/#/conformance">
+                  Open Conformance &amp; Portfolio →
+                </a>
+                <a id="vp-secondary-cta" class="btn btn-secondary" href="/gateway/#/">
+                  Explore Metro Map
+                </a>
+              </div>
+            </div>
+            <div class="viewport-focus-card">
+              <div class="vp-card-label">Priority Signals &amp; Entry Actions</div>
+              <ul id="vp-signals" class="vp-signal-list"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- Zone 3: Model Portfolio Showcase & Animated L-0..L-4 Scale Callout -->
+    <section id="models" class="section-block section-alt">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">Work Completed Across Models</p>
+          <h2>Domain Maturity Models, EA Instruments &amp; Progression Architecture</h2>
+          <p>
+            Browse active domain specifications and EA assessment tools — then step through the canonical
+            five-level OpenDEA progression contract below.
+          </p>
+        </div>
+
+        <!-- Scoped Portfolio Tabs (no card walls) -->
+        <div class="portfolio-toolbar">
+          <div class="seg-tabs" role="tablist" aria-label="Portfolio categories">
+            <button type="button" role="tab" class="seg-tab is-active" data-portfolio-tab="maturity" aria-selected="true">
+              Domain Maturity Models (7)
+            </button>
+            <button type="button" role="tab" class="seg-tab" data-portfolio-tab="instruments" aria-selected="false">
+              EA Assessment Instruments (4)
+            </button>
+            <button type="button" role="tab" class="seg-tab" data-portfolio-tab="foundations" aria-selected="false">
+              Standards, Components &amp; Metamodel (6)
+            </button>
+          </div>
+          <a class="inline-action-link" href="/gateway/#/catalog">Open full Gateway catalog →</a>
+        </div>
+
+        <div id="portfolio-showcase-grid" class="showcase-grid" aria-live="polite"></div>
+
+        <!-- Animated L-0..L-4 Progression & Roll-Up Callout -->
+        <div class="scale-callout" id="scale-callout">
+          <div class="scale-callout-head">
+            <div>
+              <p class="eyebrow" style="margin-bottom:0.2rem">Canonical Scale Callout · dea:maturity-bands-v2</p>
+              <h3>Evidence-Anchored Progression &amp; Effort-Adjusted Roll-Up</h3>
+            </div>
+            <div class="scale-controls">
+              <button type="button" class="btn btn-ghost btn-sm" id="scale-play-toggle" aria-pressed="true">
+                Pause Cycle
+              </button>
+              <a class="btn btn-secondary btn-sm" href="/gateway/#/trial/maturity-model-digital-transformation">
+                Score Live Model →
+              </a>
+            </div>
+          </div>
+
+          <div class="scale-track-wrap">
+            <div class="scale-progress-rail" aria-hidden="true">
+              <div class="scale-progress-fill" id="scale-progress-fill"></div>
+            </div>
+            <div class="scale-steps" role="tablist" aria-label="Maturity level progression">
+              <button type="button" role="tab" class="scale-step-btn is-active" data-scale-idx="0" aria-selected="true">
+                <span class="lvl-code">L-0</span>
+                <span class="lvl-name">Emergent</span>
+                <span class="lvl-range">0–20</span>
+              </button>
+              <button type="button" role="tab" class="scale-step-btn" data-scale-idx="1" aria-selected="false">
+                <span class="lvl-code">L-1</span>
+                <span class="lvl-name">Structured</span>
+                <span class="lvl-range">21–45</span>
+              </button>
+              <button type="button" role="tab" class="scale-step-btn" data-scale-idx="2" aria-selected="false">
+                <span class="lvl-code">L-2</span>
+                <span class="lvl-name">Systematic</span>
+                <span class="lvl-range">46–70</span>
+              </button>
+              <button type="button" role="tab" class="scale-step-btn" data-scale-idx="3" aria-selected="false">
+                <span class="lvl-code">L-3</span>
+                <span class="lvl-name">Adaptive</span>
+                <span class="lvl-range">71–88</span>
+              </button>
+              <button type="button" role="tab" class="scale-step-btn" data-scale-idx="4" aria-selected="false">
+                <span class="lvl-code">L-4</span>
+                <span class="lvl-name">Self-Optimizing</span>
+                <span class="lvl-range">89–100</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="scale-readout" id="scale-readout" aria-live="polite">
+            <div class="scale-readout-metric">
+              <span class="meta-k">Resolved Band</span>
+              <strong id="sr-band">dea:maturity-band-emergent</strong>
+            </div>
+            <div class="scale-readout-metric">
+              <span class="meta-k">Effort Multiplier</span>
+              <strong id="sr-effort">1.0× Baseline</strong>
+            </div>
+            <div class="scale-readout-metric">
+              <span class="meta-k">Scoring &amp; Mandatory Gate</span>
+              <strong id="sr-gate">Ad-hoc evidence; no mandatory cross-dimension floor required.</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- Zone 4: GitHub Actions CI & Inter-Model Interaction Explorer -->
+    <section id="ci-interactions" class="section-block">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">Automation, Touchpoints &amp; Future Onboarding</p>
+          <h2>Inter-Model Interactions Driven by GitHub Actions &amp; 3-Level CI</h2>
+          <p>
+            Inspect how domain models remain decoupled in authoring yet verify schema integrity, peer
+            seams, and catalog dispatch automatically whenever any repository evolves.
+          </p>
+        </div>
+
+        <!-- Animated 3-Level CI Pipeline -->
+        <div class="ci-panel">
+          <div class="ci-panel-head">
+            <h3>Three-Level Ecosystem CI Topology</h3>
+            <div class="ci-panel-links">
+              <a href="https://github.com/Assessment-Models/assessment-ci" target="_blank" rel="noopener noreferrer">assessment-ci ↗</a>
+              <span aria-hidden="true">·</span>
+              <a href="/gateway/#/interactions">Open Full CI &amp; Seam Explorer →</a>
+            </div>
+          </div>
+
+          <div class="ci-pipeline-row" role="tablist" aria-label="CI Validation Levels">
+            <button type="button" role="tab" class="ci-stage-card is-active" data-ci-stage="0" aria-selected="true">
+              <span class="ci-stage-num">Level 01</span>
+              <strong class="ci-stage-title">Local Model CI</strong>
+              <span class="ci-stage-wf">local-model-ci.yml</span>
+              <span class="ci-stage-desc">YAML schema, MECE placement &amp; normalized dimension weight validation inside each repo.</span>
+            </button>
+
+            <div class="ci-flow-bridge" aria-hidden="true">
+              <span class="ci-beam"></span>
+              <span class="ci-arrow">→</span>
+            </div>
+
+            <button type="button" role="tab" class="ci-stage-card" data-ci-stage="1" aria-selected="false">
+              <span class="ci-stage-num">Level 02</span>
+              <strong class="ci-stage-title">Contract Conformance</strong>
+              <span class="ci-stage-wf">contract-conformance.yml</span>
+              <span class="ci-stage-desc">Verifies standard.yaml, pinned dea-metamodel scale handshakes, and CR-AM-13 reciprocity.</span>
+            </button>
+
+            <div class="ci-flow-bridge" aria-hidden="true">
+              <span class="ci-beam"></span>
+              <span class="ci-arrow">→</span>
+            </div>
+
+            <button type="button" role="tab" class="ci-stage-card" data-ci-stage="2" aria-selected="false">
+              <span class="ci-stage-num">Level 03</span>
+              <strong class="ci-stage-title">Registry Sync &amp; Deploy</strong>
+              <span class="ci-stage-wf">sync-catalog.yml · deploy.yml</span>
+              <span class="ci-stage-desc">repository_dispatch regenerates data/ecosystem-registry.json, Metro Map &amp; link guardrails.</span>
+            </button>
+          </div>
+
+          <div id="ci-stage-detail" class="ci-stage-detail" aria-live="polite"></div>
+        </div>
+
+        <!-- Existing Seams vs Future Model Onboarding Toggle -->
+        <div class="seams-box">
+          <div class="seams-head">
+            <div class="seg-tabs" role="tablist" aria-label="Interaction mode">
+              <button type="button" role="tab" class="seg-tab is-active" data-seam-mode="existing" aria-selected="true">
+                Existing Model Seams &amp; Handshakes
+              </button>
+              <button type="button" role="tab" class="seg-tab" data-seam-mode="future" aria-selected="false">
+                Future Model Onboarding &amp; Template Propagation
+              </button>
+            </div>
+            <a class="inline-action-link" href="/gateway/#/interactions">Simulate new domain in Gateway →</a>
+          </div>
+          <div id="seams-content" class="seams-content" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- Zone 5: Compact Architecture & Lifecycle Foundation -->
+    <section id="architecture" class="section-block section-alt">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">Architectural Basis</p>
+          <h2>Separation of Concerns Across 4 Ecosystem Layers</h2>
+          <p>
+            Shared capabilities accelerate delivery without dictating domain rubrics. Toggle between the
+            three foundational concerns and the four operational layers.
+          </p>
+        </div>
+
+        <div class="arch-switcher" role="tablist" aria-label="Architecture view">
+          <button type="button" role="tab" class="seg-tab is-active" data-arch-tab="concerns" aria-selected="true">
+            Three Connected Concerns
+          </button>
+          <button type="button" role="tab" class="seg-tab" data-arch-tab="layers" aria-selected="false">
+            Four Operational Layers
+          </button>
+        </div>
+
+        <div id="arch-panel-concerns" class="three-col-grid">
+          <article class="surface-card">
+            <div class="card-index">01 · What Is Measured</div>
             <h3>Maturity Model Architecture</h3>
             <p>
-              Defines model identity, scope, domains, dimensions and subdimensions, capabilities,
-              criteria, progression levels, domain terminology, and reference crosswalks.
+              Governs domain scope, MECE dimensions and sub-dimensions, L-0 to L-4 anchor definitions,
+              evidence requirements, and OpenDEA semantic crosswalks.
             </p>
-            <ul class="meta-list">
-              <li>
-                <button
-                  type="button"
-                  class="term-trigger"
-                  data-tooltip="Mutually Exclusive, Collectively Exhaustive: prevents overlapping criteria or blind spots."
-                >
-                  MECE Dimensions &amp; Criteria
-                </button>
-              </li>
-              <li>Progression levels &amp; model-specific vocabulary</li>
-              <li>
-                <button
-                  type="button"
-                  class="term-trigger"
-                  data-tooltip="Maps assessment concepts to external enterprise reference architectures such as OpenDEA."
-                >
-                  OpenDEA Crosswalk
-                </button>
-              </li>
-            </ul>
           </article>
-
-          <article class="surface-card concern-card">
-            <div class="card-index">02 / HOW IT IS APPLIED</div>
+          <article class="surface-card">
+            <div class="card-index">02 · How It Runs</div>
             <h3>Assessment Architecture</h3>
             <p>
-              Defines operational execution: lifecycle stages, questionnaires, checklists and interview
-              guides, deterministic scoring/weighting, evidence validation, and improvement planning.
+              Defines operational instruments, deterministic rollup mathematics, mandatory level gates,
+              confidence rules, and client-side report generation.
             </p>
-            <ul class="meta-list">
-              <li>Instruments, checklists &amp; interview guides</li>
-              <li>
-                <button
-                  type="button"
-                  class="term-trigger"
-                  data-tooltip="Explicit mathematical aggregation over verifiable indicators rather than subjective guesswork."
-                >
-                  Deterministic Scoring &amp; Weighting
-                </button>
-              </li>
-              <li>Evidence collection, validation &amp; traceability</li>
-            </ul>
           </article>
-
-          <article class="surface-card concern-card">
-            <div class="card-index">03 / HOW MODELS CONNECT</div>
-            <h3>Model Ecosystem Integration</h3>
+          <article class="surface-card">
+            <div class="card-index">03 · How Models Connect</div>
+            <h3>Ecosystem Integration</h3>
             <p>
-              Governs multi-model portfolios through central registration, inter-model dependencies,
-              semantic mappings, evidence reuse agreements, handshakes, and impact analysis.
+              Coordinates central asset registration, single-owner evidence seams (CR-AM-13),
+              metamodel handshakes, and SemVer compatibility checks.
             </p>
-            <ul class="meta-list">
-              <li>
-                <button
-                  type="button"
-                  class="term-trigger"
-                  data-tooltip="Standardized interfaces allowing two independently versioned models to exchange governed findings."
-                >
-                  Touchpoints &amp; Handshake Contracts
-                </button>
-              </li>
-              <li>Evidence reuse &amp; scoring exchange agreements</li>
-              <li>Version compatibility &amp; change-impact checks</li>
-            </ul>
           </article>
         </div>
-      </div>
-    </section>
 
-    <hr class="section-divider" />
-
-    <!-- Zone 3: Interactive 4-Layer Conceptual Architecture Explorer -->
-    <section id="layers" class="section-block">
-      <div class="container">
-        <div class="section-heading">
-          <p class="eyebrow">SECTION 2.4 • CONCEPTUAL ECOSYSTEM TOPOLOGY</p>
-          <h2>Four Operational Layers of the Ecosystem</h2>
-          <p>
-            Select a layer to inspect its canonical components from the
-            <code>Assessment-Models</code> architecture and see how it links to the rest of the graph.
-          </p>
-        </div>
-
-        <div class="layer-selector" role="group" aria-label="Select ecosystem layer">
-          <button type="button" class="layer-pill is-active" data-layer-key="governance">
-            1. Organization-Level Governance
-          </button>
-          <button type="button" class="layer-pill" data-layer-key="models">
-            2. Independently Governed Models
-          </button>
-          <button type="button" class="layer-pill" data-layer-key="capabilities">
-            3. Shared Assessment Capabilities
-          </button>
-          <button type="button" class="layer-pill" data-layer-key="integration">
-            4. Inter-Model Integration
-          </button>
-        </div>
-
-        <div class="layer-detail-panel" id="layer-detail-panel" aria-live="polite">
-          <div class="layer-detail-header">
-            <div>
-              <span class="mono-label" id="layer-badge">LAYER 01 • GOVERNANCE</span>
-              <h3 id="layer-heading">Organization-Level Governance</h3>
-            </div>
-            <span class="layer-relation" id="layer-flow">Feeds Standards, Registry &amp; Conformance</span>
+        <div id="arch-panel-layers" hidden>
+          <div class="layer-selector" role="group" aria-label="Select ecosystem layer">
+            <button type="button" class="layer-pill is-active" data-layer-key="governance">
+              1. Organization Governance
+            </button>
+            <button type="button" class="layer-pill" data-layer-key="models">
+              2. Independent Domain Models
+            </button>
+            <button type="button" class="layer-pill" data-layer-key="capabilities">
+              3. Shared Capabilities
+            </button>
+            <button type="button" class="layer-pill" data-layer-key="integration">
+              4. Inter-Model Integration
+            </button>
           </div>
-          <p id="layer-summary" class="layer-summary">
-            Establishes ecosystem-wide rules so independent models remain compatible, auditable, and
-            discoverable without dictating internal domain dimensions.
-          </p>
-          <div id="layer-nodes" class="node-chip-grid"></div>
+          <div class="layer-detail-panel" id="layer-detail-panel" aria-live="polite">
+            <div class="layer-detail-header">
+              <div>
+                <span class="mono-label" id="layer-badge">Layer 01</span>
+                <h3 id="layer-heading">Organization-Level Governance</h3>
+              </div>
+              <span class="layer-relation" id="layer-flow"></span>
+            </div>
+            <p id="layer-summary" class="layer-summary"></p>
+            <div id="layer-nodes" class="node-chip-grid"></div>
+          </div>
         </div>
       </div>
     </section>
 
     <hr class="section-divider" />
 
-    <!-- Zone 4: Operational Lifecycle & Evidence Flow -->
-    <section id="lifecycle" class="section-block">
-      <div class="container">
-        <div class="section-heading">
-          <p class="eyebrow">END-TO-END OPERATIONAL LIFECYCLE</p>
-          <h2>From Evidence &amp; Instruments to Governed Action</h2>
-          <p>
-            Turning static maturity scales into repeatable assessment systems with traceable inputs
-            and automated conformance checks.
-          </p>
-        </div>
-
-        <ol class="lifecycle-track">
-          <li class="lifecycle-step">
-            <span class="step-num">01</span>
-            <h3>Define &amp; Register</h3>
-            <p>
-              Publish model scope, criteria, and progression levels; register contracts in the
-              central catalog.
-            </p>
-          </li>
-          <li class="lifecycle-arrow" aria-hidden="true">→</li>
-          <li class="lifecycle-step">
-            <span class="step-num">02</span>
-            <h3>Execute &amp; Gather Evidence</h3>
-            <p>
-              Run questionnaires, interviews, and checklists while binding verifiable supporting
-              artifacts.
-            </p>
-          </li>
-          <li class="lifecycle-arrow" aria-hidden="true">→</li>
-          <li class="lifecycle-step">
-            <span class="step-num">03</span>
-            <h3>Score &amp; Synthesize</h3>
-            <p>
-              Apply deterministic rubrics, multilingual encyclopedia guidance, and cross-model
-              touchpoints.
-            </p>
-          </li>
-          <li class="lifecycle-arrow" aria-hidden="true">→</li>
-          <li class="lifecycle-step">
-            <span class="step-num">04</span>
-            <h3>Verify &amp; Evolve</h3>
-            <p>
-              Validate ecosystem conformance via CI and manage SemVer changes with impact analysis.
-            </p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <hr class="section-divider" />
-
-        <!-- Zone 5: Registry-Backed Repository Explorer -->
+    <!-- Zone 6: Full Verified Registry Explorer -->
     <section id="repositories" class="section-block">
       <div class="container">
         <div class="section-heading">
-          <p class="eyebrow">CENTRAL ASSESSMENT REGISTRY • LIVE CATALOG</p>
-          <h2>Explore Assessment-Models Repositories &amp; Blueprints</h2>
+          <p class="eyebrow">Live Ecosystem Catalog</p>
+          <h2>Explore Verified Repositories &amp; OpenDEA Reference Blueprints</h2>
           <p>
-            Filter repositories and aligned reference blueprints by ecosystem layer, conformance
-            status, or keyword, and open any artifact in the inspector drawer.
+            Search and filter every artifact synchronized in
+            <a href="https://github.com/Assessment-Models/assessment-models.github.io/blob/main/data/ecosystem-registry.json" target="_blank" rel="noopener noreferrer">data/ecosystem-registry.json</a>.
+            Click Inspect to review declared dimensions, standards alignment, and repository metadata.
           </p>
         </div>
 
         <div id="catalog-status-bar" class="catalog-status-bar" aria-live="polite">
-          <span>Source: <a href="https://github.com/Assessment-Models/assessment-models.github.io/blob/main/data/ecosystem-registry.json" target="_blank" rel="noopener noreferrer"><code>data/ecosystem-registry.json</code></a></span>
           <span id="catalog-count-label">Loading registry…</span>
           <span id="catalog-last-synced">Sync status: pending</span>
         </div>
 
-        <!-- Multi-Facet Controls -->
         <div class="catalog-controls" role="region" aria-label="Filter repositories">
           <div class="filter-pills" id="layer-filter-group" role="group" aria-label="Filter by ecosystem layer">
             <button type="button" class="filter-pill is-active" data-filter-layer="all">All Layers</button>
             <button type="button" class="filter-pill" data-filter-layer="maturity-model">Maturity Models</button>
+            <button type="button" class="filter-pill" data-filter-layer="assessment-model">EA Instruments</button>
             <button type="button" class="filter-pill" data-filter-layer="shared-capability">Shared Capabilities</button>
-            <button type="button" class="filter-pill" data-filter-layer="integration">Integration</button>
             <button type="button" class="filter-pill" data-filter-layer="governance">Governance</button>
+            <button type="button" class="filter-pill" data-filter-layer="integration">Integration</button>
             <button type="button" class="filter-pill" data-filter-layer="reference-blueprint">Reference Blueprints</button>
           </div>
 
@@ -438,38 +554,42 @@
               id="repo-search-input"
               type="search"
               class="search-input"
-              placeholder="Search repo, standard (e.g. OpenDEA), locale, or dimension…"
+              placeholder="Search repo, OpenDEA, domain, dimension…"
             />
             <label class="sr-only" for="conformance-filter-select">Filter by conformance status</label>
             <select id="conformance-filter-select" class="select-input">
               <option value="all">All Conformance</option>
-              <option value="verified">Verified (Manifest)</option>
+              <option value="structural">Structural Conformant</option>
+              <option value="registered">Registered</option>
               <option value="external-aligned">External Aligned</option>
-              <option value="draft">Draft / Repo Metadata</option>
+              <option value="draft">Draft / Infrastructure</option>
             </select>
           </div>
         </div>
 
-        <!-- Dynamic Artifact Grid -->
         <div id="catalog-grid" class="catalog-grid" aria-live="polite"></div>
       </div>
     </section>
 
-    <!-- Zone 6: Governance & Charter -->
-    <section id="governance" class="section-block">
+    <!-- Governance Banner -->
+    <section id="governance" class="section-block section-alt">
       <div class="container governance-banner">
         <div>
-          <p class="eyebrow">POLICIES &amp; LIFECYCLE GOVERNANCE</p>
-          <h2>Repeatable Onboarding, SemVer Provenance &amp; Open Conformance</h2>
+          <p class="eyebrow">Governance &amp; Onboarding Standard</p>
+          <h2>AM-MODEL-REPOSITORY-STANDARD &amp; Charter</h2>
           <p>
-            New maturity models onboard through repeatable organizational standards—preserving
-            domain autonomy while enforcing shared integration contracts and automated checks.
+            New domain maturity models onboard cleanly from
+            <a href="https://github.com/Assessment-Models/maturity-model-template" target="_blank" rel="noopener noreferrer">maturity-model-template</a>
+            with automated conformance verification across every release.
           </p>
         </div>
         <div class="governance-actions">
-          <button type="button" class="btn btn-primary" id="open-charter-btn">
+          <button type="button" class="btn btn-secondary" id="open-charter-btn">
             Read Governance Charter
           </button>
+          <a class="btn btn-primary" href="/gateway/#/conformance">
+            View Conformance Dashboard →
+          </a>
         </div>
       </div>
     </section>
@@ -478,16 +598,13 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>
-        <strong>Assessment Models</strong> — Open Enterprise &amp; Organizational Maturity Ecosystem
+        <strong>Assessment Models</strong> — Enterprise Maturity &amp; Interoperable Assessment Ecosystem
       </div>
       <div class="footer-links">
-        <a href="https://github.com/Assessment-Models/" target="_blank" rel="noopener noreferrer">
-          GitHub Org
-        </a>
-        <a href="https://github.com/Assessment-Models/assessment-models.github.io" target="_blank" rel="noopener noreferrer">
-          Site Source
-        </a>
+        <a href="https://github.com/Assessment-Models/" target="_blank" rel="noopener noreferrer">GitHub Org</a>
+        <a href="https://github.com/Assessment-Models/assessment-models.github.io" target="_blank" rel="noopener noreferrer">Site Source</a>
         <a href="/gateway/">Gateway</a>
+        <a href="/gateway/#/interactions">CI &amp; Interactions</a>
         <button type="button" class="link-button" id="footer-charter-btn">Charter</button>
       </div>
     </div>
@@ -511,9 +628,7 @@
           <span class="mono-label">ECOSYSTEM GOVERNANCE CHARTER</span>
           <h2 id="charter-title">Model Independence &amp; Ecosystem Conformance</h2>
         </div>
-        <button type="button" class="icon-close-btn" id="close-charter-btn" aria-label="Close modal">
-          ✕
-        </button>
+        <button type="button" class="icon-close-btn" id="close-charter-btn" aria-label="Close modal">✕</button>
       </div>
       <div class="modal-body">
         <p>
@@ -526,16 +641,14 @@
           version compatibility checks.
         </p>
         <p>
-          <strong>3. Continuous Conformance:</strong> Automated checks and periodic catalog syncs
-          keep published documentation and metadata aligned with repository state.
+          <strong>3. Continuous Conformance:</strong> Automated three-level GitHub Actions checks and
+          periodic catalog syncs keep published documentation and gateway tools aligned with repository state.
         </p>
       </div>
     </div>
   </div>
 
-  <script type="module" src="assets/js/ecosystem.js"></script>
-  
-    <!-- Slide-Over Model & Repository Inspector Drawer -->
+  <!-- Slide-Over Model & Repository Inspector Drawer -->
   <aside
     id="repo-drawer"
     class="drawer-backdrop"
@@ -551,13 +664,9 @@
           <h2 id="drawer-title">Repository Name</h2>
           <p id="drawer-full-name" class="mono-label muted-sub"></p>
         </div>
-        <button type="button" class="icon-close-btn" id="close-drawer-btn" aria-label="Close inspector drawer">
-          ✕
-        </button>
+        <button type="button" class="icon-close-btn" id="close-drawer-btn" aria-label="Close inspector drawer">✕</button>
       </div>
-
       <div id="drawer-body" class="drawer-body"></div>
-
       <div class="drawer-footer">
         <a id="drawer-github-link" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer">
           Open on GitHub ↗
@@ -566,5 +675,7 @@
       </div>
     </div>
   </aside>
+
+  <script type="module" src="assets/js/ecosystem.js"></script>
 </body>
 </html>

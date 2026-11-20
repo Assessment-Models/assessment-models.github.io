@@ -1,16 +1,20 @@
 /**
- * Persona modes (blueprint §2): the same gateway, different entry points.
- * Persona choice is persisted and broadcast via a custom DOM event so views
- * can react without tight coupling.
+ * Persona viewports: unified across the homepage and /gateway/.
+ * Supports Agents, Assessors, Assessees, and Business Transformation Executives.
+ * Persisted in localStorage (`am-persona`) so viewport choice travels across views.
  */
 import { h } from './dom';
 
-export type Persona = 'assessor' | 'assessee' | 'practitioner' | 'certifier';
+export type Persona = 'executive' | 'assessor' | 'assessee' | 'agent';
 
 export interface PersonaDef {
   id: Persona;
   label: string;
+  shortLabel: string;
   role: string;
+  calloutTitle: string;
+  calloutSummary: string;
+  focusMetrics: string[];
   /** landing "suggested next step" */
   step: { text: string; href: string; cta: string };
   /** primary CTA label on model pages */
@@ -19,57 +23,87 @@ export interface PersonaDef {
 
 export const PERSONAS: PersonaDef[] = [
   {
+    id: 'executive',
+    label: 'Business Transformation Executive',
+    shortLabel: 'Executives',
+    role: 'align maturity baselines with OpenDEA reference blueprints and target outcomes',
+    calloutTitle: 'Portfolio Posture & Transformation Horizon',
+    calloutSummary:
+      'Focuses on weighted capability balance across Operations, Technology, Services Delivery, Modernization, and Autonomous Operations — linking maturity gaps to OpenDEA DERA-L1 guardrails and effort-adjusted progression.',
+    focusMetrics: ['Portfolio Coverage', 'Effort-Adjusted Value', 'OpenDEA DERA-L1 Alignment'],
+    step: {
+      text: 'Review portfolio conformance, inter-model dependencies, and executive assessment reports.',
+      href: '#/conformance',
+      cta: 'Open Conformance & Portfolio →',
+    },
+    modelCta: 'View Executive Trial →',
+  },
+  {
     id: 'assessor',
     label: 'Assessor',
-    role: 'run trial assessments and generate evidence-backed reports',
+    shortLabel: 'Assessors',
+    role: 'run trial assessments, calibrate L-0..L-4 anchors, and generate evidence-backed reports',
+    calloutTitle: 'Calibration, Evidence & Deterministic Scoring',
+    calloutSummary:
+      'Exposes criterion weights, mandatory gates, anchor statements, and evidence confidence rules so assessors produce auditable, repeatable L-0 to L-4 determinations.',
+    focusMetrics: ['Criterion Weights', 'Mandatory Gates', 'Evidence Requirements'],
     step: {
-      text: 'Pick a model, run a trial assessment and generate a shareable report.',
+      text: 'Pick a domain model or EA instrument, run a trial assessment, and export a JSON/PDF report.',
       href: '#/trial/maturity-model-digital-transformation',
-      cta: 'Start a trial assessment →',
+      cta: 'Start Trial Assessment →',
     },
-    modelCta: 'Start trial →',
+    modelCta: 'Start Trial →',
   },
   {
     id: 'assessee',
     label: 'Assessee',
-    role: 'understand what will be assessed and what each level expects',
+    shortLabel: 'Assessees',
+    role: 'review level expectations, exit criteria, and required evidence before evaluation',
+    calloutTitle: 'Target Expectations & Evidence Readiness',
+    calloutSummary:
+      'Translates abstract maturity bands into concrete engineering, operations, and governance evidence checklists so teams know exactly what L-0 through L-4 expects.',
+    focusMetrics: ['Level Anchors (L-0..L-4)', 'Evidence Checklists', 'Gap-to-Target'],
     step: {
-      text: 'Explore a model’s dimensions, criteria and level expectations before your assessment.',
+      text: 'Inspect dimension expectations, anchor behaviors, and evidence artifacts for your domain.',
       href: '#/model/maturity-model-digital-transformation',
-      cta: 'Explore the flagship model →',
+      cta: 'Explore Model Expectations →',
     },
-    modelCta: 'Review expectations →',
+    modelCta: 'Review Expectations →',
   },
   {
-    id: 'practitioner',
-    label: 'Practitioner',
-    role: 'compare models, component reuse and contract handshakes',
+    id: 'agent',
+    label: 'Agent',
+    shortLabel: 'Agents',
+    role: 'consume machine-readable manifests, touchpoint contracts, and CI conformance signals',
+    calloutTitle: 'Machine-Readable Contracts & CI Dispatch',
+    calloutSummary:
+      'Surfaces immutable model identifiers, assessment-manifest.json endpoints, touchpoints.yaml seams, and GitHub Actions repository_dispatch signals for autonomous orchestration.',
+    focusMetrics: ['assessment-manifest.json', 'touchpoints.yaml Seams', '3-Level CI Dispatch'],
     step: {
-      text: 'Use the constellation to trace component reuse and maturity-scale-contract handshakes across models.',
-      href: '#/',
-      cta: 'Open the constellation →',
+      text: 'Inspect inter-model touchpoint seams, handshake compatibility ranges, and CI propagation pipelines.',
+      href: '#/interactions',
+      cta: 'Inspect Interactions & CI →',
     },
-    modelCta: 'Inspect structure →',
-  },
-  {
-    id: 'certifier',
-    label: 'Certifying Body',
-    role: 'verify conformance levels, contracts and portfolio coverage',
-    step: {
-      text: 'Review repository-standard conformance across the whole portfolio in one dashboard.',
-      href: '#/conformance',
-      cta: 'Open the conformance dashboard →',
-    },
-    modelCta: 'Check conformance →',
+    modelCta: 'Inspect Contract & YAML →',
   },
 ];
 
 const KEY = 'am-persona';
 const EVENT = 'am:persona';
 
+const LEGACY_MAP: Record<string, Persona> = {
+  practitioner: 'agent',
+  certifier: 'executive',
+};
+
 export function getPersona(): Persona {
-  const v = localStorage.getItem(KEY);
-  return PERSONAS.some((p) => p.id === v) ? (v as Persona) : 'assessor';
+  try {
+    const v = localStorage.getItem(KEY) ?? '';
+    if (v in LEGACY_MAP) return LEGACY_MAP[v];
+    return PERSONAS.some((p) => p.id === v) ? (v as Persona) : 'executive';
+  } catch {
+    return 'executive';
+  }
 }
 
 export function getPersonaDef(): PersonaDef {
@@ -77,7 +111,11 @@ export function getPersonaDef(): PersonaDef {
 }
 
 export function setPersona(p: Persona): void {
-  localStorage.setItem(KEY, p);
+  try {
+    localStorage.setItem(KEY, p);
+  } catch {
+    /* ignore storage errors */
+  }
   window.dispatchEvent(new CustomEvent(EVENT, { detail: p }));
 }
 
@@ -85,14 +123,14 @@ export function onPersonaChange(cb: (p: Persona) => void): void {
   window.addEventListener(EVENT, (e) => cb((e as CustomEvent<Persona>).detail));
 }
 
-/** Mount the topbar persona picker. */
+/** Mount the topbar persona viewport picker. */
 export function mountPersonaPicker(container: HTMLElement): void {
   function draw(): void {
     container.innerHTML = '';
     const select = h('select', {
       class: 'persona-select',
-      'aria-label': 'Persona',
-      title: 'Persona — adjusts entry points and default actions',
+      'aria-label': 'Persona viewport',
+      title: 'Switch persona viewport (Executives, Assessors, Assessees, Agents)',
     });
     for (const p of PERSONAS) {
       const opt = h('option', { value: p.id }, p.label) as HTMLOptionElement;
@@ -100,7 +138,7 @@ export function mountPersonaPicker(container: HTMLElement): void {
       select.append(opt);
     }
     select.addEventListener('change', () => setPersona(select.value as Persona));
-    container.append(h('span', { class: 'persona-label' }, 'persona'), select);
+    container.append(h('span', { class: 'persona-label' }, 'Viewport'), select);
   }
   draw();
   onPersonaChange(draw);

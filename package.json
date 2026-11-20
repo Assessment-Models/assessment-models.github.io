@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "indexes": "node scripts/build-index.mjs",
-    "dev": "npm run indexes && vite",
+    "dev": "npm run indexes && vite --host 0.0.0.0 --port 3000",
     "build": "npm run indexes && vite build",
     "build:site": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --host 0.0.0.0 --port 3000",
     "test": "esbuild --platform=node src/scoring/engine.test.ts --bundle --format=esm --outfile=.tmp/engine.test.mjs && node .tmp/engine.test.mjs"
   },
   "dependencies": {

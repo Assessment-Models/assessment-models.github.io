@@ -1,8 +1,8 @@
 /**
  * Data loading. The manifest (models.json) is generated at build time from the
- * assessment-registry and maturity-model-standard YAML sources. Model structure
- * YAMLs are fetched live from raw.githubusercontent.com with a build-time
- * snapshot (public/snapshot/) as offline fallback.
+ * assessment-registry and maturity-model-standard YAML sources (with fallback to
+ * data/ecosystem-registry.json). Model structure YAMLs are fetched live from
+ * raw.githubusercontent.com with a build-time snapshot (public/snapshot/) fallback.
  */
 import yaml from 'js-yaml';
 import type {
@@ -12,6 +12,8 @@ import type {
   ModelMeta,
   ModelStructure,
   OpDimension,
+  OpSubDimension,
+  RepoManifestInfo,
   Scale,
 } from '../types';
 
@@ -25,7 +27,7 @@ function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
   if (!p) {
     p = load();
     cache.set(key, p);
-    p.catch(() => cache.delete(key)); // allow retry after a failed fetch
+    p.catch(() => cache.delete(key));
   }
   return p;
 }
@@ -46,8 +48,7 @@ async function fetchText(url: string, timeoutMs = 8000): Promise<string> {
   const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   const text = await res.text();
-  // some static hosts answer missing paths with a 200 HTML shell — reject it
-  if (text.trimStart().startsWith('<')) throw new Error(`not YAML (HTML page) at ${url}`);
+  if (text.trimStart().startsWith('<')) throw new Error(`not YAML/JSON (HTML page) at ${url}`);
   return text;
 }
 
@@ -55,8 +56,6 @@ async function fetchText(url: string, timeoutMs = 8000): Promise<string> {
 export async function loadYaml<T = unknown>(repo: string, path: string): Promise<T> {
   return cached(`yaml:${repo}:${path}`, async () => {
     const parse = (text: string) => yaml.load(text) as T;
-    // race raw vs snapshot in parallel: live data wins when it arrives, the
-    // snapshot (resolved meanwhile) takes over immediately on raw failure
     const rawP = fetchText(`https://raw.githubusercontent.com/${ORG}/${repo}/main/${path}`)
       .then(parse)
       .catch(() => null);
@@ -69,6 +68,26 @@ export async function loadYaml<T = unknown>(repo: string, path: string): Promise
     if (snap !== null) return snap;
     throw new Error(`could not load ${repo}/${path} from raw or snapshot`);
   });
+}
+
+export async function loadJson<T = unknown>(repo: string, path: string): Promise<T | null> {
+  return cached(`json:${repo}:${path}`, async () => {
+    try {
+      const text = await fetchText(`https://raw.githubusercontent.com/${ORG}/${repo}/main/${path}`);
+      return JSON.parse(text) as T;
+    } catch {
+      return null;
+    }
+  });
+}
+
+export async function loadRepoManifestInfo(repo: string): Promise<RepoManifestInfo> {
+  const [manifest, touchpoints, standard] = await Promise.all([
+    loadJson<Record<string, unknown>>(repo, 'assessment-manifest.json'),
+    loadYaml<Record<string, unknown>>(repo, 'touchpoints.yaml').catch(() => null),
+    loadYaml<Record<string, unknown>>(repo, 'standard.yaml').catch(() => null),
+  ]);
+  return { manifest, touchpoints, standard };
 }
 
 export function loadModelMeta(repo: string): Promise<ModelMeta> {
@@ -91,35 +110,137 @@ export function loadEvaluation(repo: string, line: 'composite' | 'operationalize
   return loadYaml<ModelMeta>(repo, path);
 }
 
+/** Normalize heterogeneous dimension/register shapes from domain repos into OpDimension[]. */
+function normalizeDimensions(rawDims: unknown[]): OpDimension[] {
+  const count = Math.max(1, rawDims.length);
+  return rawDims.map((raw, idx) => {
+    const d = raw as Record<string, unknown>;
+    const id = String(d.id ?? `d${idx + 1}`);
+    const weight = typeof d.weight === 'number' ? d.weight : Math.round((1 / count) * 1000) / 1000;
+    const subDimsRaw = Array.isArray(d.sub_dimensions) ? d.sub_dimensions : null;
+    const questionsRaw = Array.isArray(d.questions) ? d.questions : null;
+    const criteriaRaw = Array.isArray(d.criteria) ? d.criteria : null;
+
+    let sub_dimensions: OpSubDimension[] = [];
+    if (subDimsRaw) {
+      sub_dimensions = subDimsRaw.map((sr, sIdx) => {
+        const s = sr as Record<string, unknown>;
+        const crits = Array.isArray(s.criteria) ? s.criteria : [];
+        return {
+          id: String(s.id ?? `${id}-s${sIdx + 1}`),
+          name: String(s.name ?? `Sub-dimension ${sIdx + 1}`),
+          lite_question: typeof s.lite_question === 'string'
+            ? s.lite_question
+            : typeof s.definition === 'string'
+              ? s.definition
+              : undefined,
+          criteria: crits.map((cr, cIdx) => {
+            const c = cr as Record<string, unknown>;
+            return {
+              id: String(c.id ?? `${id}-c${cIdx + 1}`),
+              name: String(c.name ?? c.id ?? `Criterion ${cIdx + 1}`),
+              statement: typeof c.statement === 'string'
+                ? c.statement
+                : typeof c.definition === 'string'
+                  ? c.definition
+                  : undefined,
+              levers: Array.isArray(c.levers) ? c.levers.map(String) : undefined,
+              anchors: Array.isArray(c.anchors) ? (c.anchors as { level: number; text: string }[]) : undefined,
+              evidence: Array.isArray(c.evidence) ? c.evidence.map(String) : undefined,
+            };
+          }),
+        };
+      });
+    } else if (questionsRaw) {
+      sub_dimensions = [
+        {
+          id: `${id}-questions`,
+          name: 'Assessment Instrument Questions',
+          criteria: questionsRaw.map((qr, qIdx) => {
+            const q = qr as Record<string, unknown>;
+            return {
+              id: String(q.id ?? `${id}-q${qIdx + 1}`),
+              name: String(q.id ?? `Question ${qIdx + 1}`).toUpperCase(),
+              statement: typeof q.text === 'string' ? q.text : String(q.question ?? ''),
+              evidence: Array.isArray(q.evidence)
+                ? q.evidence.map(String)
+                : typeof q.evidence === 'string'
+                  ? [q.evidence]
+                  : undefined,
+            };
+          }),
+        },
+      ];
+    } else if (criteriaRaw) {
+      sub_dimensions = [
+        {
+          id: `${id}-criteria`,
+          name: 'Criteria',
+          criteria: criteriaRaw.map((cr, cIdx) => {
+            const c = cr as Record<string, unknown>;
+            return {
+              id: String(c.id ?? `${id}-c${cIdx + 1}`),
+              name: String(c.name ?? c.id ?? `Criterion ${cIdx + 1}`),
+              statement: typeof c.statement === 'string'
+                ? c.statement
+                : typeof c.description === 'string'
+                  ? c.description
+                  : typeof c.definition === 'string'
+                    ? c.definition
+                    : undefined,
+              evidence: Array.isArray(c.evidence) ? c.evidence.map(String) : undefined,
+            };
+          }),
+        },
+      ];
+    }
+
+    return {
+      id,
+      dimension: typeof d.dimension === 'string' ? d.dimension : id,
+      name: String(d.name ?? id),
+      weight,
+      mandatory: Boolean(d.mandatory),
+      description: typeof d.description === 'string'
+        ? d.description
+        : typeof d.definition === 'string'
+          ? d.definition
+          : undefined,
+      sub_dimensions,
+    };
+  });
+}
+
+const DEFAULT_SCALE: Scale = {
+  id: 'dea:maturity-bands-v2',
+  version: '1.0.0',
+  levels: [
+    { id: 'L-0', ordinal: 0, name: 'Initial / Ad-Hoc', v2_band: 'dea:maturity-band-emergent', v2_score_range: [0, 20] },
+    { id: 'L-1', ordinal: 1, name: 'Emerging / Repeatable', v2_band: 'dea:maturity-band-structured', v2_score_range: [21, 45] },
+    { id: 'L-2', ordinal: 2, name: 'Defined / Systematic', v2_band: 'dea:maturity-band-systematic', v2_score_range: [46, 70] },
+    { id: 'L-3', ordinal: 3, name: 'Managed / Adaptive', v2_band: 'dea:maturity-band-adaptive', v2_score_range: [71, 88] },
+    { id: 'L-4', ordinal: 4, name: 'Self-Optimizing', v2_band: 'dea:maturity-band-self-optimizing', v2_score_range: [89, 100] },
+  ],
+};
+
 /**
- * Load the full structure of a model repository.
- *
- * Lines are probed in order and the first hit wins:
- *  1. DT-style operationalized line: maturity/operationalized/evaluation.yaml +
- *     scale.yaml + model/<dim>.yaml per evaluation criterion.
- *  2. Single-file criteria register: maturity/model/<repo>.yaml with
- *     scoring.mechanism 'weighted-mean-0-100' and a root `dimensions` array
- *     (maturity-model-digital-transformation-operationalized layout) — mapped
- *     into the same OpDimension[] shape so trial/report run unchanged.
- *  3. Composite line: maturity/evaluation.yaml + maturity/scale.yaml +
- *     one component file per evaluation criterion (maturity/components/<id>.yaml).
+ * Load the full structure of a model or assessment instrument repository.
  */
 export async function loadModelStructure(repo: string): Promise<ModelStructure> {
   const meta = await loadModelMeta(repo);
 
   const composite = await cached(`composite:${repo}`, async () => {
-    // independent loads: several repos ship scale.yaml without an evaluation.yaml
     let evaluation: ModelMeta | null = null;
     let scale: Scale | null = null;
     try {
       evaluation = await loadEvaluation(repo, 'composite');
     } catch {
-      /* no evaluation.yaml — views degrade gracefully */
+      /* optional */
     }
     try {
       scale = await loadScale(repo, 'composite');
     } catch {
-      /* no scale.yaml */
+      /* optional */
     }
     const componentFiles: { id: string; data: ModelMeta | null }[] = [];
     if (evaluation?.criteria) {
@@ -151,40 +272,41 @@ export async function loadModelStructure(repo: string): Promise<ModelStructure> 
           loadYaml<OpDimension>(repo, `maturity/operationalized/model/${id}.yaml`),
         ),
       );
-      // dimension files carry full ids (e.g. "dea:model-dto-d1"); normalize to
-      // the evaluation.yaml criteria ids ("d1") so scope/targets join correctly
       const dimensions = loaded.map((d, i) => ({ ...d, id: dimIds[i] }));
       return { evaluation, scale, dimensions };
     } catch {
-      /* fall through to the criteria-register probe */
+      /* fall through */
     }
 
-    // 2) single-file criteria register (weighted-mean-0-100); file may be named
-    //    after the repo or the short model id (maturity-model-<x> → <x>.yaml)
+    // 2) Single-file criteria register or domain draft register
     const shortId = repo.replace(/^maturity-model-/, '');
-    const registerCandidates = [`maturity/model/${shortId}.yaml`, `maturity/model/${repo}.yaml`];
-    try {
-      let reg: CriteriaRegister | null = null;
-      for (const path of registerCandidates) {
-        try {
-          reg = await loadYaml<CriteriaRegister>(repo, path);
-          break;
-        } catch {
-          /* try next candidate */
-        }
-      }
-      if (reg?.scoring?.mechanism === 'weighted-mean-0-100' && Array.isArray(reg.dimensions) && reg.dimensions.length > 0) {
-        const dimensions = reg.dimensions.map((d, i) => ({
-          ...d,
-          id: d.id ?? `d${i + 1}`,
-        }));
+    const registerCandidates = [
+      `maturity/model/${shortId}.yaml`,
+      `maturity/model/${repo}.yaml`,
+      `maturity/model/${shortId}-register-draft.yaml`,
+      `maturity/model/${shortId}-v2-draft.yaml`,
+      `maturity/model/criteria.yaml`,
+      `assessments/v1-alpha/instrument.yaml`,
+    ];
+
+    for (const path of registerCandidates) {
+      try {
+        const raw = await loadYaml<CriteriaRegister & { practice_areas?: unknown[] }>(repo, path);
+        const dimArray = Array.isArray(raw?.dimensions)
+          ? raw.dimensions
+          : Array.isArray(raw?.practice_areas)
+            ? raw.practice_areas
+            : null;
+        if (!dimArray || dimArray.length === 0) continue;
+
+        const dimensions = normalizeDimensions(dimArray);
         const evaluation: ModelMeta = {
-          id: reg.id,
-          name: reg.name,
-          version: reg.version,
-          description: reg.description,
-          status: reg.status,
-          scoring: reg.scoring as ModelMeta['scoring'],
+          id: raw.id ?? repo,
+          name: raw.name ?? meta.name ?? repo,
+          version: raw.version ?? meta.version,
+          description: raw.description ?? meta.description,
+          status: raw.status ?? meta.status,
+          scoring: (raw.scoring as ModelMeta['scoring']) ?? { mechanism: 'weighted-mean-0-100' },
           criteria: dimensions.map((d) => ({
             id: d.id,
             name: d.name,
@@ -192,11 +314,11 @@ export async function loadModelStructure(repo: string): Promise<ModelStructure> 
             mandatory: d.mandatory,
           })),
         };
-        const scale = await loadScale(repo, 'composite'); // maturity/scale.yaml
+        const scale = composite.scale ?? DEFAULT_SCALE;
         return { evaluation, scale, dimensions };
+      } catch {
+        /* try next candidate */
       }
-    } catch {
-      /* no register either */
     }
 
     return null;

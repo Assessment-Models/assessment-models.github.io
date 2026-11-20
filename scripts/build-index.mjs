@@ -12,7 +12,7 @@
  *   --standard  maturity-model-standard    (registry/conformance.yaml — portfolio adoption)
  *   --models    maturity-model-digital-transformation (snapshot source)
  */
-import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, cpSync, rmSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
@@ -136,44 +136,100 @@ function walkYamlFiles(dir) {
 const registryDir = join(registryPath, 'registry');
 const nodes = [];
 const byRepo = new Map();
+let usedFallbackRegistry = false;
 
-for (const [subdir, group] of Object.entries(GROUPS)) {
-  const dir = join(registryDir, subdir);
-  let files = [];
-  try {
-    files = walkYamlFiles(dir);
-  } catch (err) {
-    console.warn(`registry walk failed for ${dir}: ${err.message}`);
-    continue;
-  }
-  for (const file of files) {
-    let rec;
+if (existsSync(registryDir)) {
+  for (const [subdir, group] of Object.entries(GROUPS)) {
+    const dir = join(registryDir, subdir);
+    let files = [];
     try {
-      rec = readYaml(file);
+      files = walkYamlFiles(dir);
     } catch (err) {
-      // A malformed sibling-repo record must not take down the whole Pages
-      // deploy: skip it loudly and build the manifest from the healthy ones.
-      console.warn(`registry record skipped (YAML parse failed): ${file}: ${err.message}`);
+      console.warn(`registry walk failed for ${dir}: ${err.message}`);
       continue;
     }
-    if (!rec?.id || !rec?.source?.repository) continue;
-    const repo = rec.source.repository;
-    const node = {
-      id: rec.id,
-      name: rec.name || rec.id,
-      group,
-      repo,
-      description: firstSentence(rec.description),
-      version: rec.release?.version,
-      status: rec.status,
-      contract: rec.conformsTo?.contract
-        ? `${rec.conformsTo.contract.id}@${rec.conformsTo.contract.version}`
-        : undefined,
-      components: (rec.components ?? []).map((c) => c.id).filter(Boolean),
-      assetClass: rec.asset_class,
+    for (const file of files) {
+      let rec;
+      try {
+        rec = readYaml(file);
+      } catch (err) {
+        // A malformed sibling-repo record must not take down the whole Pages
+        // deploy: skip it loudly and build the manifest from the healthy ones.
+        console.warn(`registry record skipped (YAML parse failed): ${file}: ${err.message}`);
+        continue;
+      }
+      if (!rec?.id || !rec?.source?.repository) continue;
+      const repo = rec.source.repository;
+      const node = {
+        id: rec.id,
+        name: rec.name || rec.id,
+        group,
+        repo,
+        description: firstSentence(rec.description),
+        version: rec.release?.version,
+        status: rec.status,
+        contract: rec.conformsTo?.contract
+          ? `${rec.conformsTo.contract.id}@${rec.conformsTo.contract.version}`
+          : undefined,
+        components: (rec.components ?? []).map((c) => c.id).filter(Boolean),
+        assetClass: rec.asset_class,
+      };
+      nodes.push(node);
+      byRepo.set(repo, node);
+    }
+  }
+} else {
+  const fallbackPath = join(ROOT, 'data', 'ecosystem-registry.json');
+  if (existsSync(fallbackPath)) {
+    usedFallbackRegistry = true;
+    const eco = JSON.parse(readFileSync(fallbackPath, 'utf8'));
+    const handshakeContracts = new Map();
+    for (const hs of eco.handshakes ?? []) {
+      if (hs.to_station_id === 'dea-metamodel' && !handshakeContracts.has(hs.from_station_id)) {
+        const contractName = hs.id.includes('opendea-assessment-metamodel')
+          ? 'opendea-assessment-metamodel@1.0'
+          : 'maturity-scale-contract@1.0';
+        handshakeContracts.set(hs.from_station_id, contractName);
+      }
+    }
+    const mapLayerToGroup = (artifact) => {
+      if (['assessment-ci', 'assessment-registry', 'maturity-model-standard', 'maturity-model-template'].includes(artifact.id)) {
+        return 'infrastructure';
+      }
+      if (artifact.id === 'dea-catalog-assessment-tools') return 'assessment-tools';
+      switch (artifact.layer) {
+        case 'maturity-model': return 'maturity-models';
+        case 'assessment-model': return 'assessment-models';
+        case 'shared-capability': return 'components';
+        case 'governance': return 'infrastructure';
+        case 'integration':
+        case 'reference-blueprint':
+        default: return 'external';
+      }
     };
-    nodes.push(node);
-    byRepo.set(repo, node);
+    for (const a of eco.artifacts ?? []) {
+      const group = mapLayerToGroup(a);
+      const repo = a.full_name?.startsWith('Assessment-Models/')
+        ? a.full_name.slice('Assessment-Models/'.length)
+        : a.full_name;
+      const node = {
+        id: a.id,
+        name: a.name || a.id,
+        group,
+        repo,
+        description: firstSentence(a.description),
+        version: a.version ? String(a.version).replace(/^v/, '') : undefined,
+        status: a.conformance_status,
+        contract: handshakeContracts.get(a.id),
+        classification: a.layer,
+        conformance: ['structural', 'full', 'registered'].includes(a.conformance_status) ? a.conformance_status : undefined,
+        standardVersion: a.standards_alignment?.includes('AM-MODEL-REPOSITORY-STANDARD') ? '1.0.1' : undefined,
+        external: a.owner_type === 'partner-ecosystem' ? true : undefined,
+      };
+      nodes.push(node);
+      if (repo) byRepo.set(repo, node);
+    }
+    console.warn(`assessment-registry not found at ${registryDir}; hydrated ${nodes.length} nodes from data/ecosystem-registry.json`);
   }
 }
 
@@ -210,7 +266,13 @@ for (const rec of conformance?.repositories ?? []) {
 
 // ---------- infrastructure + external anchor nodes ----------
 
-for (const n of [...INFRA_NODES, ...EXTERNAL_NODES]) nodes.push({ ...n });
+const existingIds = new Set(nodes.map((n) => n.id));
+for (const n of [...INFRA_NODES, ...EXTERNAL_NODES]) {
+  if (!existingIds.has(n.id)) {
+    nodes.push({ ...n });
+    existingIds.add(n.id);
+  }
+}
 
 // ---------- edges ----------
 
@@ -231,6 +293,22 @@ for (const node of nodes) {
   }
   if (node.contract) {
     addEdge(node.id, 'dea-metamodel', 'contract');
+  }
+}
+
+if (usedFallbackRegistry) {
+  const fallbackPath = join(ROOT, 'data', 'ecosystem-registry.json');
+  const eco = JSON.parse(readFileSync(fallbackPath, 'utf8'));
+  for (const tp of eco.touchpoints ?? []) {
+    if (existingIds.has(tp.from_station_id) && existingIds.has(tp.to_station_id)) {
+      const kind = tp.to_station_id === 'maturity-components' ? 'imports' : 'shared-components';
+      addEdge(tp.from_station_id, tp.to_station_id, kind);
+    }
+  }
+  for (const hs of eco.handshakes ?? []) {
+    if (existingIds.has(hs.from_station_id) && existingIds.has(hs.to_station_id)) {
+      addEdge(hs.from_station_id, hs.to_station_id, 'contract');
+    }
   }
 }
 

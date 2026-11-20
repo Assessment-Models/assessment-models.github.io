@@ -7,6 +7,16 @@ import { fileURLToPath } from 'node:url';
 //   /gateway/ → the assessment gateway SPA (gateway/index.html, hash-routed)
 export default defineConfig({
   base: '/',
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
+    allowedHosts: true,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 3000,
+    allowedHosts: true,
+  },
   build: {
     target: 'es2022',
     outDir: 'dist',

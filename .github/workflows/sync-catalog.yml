@@ -28,12 +28,13 @@ concurrency:
 jobs:
   sync-registry:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout assessment-models.github.io
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -43,7 +44,50 @@ jobs:
       - name: Synchronize Assessment-Models repository catalog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/sync_org_catalog.py
+        run: |
+          set +e
+          python scripts/sync_org_catalog.py 2>&1 | tee sync-output.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -ne 0 ]; then
+            {
+              echo "## sync_org_catalog.py failed with exit code $rc"
+              echo ""
+              echo "Last output lines:"
+              echo ""
+              echo '```'
+              tail -n 60 sync-output.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$rc"
+
+      # If the sync failed, probe API reachability so the run page summary
+      # shows whether the fault is token authentication or the endpoint.
+      - name: Diagnose GitHub API access (failure only)
+        if: failure()
+        env:
+          GH_TOKEN_FOR_PROBE: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "## GitHub API probe (status codes only)"
+            echo ""
+            echo '```'
+            echo -n "/rate_limit (authenticated):     "
+            curl -sS -o /dev/null -w "%{http_code}\n" \
+              -H "Authorization: Bearer $GH_TOKEN_FOR_PROBE" \
+              -H "User-Agent: assessment-models-catalog-sync/1.0" \
+              https://api.github.com/rate_limit
+            echo -n "/orgs/Assessment-Models/repos (authenticated): "
+            curl -sS -o /dev/null -w "%{http_code}\n" \
+              -H "Authorization: Bearer $GH_TOKEN_FOR_PROBE" \
+              -H "User-Agent: assessment-models-catalog-sync/1.0" \
+              "https://api.github.com/orgs/Assessment-Models/repos?per_page=1"
+            echo -n "/orgs/Assessment-Models/repos (anonymous):     "
+            curl -sS -o /dev/null -w "%{http_code}\n" \
+              -H "User-Agent: assessment-models-catalog-sync/1.0" \
+              "https://api.github.com/orgs/Assessment-Models/repos?per_page=1"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Coverage guardrail: surface every discovered repository, its layer,
       # version and manifest status so repos still missing an

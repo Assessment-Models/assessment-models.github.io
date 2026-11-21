@@ -1,0 +1,34 @@
+name: Verify No Local Tooling Residue
+
+# Guardrail: this repository is PUBLIC. Local authoring-tool scratch (e.g.
+# .aistudio/ artifacts and .tempmediaStorage/ screenshot caches), alternate
+# lockfiles, editor and language-runtime scratch, credential-bearing files
+# (.env*), patch residue and CI scratch logs must never enter the tracked
+# tree.
+#
+# Why a gate is needed and not just .gitignore: an archive extracted over
+# this repository root can carry its own .gitignore and overwrite the
+# repository's, silently dropping every ignore rule. This check runs against
+# the tracked tree itself, so it holds either way.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-no-residue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify no local tooling residue is tracked
+        run: node scripts/verify-no-local-residue.mjs

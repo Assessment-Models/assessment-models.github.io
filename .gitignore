@@ -19,6 +19,14 @@
 # NOTE: gitignore has NO inline-comment syntax. A trailing "# ..." on a rule
 # line becomes part of the pattern and silently stops matching. Put the
 # explanation on its own line above the rule.
+#
+# ENFORCED IN CI: scripts/verify-no-local-residue.mjs checks the tracked tree
+# against this same list and fails if any rule below has gone missing. That
+# check is the load-bearing guard, because an archive extracted over this
+# repository root can carry its own .gitignore and overwrite this file,
+# silently dropping every rule here — at which point the residue becomes
+# committable again with no visible signal. The tracked-tree check holds
+# regardless of what this file currently says.
 # ---------------------------------------------------------------------------
 
 # --- Local authoring-tool scratch state -------------------------------------
@@ -60,6 +68,26 @@ Desktop.ini
 *~
 .\#*
 \#*\#
+
+# --- Language runtime scratch -----------------------------------------------
+# Python bytecode caches from running scripts/sync_org_catalog.py locally.
+# Never repository content.
+__pycache__/
+*.pyc
+
+# --- Patch and merge residue ------------------------------------------------
+# Leftovers from an interrupted rebase, a conflicted apply, or a patch run.
+# They are transient by definition and must not enter the history.
+*.orig
+*.rej
+
+# --- Credential-bearing files -----------------------------------------------
+# This repository is public. Credentials belong in CI secrets, never in a
+# tracked file. Only *.example templates are exempt, so a template can still
+# be committed while the real thing never can.
+.env
+.env.*
+!.env*.example
 
 # --- Logs and CI scratch ----------------------------------------------------
 # Logs are never site content. Safe to ignore: the catalog sync workflow

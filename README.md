@@ -29,6 +29,19 @@ The index generator reads sibling clones by default (`../assessment-registry`, `
 
 `push` to `main`, manual dispatch, and a weekly cron trigger the deploy workflow (`.github/workflows/deploy.yml`): sources are checked out, indexes regenerated, the site built and published via GitHub Actions → Pages.
 
+## Repository hygiene
+
+**This repository is public. Never commit local tooling scratch to it** — external authoring-tool artifacts (`.aistudio/`, `.tempmediaStorage/`), alternate lockfiles (`bun.lock`, `pnpm-lock.yaml`, `yarn.lock`), editor and language-runtime scratch, credential-bearing files (`.env*`), patch residue, or CI scratch logs.
+
+Two mechanisms enforce this:
+
+- `.gitignore` lists every such path, so an ordinary `git add` refuses them.
+- `scripts/verify-no-local-residue.mjs` (run in CI by `verify-no-local-residue.yml`) checks the **tracked tree** against the same list, and fails if `.gitignore` has lost any of the rules.
+
+The second mechanism exists because an archive extracted over this repository root can carry its own `.gitignore` and overwrite the repository's, silently dropping every ignore rule — at which point the residue becomes committable again. The tracked-tree check holds regardless of what `.gitignore` currently says.
+
+When you extract an archive here, keep the repository's `.gitignore` and exclude the scratch paths; do not let the archive's copy replace it.
+
 ## Stack
 
 Vite + TypeScript, no framework. SVG constellation, Chart.js reports, js-yaml for client-side YAML. Blueprint: see the gateway overview document in the org's planning materials.

@@ -404,3 +404,31 @@ body.metro-mode #app .metro-shell {
     max-height: 46dvh;
   }
 }
+
+/* Grid furniture (domain columns + lane titles) */
+.metro-column-guide {
+  stroke: rgba(148, 163, 184, 0.14);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+  pointer-events: none;
+}
+.metro-column-guide-active {
+  stroke: rgba(245, 158, 11, 0.45);
+}
+.metro-column-label {
+  fill: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+.metro-column-label-active {
+  fill: #fbbf24;
+}
+.metro-lane-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}

@@ -241,3 +241,95 @@ describe("computeMetroLayout collision & coverage verification", () => {
     assert.ok(Number.isFinite(layout.fitTransform.k) && layout.fitTransform.k > 0);
   });
 });
+
+describe("computeMetroLayout registry-grounded grid", () => {
+  const realPath = new URL("../data/ecosystem-registry.json", import.meta.url);
+  const registry = JSON.parse(readFileSync(realPath, "utf8"));
+  const graph = buildMetroGraph(registry);
+  const layout = computeMetroLayout(graph, 1440, 820);
+  const byId = new Map(layout.stations.map((s) => [s.id, s]));
+  const ofLayer = (layer) => layout.stations.filter((s) => s.layer === layer);
+
+  it("orders lanes by dependency flow (top to bottom)", () => {
+    const order = ["governance", "maturity-model", "integration", "assessment-model", "shared-capability"];
+    const ys = order.map((layer) => {
+      const st = ofLayer(layer);
+      assert.ok(st.length > 0, `no stations on layer ${layer}`);
+      assert.equal(new Set(st.map((s) => s.y)).size, 1, `layer ${layer} must sit on a single lane`);
+      return st[0].y;
+    });
+    for (let i = 1; i < ys.length; i++) {
+      assert.ok(ys[i - 1] < ys[i], `lane ${order[i - 1]} must be above ${order[i]}`);
+    }
+  });
+
+  it("aligns each instrument directly under the model it scores against", () => {
+    const pairs = graph.handshakes.filter(
+      (h) => byId.get(h.from_station_id)?.layer === "assessment-model" && byId.get(h.to_station_id)?.layer === "maturity-model"
+    );
+    assert.ok(pairs.length > 0, "registry should contain instrument -> model handshakes");
+    for (const h of pairs) {
+      assert.equal(
+        byId.get(h.from_station_id).x,
+        byId.get(h.to_station_id).x,
+        `${h.from_station_id} must share a column with ${h.to_station_id}`
+      );
+      assert.ok(byId.get(h.from_station_id).y > byId.get(h.to_station_id).y, "instrument sits below its model");
+    }
+  });
+
+  it("emits one header column per model-lane station, aligned to that station", () => {
+    const models = ofLayer("maturity-model");
+    assert.equal(layout.columns.length, models.length);
+    for (const col of layout.columns) {
+      assert.equal(byId.get(col.stationId).x, col.x, `column header for ${col.stationId} must align`);
+    }
+    assert.equal(new Set(layout.columns.map((c) => c.label)).size, layout.columns.length, "column labels are unique");
+  });
+
+  it("emits a title for every lane", () => {
+    assert.equal(layout.lanes.length, 5);
+    for (const lane of layout.lanes) assert.ok(lane.label && Number.isFinite(lane.y));
+  });
+
+  it("puts at most one station on any (lane, column) cell", () => {
+    const seen = new Set();
+    for (const s of layout.stations) {
+      const key = `${s.laneIdx}:${s.colIdx}`;
+      assert.ok(!seen.has(key), `two stations share grid cell ${key}`);
+      seen.add(key);
+    }
+  });
+
+  it("draws the blueprint as a spur on the integration lane, right of its anchor model", () => {
+    const blueprint = ofLayer("reference-blueprint");
+    assert.ok(blueprint.length > 0);
+    const integrationY = ofLayer("integration")[0].y;
+    for (const bp of blueprint) {
+      assert.equal(bp.y, integrationY, "blueprint shares the integration lane");
+      const anchors = graph.handshakes
+        .concat(graph.touchpoints)
+        .filter((e) => e.to_station_id === bp.id || e.from_station_id === bp.id)
+        .map((e) => byId.get(e.to_station_id === bp.id ? e.from_station_id : e.to_station_id))
+        .filter((s) => s?.layer === "maturity-model");
+      assert.ok(anchors.length > 0, "blueprint has a model anchor");
+      for (const a of anchors) assert.ok(bp.x > a.x, `${bp.id} must sit right of anchor ${a.id}`);
+    }
+    const spur = layout.corridorPaths.find((c) => c.lineId === "reference-blueprint");
+    assert.ok(spur && /L/.test(spur.d), "spur corridor must have a segment, not a lone point");
+  });
+
+  it("keeps non-model stations unaligned only when no contract ties them to a column", () => {
+    const unconnected = layout.stations.filter((s) => s.touchpoints.length + s.handshakes.length === 0);
+    const laneMax = (lane) => Math.max(...layout.stations.filter((s) => s.laneIdx === lane).map((s) => s.colIdx));
+    for (const s of unconnected) assert.equal(s.colIdx, laneMax(s.laneIdx), `${s.id} should be parked at the right end of its lane`);
+  });
+
+  it("is deterministic", () => {
+    const again = computeMetroLayout(buildMetroGraph(registry), 1440, 820);
+    assert.deepEqual(
+      again.stations.map((s) => [s.id, s.x, s.y]),
+      layout.stations.map((s) => [s.id, s.x, s.y])
+    );
+  });
+});

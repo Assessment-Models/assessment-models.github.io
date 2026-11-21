@@ -1,31 +1,43 @@
 /**
- * Collision-aware Metro Layout Engine for Assessment-Models:
- * - Uniform corridor lanes (one clean Y per line, no artificial station jitter)
- * - Topological column placement along the ecosystem flow
- *   (Governance -> Maturity Models -> Shared Capabilities / Integration -> Reference Blueprints)
- * - Universal layer-based column assignment (no hardcoded station ids)
- * - Spatial occupancy loop guaranteeing station-to-station separation
- * - Scored, non-overlapping label slots for every station
- * - Nudged touchpoint/handshake transfer markers clear of stations & labels
- * - Auto-fit transform computed across stations, labels and markers
+ * Collision-aware Metro Layout Engine for Assessment-Models (grid layout):
  *
- * Exports `chamferPath` as an alias of `chamferPolyline` for compatibility.
+ * - ROWS are corridor lanes in dependency order:
+ *     governance -> maturity models -> integration -> assessment instruments
+ *     -> shared capabilities. The reference blueprint is a spur on the
+ *     integration lane (it branches off the model that crosswalks to it).
+ * - COLUMNS are domains. Each domain model owns a column; its assessment
+ *   instrument is aligned directly beneath it through its "scores-against"
+ *   handshake, so a domain reads top-to-bottom as one stack of contracts.
+ * - Hub stations (standard, metamodel, catalogs, components, registry, CI)
+ *   sit at the centroid column of the stations they connect to.
+ * - Placement is data-driven (layers + edges), never keyed on station ids, so
+ *   new repositories land deterministically without code changes.
+ * - Spatial occupancy per lane guarantees station-to-station separation.
+ * - Scored, non-overlapping label slots for every station; lane titles and
+ *   column headers are reserved first so labels avoid them.
+ * - Nudged touchpoint/handshake transfer markers clear of stations & labels
+ * - Auto-fit transform computed across stations, labels, headers and markers
+ *
+ * Output adds `lanes` and `columns` (grid furniture for the canvas to draw)
+ * to the original fields. `chamferPath` remains an alias of `chamferPolyline`.
  */
 
-/**
- * Base column for each architectural layer, following the ecosystem's
- * topological flow. Unknown layers fall back to the shared-capability/
- * integration band (column 2) so any NEW repository layer still receives a
- * deterministic column without hardcoding station ids.
- */
-const LAYER_BASE_COLUMN = {
-  governance: 0,
-  "maturity-model": 1,
-  "assessment-model": 2,
-  "shared-capability": 3,
-  integration: 3,
-  "reference-blueprint": 4,
-};
+/** Lane (row) order following the ecosystem's dependency flow. Unknown lines
+ *  are appended after these in their registry order. */
+const LANE_ORDER = [
+  "governance",
+  "maturity-model",
+  "integration",
+  "assessment-model",
+  "shared-capability",
+  "reference-blueprint",
+];
+
+/** Layers drawn as a spur on another layer's lane (when that lane exists). */
+const SPUR_ON = { "reference-blueprint": "integration" };
+
+const MODEL_LINE = "maturity-model";
+const INSTRUMENT_LINE = "assessment-model";
 
 /** Label slot candidates, generated with clearances that keep every slot
  *  band strictly outside the station-node radius (r 22 in tests) while
@@ -207,79 +219,247 @@ function resolveMarkerPosition(rawX, rawY, stations, placedMarkers, placedLabelR
 }
 
 export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight = 760) {
-  const lanePitch = 190; // adjacent-lane same-column distance stays >= 150px test floor
-  const colPitch = 285;
-  const minStationDist = 185;
-  const leftOrigin = 150;
-  const topOrigin = 130;
+  const lanePitch = 180; // adjacent-lane same-column distance stays >= 150px test floor
+  const colPitch = 220;
+  const leftOrigin = 340; // room on the left for lane titles
+  const topOrigin = 190; // room above for column headers
+  const laneTitleWidth = 170;
 
-  const lineYMap = new Map();
-  graph.lines.forEach((line, idx) => {
-    lineYMap.set(line.id, topOrigin + idx * lanePitch);
+  // ---- 1. Lanes (rows) ----------------------------------------------------
+  const lineIds = new Set(graph.lines.map((l) => l.id));
+  const orderIdx = (id) => {
+    const i = LANE_ORDER.indexOf(id);
+    return i < 0 ? LANE_ORDER.length : i;
+  };
+  const sortedLines = [...graph.lines].sort(
+    (a, b) => orderIdx(a.id) - orderIdx(b.id) || a.order - b.order
+  );
+  const laneKeyOf = (lineId) => {
+    const host = SPUR_ON[lineId];
+    return host && lineIds.has(host) ? host : lineId;
+  };
+  const laneKeys = [];
+  for (const line of sortedLines) {
+    const key = laneKeyOf(line.id);
+    if (!laneKeys.includes(key)) laneKeys.push(key);
+  }
+  const laneIndex = new Map(laneKeys.map((k, i) => [k, i]));
+  const laneY = (key) => topOrigin + (laneIndex.get(key) ?? 0) * lanePitch;
+
+  // ---- 2. Adjacency from contracts ---------------------------------------
+  const neighbors = new Map();
+  const link = (a, b, kind) => {
+    if (!neighbors.has(a)) neighbors.set(a, []);
+    neighbors.get(a).push({ id: b, kind });
+  };
+  for (const [edges, kind] of [
+    [graph.touchpoints, "touchpoint"],
+    [graph.handshakes, "handshake"],
+  ]) {
+    for (const e of edges) {
+      link(e.from_station_id, e.to_station_id, kind);
+      link(e.to_station_id, e.from_station_id, kind);
+    }
+  }
+  const layerOf = (id) => graph.stationMap.get(id)?.layer;
+  const regIdx = new Map(graph.stations.map((s, i) => [s.id, i]));
+  const degree = (s) => s.touchpoints.length + s.handshakes.length;
+
+  // Instrument -> domain model, through a handshake into the model lane
+  // (the registry's "scores-against" contract). Touchpoints are ignored here:
+  // they also point at catalog stations that live on the model lane.
+  const partnerOf = new Map();
+  for (const st of graph.stations) {
+    if (st.layer !== INSTRUMENT_LINE) continue;
+    const hit = (neighbors.get(st.id) || []).find(
+      (n) => n.kind === "handshake" && layerOf(n.id) === MODEL_LINE
+    );
+    if (hit) partnerOf.set(st.id, hit.id);
+  }
+  const partneredModels = new Set(partnerOf.values());
+
+  // Models that a spur layer (blueprint) branches from sit last in their
+  // group so the spur can extend right without crossing other stations.
+  const spurAnchors = new Set();
+  for (const st of graph.stations) {
+    if (!SPUR_ON[st.layer]) continue;
+    for (const n of neighbors.get(st.id) || []) {
+      if (layerOf(n.id) === MODEL_LINE) spurAnchors.add(n.id);
+    }
+  }
+
+  // ---- 3. Columns: one per domain model ----------------------------------
+  // Group 0: models with an instrument (full stacks, left)
+  // Group 1: models with contracts but no instrument yet
+  // Group 2: scaffolding/catalog stations on the model lane
+  const group = (s) => (partneredModels.has(s.id) ? 0 : s.handshakes.length > 0 ? 1 : 2);
+  const models = graph.stations
+    .filter((s) => s.layer === MODEL_LINE)
+    .sort(
+      (a, b) =>
+        group(a) - group(b) ||
+        (spurAnchors.has(a.id) ? 1 : 0) - (spurAnchors.has(b.id) ? 1 : 0) ||
+        degree(b) - degree(a) ||
+        regIdx.get(a.id) - regIdx.get(b.id)
+    );
+
+  // Keep a spur anchor's model-to-model handshake peers directly beside it
+  // (e.g. a composite model and its operationalized line stay adjacent).
+  for (const anchorId of spurAnchors) {
+    const anchor = graph.stationMap.get(anchorId);
+    if (!anchor || !models.some((m) => m.id === anchorId)) continue;
+    const peers = (neighbors.get(anchorId) || [])
+      .filter(
+        (n) =>
+          n.kind === "handshake" &&
+          layerOf(n.id) === MODEL_LINE &&
+          group(graph.stationMap.get(n.id)) === group(anchor)
+      )
+      .map((n) => n.id);
+    for (const peerId of peers) {
+      const from = models.findIndex((m) => m.id === peerId);
+      if (from < 0) continue;
+      const [moved] = models.splice(from, 1);
+      models.splice(
+        models.findIndex((m) => m.id === anchorId),
+        0,
+        moved
+      );
+    }
+  }
+
+  const positionedStations = [];
+  const posById = new Map();
+  const occupied = new Map(laneKeys.map((k) => [k, new Set()]));
+
+  const place = (station, laneKey, col) => {
+    occupied.get(laneKey)?.add(col);
+    const p = {
+      ...station,
+      x: leftOrigin + col * colPitch,
+      y: laneY(laneKey),
+      laneIdx: laneIndex.get(laneKey) ?? 0,
+      colIdx: col,
+      labelPlacement: null,
+    };
+    positionedStations.push(p);
+    posById.set(p.id, p);
+    return p;
+  };
+
+  const freeCol = (laneKey, want, rightOnly = false) => {
+    const occ = occupied.get(laneKey) ?? new Set();
+    for (let d = 0; d < 256; d++) {
+      const cands = rightOnly || d === 0 ? [want + d] : [want + d, want - d];
+      for (const c of cands) if (c >= 0 && !occ.has(c)) return c;
+    }
+    return want;
+  };
+
+  models.forEach((m, i) => place(m, laneKeyOf(MODEL_LINE), i));
+
+  // ---- 4. Everything else: aligned under partner, else centroid ----------
+  const centroidCol = (id) => {
+    const cols = (neighbors.get(id) || [])
+      .map((n) => posById.get(n.id))
+      .filter(Boolean)
+      .map((p) => p.colIdx);
+    return cols.length ? Math.round(cols.reduce((a, b) => a + b, 0) / cols.length) : null;
+  };
+
+  const rest = sortedLines.filter((l) => l.id !== MODEL_LINE);
+  // Spur layers last, so their anchors are already positioned.
+  rest.sort((a, b) => (SPUR_ON[a.id] ? 1 : 0) - (SPUR_ON[b.id] ? 1 : 0));
+
+  for (const line of rest) {
+    const laneKey = laneKeyOf(line.id);
+    const isSpur = Boolean(SPUR_ON[line.id]) && laneKey !== line.id;
+    const connected = (id) => isSpur || partnerOf.has(id) || centroidCol(id) !== null;
+    const ordered = [
+      ...line.stationIds.filter((id) => connected(id)),
+      ...line.stationIds.filter((id) => !connected(id)),
+    ];
+    for (const stationId of ordered) {
+      const station = graph.stationMap.get(stationId);
+      if (!station || posById.has(stationId)) continue;
+
+      let col;
+      const partner = partnerOf.get(stationId);
+      if (!connected(stationId)) {
+        // No contract ties it to a column: park it right of the lane's stations
+        // rather than implying a relationship by alignment.
+        col = freeCol(laneKey, Math.max(-1, ...occupied.get(laneKey)) + 1, true);
+      } else if (partner && posById.has(partner)) {
+        col = freeCol(laneKey, posById.get(partner).colIdx);
+      } else if (isSpur) {
+        const anchorCol = Math.max(
+          -1,
+          ...(neighbors.get(stationId) || [])
+            .map((n) => posById.get(n.id))
+            .filter((p) => p && p.laneIdx === laneIndex.get(laneKeyOf(MODEL_LINE)))
+            .map((p) => p.colIdx)
+        );
+        const laneMax = Math.max(-1, ...occupied.get(laneKey));
+        col = freeCol(laneKey, Math.max(anchorCol, anchorCol < 0 ? laneMax : -1) + 1, true);
+      } else {
+        col = freeCol(laneKey, centroidCol(stationId) ?? 0);
+      }
+      place(station, laneKey, col);
+    }
+  }
+
+  // Defensive: any station whose layer was not among graph.lines.
+  for (const station of graph.stations) {
+    if (posById.has(station.id)) continue;
+    const key = laneKeys.includes(station.layer) ? station.layer : laneKeys[0];
+    if (key === undefined) break;
+    place(station, key, freeCol(key, 0));
+  }
+
+  positionedStations.sort((a, b) => a.laneIdx - b.laneIdx || a.colIdx - b.colIdx);
+
+  const totalLanes = Math.max(1, laneKeys.length);
+
+  // ---- 5. Grid furniture: lane titles + column headers -------------------
+  const lanes = laneKeys.map((key) => {
+    const line = graph.lines.find((l) => l.id === key);
+    return {
+      lineId: key,
+      label: line?.label ?? key,
+      color: line?.color ?? "#94a3b8",
+      x: leftOrigin - 300,
+      y: laneY(key),
+    };
   });
 
-  // Place every station on its corridor lane at a clean topological column.
-  // Iterate lines in corridor order, then that line's stations, so the column
-  // index per layer is deterministic and registry-order stable.
-  const positionedStations = [];
-  const layerSlotCount = new Map();
+  const headerY = topOrigin - 96;
+  const concernCount = new Map();
+  for (const m of models) concernCount.set(m.concern, (concernCount.get(m.concern) ?? 0) + 1);
+  const columns = models.map((m, i) => ({
+    index: i,
+    x: leftOrigin + i * colPitch,
+    // Shared concerns (e.g. catalog/template scaffolding) fall back to the name.
+    label: m.concern && concernCount.get(m.concern) === 1 ? m.concern : m.name,
+    stationId: m.id,
+    y: headerY,
+  }));
+  const gridBottom = laneY(laneKeys[laneKeys.length - 1] ?? laneKeys[0]) + 74;
 
-  const laneIndexOf = new Map(graph.lines.map((l, idx) => [l.id, idx]));
-  const layerOfStation = new Map();
-  for (const line of graph.lines) {
-    for (const id of line.stationIds) layerOfStation.set(id, line.id);
+  // Reserve furniture first so station labels route around it.
+  const placedLabelRects = [];
+  for (const lane of lanes) {
+    placedLabelRects.push({
+      x1: lane.x,
+      y1: lane.y - 14,
+      x2: lane.x + laneTitleWidth,
+      y2: lane.y + 14,
+    });
   }
-
-  for (const line of graph.lines) {
-    for (const stationId of line.stationIds) {
-      const station = graph.stationMap.get(stationId);
-      if (!station) continue;
-
-      const laneIdx = laneIndexOf.get(line.id) ?? 0;
-      const y = lineYMap.get(line.id) ?? topOrigin;
-      const countInLayer = layerSlotCount.get(line.id) ?? 0;
-      layerSlotCount.set(line.id, countInLayer + 1);
-
-      const baseCol = LAYER_BASE_COLUMN[line.id] ?? 2;
-      let colIdx = baseCol + countInLayer;
-      let x = leftOrigin + colIdx * colPitch;
-
-      // Occupancy loop: guarantee station-to-station clearance globally.
-      while (positionedStations.some((p) => Math.hypot(p.x - x, p.y - y) < minStationDist)) {
-        colIdx += 1;
-        x = leftOrigin + colIdx * colPitch;
-      }
-
-      positionedStations.push({
-        ...station,
-        x,
-        y,
-        laneIdx,
-        colIdx,
-        labelPlacement: null,
-      });
-    }
+  for (const col of columns) {
+    placedLabelRects.push({ x1: col.x - 100, y1: col.y - 18, x2: col.x + 100, y2: col.y + 12 });
   }
-
-  // Fallback: include any station whose layer was not among graph.lines
-  // (defensive; buildMetroGraph always maps primary layers onto lines).
-  for (const station of graph.stations) {
-    if (positionedStations.some((p) => p.id === station.id)) continue;
-    const y = lineYMap.get(station.layer) ?? topOrigin;
-    let colIdx = (LAYER_BASE_COLUMN[station.layer] ?? 2) + (layerSlotCount.get(station.layer) ?? 0);
-    let x = leftOrigin + colIdx * colPitch;
-    while (positionedStations.some((p) => Math.hypot(p.x - x, p.y - y) < minStationDist)) {
-      colIdx += 1;
-      x = leftOrigin + colIdx * colPitch;
-    }
-    layerSlotCount.set(station.layer, (layerSlotCount.get(station.layer) ?? 0) + 1);
-    positionedStations.push({ ...station, x, y, laneIdx: 0, colIdx, labelPlacement: null });
-  }
-
-  const totalLanes = Math.max(1, graph.lines.length);
 
   // Assign collision-checked label slots in deterministic placement order.
-  const placedLabelRects = [];
   for (const st of positionedStations) {
     st.labelPlacement = pickNonOverlappingLabelSlot(
       st,
@@ -290,15 +470,28 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     );
   }
 
-  const posById = new Map(positionedStations.map((s) => [s.id, s]));
-
-  // Continuous corridor trunks connecting each line's stations in X order.
-  const corridorPaths = graph.lines
+  // ---- 6. Corridors ------------------------------------------------------
+  const corridorPaths = sortedLines
     .map((line) => {
-      const pts = positionedStations
+      let pts = positionedStations
         .filter((s) => s.layer === line.id)
         .sort((a, b) => a.x - b.x)
         .map((s) => ({ x: s.x, y: s.y }));
+
+      // Spur: start the branch at the nearest model station it connects to.
+      if (SPUR_ON[line.id] && laneKeyOf(line.id) !== line.id) {
+        const anchors = [];
+        for (const st of positionedStations.filter((s) => s.layer === line.id)) {
+          for (const n of neighbors.get(st.id) || []) {
+            const p = posById.get(n.id);
+            if (p && p.layer === MODEL_LINE) anchors.push({ x: p.x, y: laneY(laneKeyOf(line.id)) });
+          }
+        }
+        if (anchors.length) {
+          anchors.sort((a, b) => b.x - a.x);
+          pts = [anchors[0], ...pts];
+        }
+      }
 
       return {
         lineId: line.id,
@@ -309,7 +502,7 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     })
     .filter((corr) => corr.d !== "");
 
-  // Route contract links along dedicated offset channels with nudged markers.
+  // ---- 7. Contract links with nudged markers -----------------------------
   const placedMarkers = [];
 
   const routeContractEdge = (edge, index, kind) => {
@@ -317,9 +510,10 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     const b = posById.get(edge.to_station_id);
     if (!a || !b) return null;
 
+    const sameCol = Math.abs(a.x - b.x) < 1 && a.y !== b.y;
     const sign = index % 2 === 0 ? 1 : -1;
     const baseOffset = sign * (54 + (index % 3) * 16);
-    const rawMidX = (a.x + b.x) / 2 + baseOffset;
+    const rawMidX = sameCol ? a.x : (a.x + b.x) / 2 + baseOffset;
     const rawMidY = a.y === b.y ? a.y + baseOffset * 0.65 : (a.y + b.y) / 2;
 
     const { mx, my } = resolveMarkerPosition(
@@ -330,8 +524,13 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
       placedLabelRects
     );
 
-    const pts =
-      a.y === b.y
+    const pts = sameCol
+      ? [
+          { x: a.x, y: a.y },
+          { x: mx, y: my },
+          { x: b.x, y: b.y },
+        ]
+      : a.y === b.y
         ? [
             { x: a.x, y: a.y },
             { x: mx, y: my },
@@ -366,7 +565,7 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     .map((hs, idx) => routeContractEdge(hs, idx + 1, "handshake"))
     .filter(Boolean);
 
-  // Bounding box encompassing stations, label boxes and link markers.
+  // ---- 8. Bounds + auto-fit ----------------------------------------------
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -387,7 +586,11 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     maxY = Math.max(maxY, m.y + 16);
   }
 
-  if (!Number.isFinite(minX)) {
+  if (Number.isFinite(minX)) {
+    for (const lane of lanes) minX = Math.min(minX, lane.x);
+    if (columns.length) minY = Math.min(minY, headerY - 24);
+    maxY = Math.max(maxY, gridBottom);
+  } else {
     minX = 0;
     minY = 0;
     maxX = 960;
@@ -410,6 +613,9 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     stations: positionedStations,
     touchpointEdges,
     handshakeEdges,
+    lanes,
+    columns,
+    gridBottom,
     fitTransform: { x, y, k },
   };
 }

@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { buildMetroGraph } from "../gateway/assets/js/metro-graph.js";
-import { computeMetroLayout } from "../gateway/assets/js/metro-layout.js";
+import { computeMetroLayout, shortContractLabel } from "../gateway/assets/js/metro-layout.js";
 
 function rectsOverlap(a, b, pad = 0) {
   return !(a.x2 + pad < b.x1 || a.x1 - pad > b.x2 || a.y2 + pad < b.y1 || a.y1 - pad > b.y2);
@@ -331,5 +331,71 @@ describe("computeMetroLayout registry-grounded grid", () => {
       again.stations.map((s) => [s.id, s.x, s.y]),
       layout.stations.map((s) => [s.id, s.x, s.y])
     );
+  });
+});
+
+describe("computeMetroLayout contract marker labels", () => {
+  const overlap = (a, b) => a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+  const hitsCircle = (cx, cy, r, q) => {
+    const x = Math.max(q.x1, Math.min(cx, q.x2));
+    const y = Math.max(q.y1, Math.min(cy, q.y2));
+    return (cx - x) ** 2 + (cy - y) ** 2 < r * r;
+  };
+
+  const realPath = new URL("../data/ecosystem-registry.json", import.meta.url);
+  const registry = JSON.parse(readFileSync(realPath, "utf8"));
+  const layout = computeMetroLayout(buildMetroGraph(registry), 1440, 820);
+  const edges = [...layout.touchpointEdges, ...layout.handshakeEdges];
+
+  it("labels every touchpoint and handshake marker", () => {
+    assert.ok(edges.length > 0);
+    for (const e of edges) {
+      assert.ok(e.shortLabel && e.shortLabel.length > 0, `${e.id} has no short label`);
+      assert.ok(e.labelPlacement && e.labelPlacement.rect, `${e.id} has no label placement`);
+      assert.ok(e.shortLabel.length <= 34, `${e.id} label too long: ${e.shortLabel}`);
+    }
+  });
+
+  it("keeps short labels distinguishable (no two markers share a label)", () => {
+    const seen = new Map();
+    for (const e of edges) {
+      assert.ok(!seen.has(e.shortLabel), `${e.id} and ${seen.get(e.shortLabel)} both read "${e.shortLabel}"`);
+      seen.set(e.shortLabel, e.id);
+    }
+  });
+
+  it("places no marker label on a station, station label, marker or another marker label", () => {
+    for (const e of edges) {
+      const r = e.labelPlacement.rect;
+      for (const s of layout.stations) {
+        assert.ok(!hitsCircle(s.x, s.y, 22, r), `${e.shortLabel} covers station ${s.id}`);
+        assert.ok(!overlap(r, s.labelPlacement.rect), `${e.shortLabel} overlaps the label of ${s.id}`);
+      }
+      for (const m of edges) {
+        if (m === e) continue;
+        assert.ok(!hitsCircle(m.mx, m.my, 10, r), `${e.shortLabel} covers marker ${m.id}`);
+        assert.ok(!overlap(r, m.labelPlacement.rect), `${e.shortLabel} overlaps label ${m.shortLabel}`);
+      }
+    }
+  });
+
+  it("keeps full names for tooltips and abbreviates only for display", () => {
+    const ops = edges.find((e) => /Operations Scale Contract/.test(e.label));
+    assert.ok(ops, "expected the Operations scale-contract handshake");
+    assert.equal(ops.label, "Operations Scale Contract Handshake");
+    assert.equal(ops.shortLabel, "Ops Scale Contract");
+    assert.equal(shortContractLabel("Something Unknown Touchpoint"), "Something Unknown");
+  });
+
+  it("includes marker labels inside the fitted bounds", () => {
+    const { x, y, k } = layout.fitTransform;
+    for (const e of edges) {
+      const r = e.labelPlacement.rect;
+      for (const [px, py] of [[r.x1, r.y1], [r.x2, r.y2]]) {
+        const sx = px * k + x;
+        const sy = py * k + y;
+        assert.ok(sx > -1 && sx < 1440 + 1 && sy > -1 && sy < 820 + 1, `${e.shortLabel} falls outside the viewport`);
+      }
+    }
   });
 });

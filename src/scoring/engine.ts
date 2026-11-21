@@ -18,10 +18,13 @@ import type { Scale, ScaleLevel } from '../types';
 // ---------- level/band model ----------
 
 export interface EngineLevel {
-  id: string; // "L-0".."L-4"
+  /** native level id, displayed verbatim (L-0, L0, level-1-unrealized …) */
+  id: string;
   ordinal: number;
-  min: number;
-  max: number;
+  /** false for sentinel levels like "L-0 Not Assessed" (dea-metamodel #214) — excluded from scoring */
+  scored: boolean;
+  min?: number;
+  max?: number;
   band?: string;
   name?: string;
   v2Name?: string;
@@ -34,8 +37,11 @@ export interface EngineLevel {
 /**
  * Canonical v2 band instance `dea:maturity-bands-v2` v1.0.0 (technehub-labs/dea-metamodel).
  * Every ecosystem scale references these bands (via band_reference or prose), but most
- * scale.yaml files carry them as prose only — not machine fields. Levels without an
- * explicit v2_score_range fall back to this by ordinal.
+ * scale.yaml files carry them as prose only — not machine fields. Scored levels without an
+ * explicit v2_score_range fall back to these by their position among the scale's scored
+ * levels — never by raw ordinal, so both conventions work:
+ *   - legacy zero-based 5-level scales (L-0..L-4 / L0..L4): scored levels 0..4 → bands 0..4
+ *   - CR (dea-metamodel #214) convention: L-0 "Not Assessed" (unscored) + L-1..L-5 → bands 0..4
  */
 export const CANONICAL_V2_BANDS: { min: number; max: number; band: string; effort: number }[] = [
   { min: 0, max: 20, band: 'dea:maturity-band-emergent', effort: 1.0 },
@@ -45,32 +51,39 @@ export const CANONICAL_V2_BANDS: { min: number; max: number; band: string; effor
   { min: 89, max: 100, band: 'dea:maturity-band-self-optimising', effort: 6.0 },
 ];
 
-/**
- * Canonical display id for a scale level: accepts `L-0`, `L0`, `level-1-unrealized` …
- * and maps to the canonical `L-<ordinal>` label (model level N ↔ canonical ordinal N-1
- * per CR-AM-09; DTO's level-1-unrealized is ordinal 0 → "L-0").
- */
-export function normalizeLevelId(id: string | undefined, ordinal: number): string {
-  if (id) {
-    const m = id.match(/^L-?(\d)$/i);
-    if (m) return `L-${m[1]}`;
-    const m2 = id.match(/^level-(\d+)/i);
-    if (m2) return `L-${Number(m2[1]) - 1}`;
-  }
-  return `L-${ordinal}`;
+/** Sentinel detection for "Not Assessed" anchor levels (unscored under dea-metamodel #214). */
+export function isNotAssessedLevel(l: { id?: string; name?: string }): boolean {
+  return /not[\s_-]*assessed/i.test(l.name ?? '') || /^L-?0$/i.test(l.id ?? '') && /not/i.test(l.name ?? '');
 }
 
-/** Normalize a scale.yaml into ascending, contiguous EngineLevels. */
+/** Normalize a scale.yaml into ascending EngineLevels, preserving native ids. */
 export function levelsFromScale(scale: Scale | null): EngineLevel[] {
   const levels = (scale?.levels ?? []) as ScaleLevel[];
   const effort = (scale?.progression?.effort_multiplier ?? {}) as Record<string, number>;
+  let scoredIndex = 0;
   const out: EngineLevel[] = levels.map((l, i) => {
     const hasRange = Array.isArray(l.v2_score_range) && l.v2_score_range.length === 2;
     const ordinal = typeof l.ordinal === 'number' ? l.ordinal : i;
-    const fallback = CANONICAL_V2_BANDS[Math.min(ordinal, CANONICAL_V2_BANDS.length - 1)];
+    if (!hasRange && isNotAssessedLevel(l)) {
+      return {
+        id: l.id, ordinal, scored: false, name: l.name, v2Name: l.v2_name, valueName: l.value_name,
+      };
+    }
+    const bandIdx = scoredIndex++;
+    const fallback = CANONICAL_V2_BANDS[bandIdx];
+    if (!fallback) {
+      console.warn(
+        `[engine] scale level "${l.id}" (scored index ${bandIdx}) exceeds the ${CANONICAL_V2_BANDS.length} canonical v2 bands — no band/effort fallback available`,
+      );
+      return {
+        id: l.id, ordinal, scored: true, name: l.name, v2Name: l.v2_name,
+        valueName: l.value_name, canonical: true,
+      };
+    }
     return {
       id: l.id,
       ordinal,
+      scored: true,
       min: hasRange ? l.v2_score_range![0] : fallback.min,
       max: hasRange ? l.v2_score_range![1] : fallback.max,
       band: l.v2_band ?? fallback.band,
@@ -81,17 +94,23 @@ export function levelsFromScale(scale: Scale | null): EngineLevel[] {
       canonical: !hasRange,
     };
   });
-  return out.sort((a, b) => a.min - b.min);
+  return out;
 }
 
-/** Canonical L-label for an EngineLevel (L-0..L-4 regardless of repo-specific ids). */
-export function canonicalLabel(level: EngineLevel): string {
-  return normalizeLevelId(level.id, level.ordinal);
+/** The scored levels of a scale, in ascending band order (excludes "Not Assessed" sentinels). */
+export function scoredLevels(levels: EngineLevel[]): EngineLevel[] {
+  return levels.filter((l) => l.scored && typeof l.min === 'number');
+}
+
+/** Display label for a resolved level: native id + its best available name. */
+export function levelLabel(level: EngineLevel): string {
+  return `${level.id} — ${level.valueName ?? level.v2Name ?? level.name ?? ''}`.replace(/ — $/, '');
 }
 
 export function bandFor(overall: number, levels: EngineLevel[]): EngineLevel | null {
-  for (let i = levels.length - 1; i >= 0; i--) {
-    if (overall >= levels[i].min && overall <= levels[i].max) return levels[i];
+  const scored = scoredLevels(levels);
+  for (let i = scored.length - 1; i >= 0; i--) {
+    if (overall >= scored[i].min! && overall <= scored[i].max!) return scored[i];
   }
   return null;
 }
@@ -111,25 +130,27 @@ export interface Resolution {
 /**
  * Highest-conformant-level resolution: start at the banded level and step down
  * until every mandatory dimension score reaches that level's band minimum.
+ * Only scored levels participate — "Not Assessed" sentinels are skipped.
  */
 export function resolveLevel(
   overall: number,
   dimScores: { id: string; score: number; mandatory?: boolean }[],
   levels: EngineLevel[],
 ): Resolution {
-  const banded = bandFor(overall, levels);
+  const scored = scoredLevels(levels);
+  const banded = bandFor(overall, scored);
   if (!banded) return { banded: null, resolved: null, status: 'indeterminate' };
   let resolved = banded;
-  for (let i = levels.indexOf(banded); i >= 0; i--) {
-    const candidate = levels[i];
+  for (let i = scored.indexOf(banded); i >= 0; i--) {
+    const candidate = scored[i];
     const mandatory = dimScores.filter((d) => d.mandatory);
     const holds =
-      mandatory.length === 0 || mandatory.every((d) => d.score >= candidate.min);
+      mandatory.length === 0 || mandatory.every((d) => d.score >= candidate.min!);
     if (holds) {
       resolved = candidate;
       break;
     }
-    resolved = levels[Math.max(0, i - 1)] ?? levels[0];
+    resolved = scored[Math.max(0, i - 1)] ?? scored[0];
   }
   const status: ConformanceStatus = resolved.id === banded.id ? 'conformant' : 'partially-conformant';
   return { banded, resolved, status };

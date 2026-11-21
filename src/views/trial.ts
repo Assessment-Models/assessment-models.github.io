@@ -7,11 +7,12 @@ import type { OpDimension } from '../types';
 import { loadModelStructure } from '../data/loader';
 import {
   aggregate,
-  canonicalLabel,
   cascadeOperationalized,
   effortAdjusted,
+  levelLabel,
   levelsFromScale,
   resolveLevel,
+  scoredLevels,
 } from '../scoring/engine';
 import { errorPanel, fetchNodeSafe, h, toast } from './shared';
 import { Chart, RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
@@ -28,9 +29,6 @@ interface TrialState {
   targets: Record<string, string>; // dimension id → target level id
   ts?: number;
 }
-
-const LEVELS = ['L-0', 'L-1', 'L-2', 'L-3', 'L-4'];
-const LEVEL_OF_ANCHOR: Record<number, string> = { 1: 'L-0', 2: 'L-1', 3: 'L-2', 4: 'L-3', 5: 'L-4' };
 
 function storageKey(repo: string, line: Line): string {
   return `am-trial-${repo}-${line}`;
@@ -75,12 +73,29 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
   let line: Line = hasOp ? 'operationalized' : 'composite';
   let st: TrialState = loadState(repo, line) ?? blankState(line);
 
+  /** This line's scored levels in ascending order (native ids, excludes "Not Assessed"). */
+  function lineScoredLevels(l: Line = line) {
+    const scale = l === 'operationalized' ? structure.operationalized?.scale ?? null : structure.composite.scale;
+    return scoredLevels(levelsFromScale(scale));
+  }
+  /** Anchor N ↔ the Nth scored level (anchor scale is 1..5 regardless of level count). */
+  function anchorLevelId(anchor: number): string {
+    const scored = lineScoredLevels();
+    return scored[anchor - 1]?.id ?? `anchor-${anchor}`;
+  }
+  /** Default target = the middle scored level (index 2 of 5, or closest available). */
+  function defaultTargetId(): string {
+    const scored = lineScoredLevels();
+    return scored[Math.min(2, scored.length - 1)]?.id ?? '';
+  }
+
   function blankState(l: Line): TrialState {
     if (l === 'operationalized' && structure.operationalized) {
       const anchors: Record<string, number> = {};
       const targets: Record<string, string> = {};
+      const defTarget = defaultTargetId();
       for (const dim of structure.operationalized.dimensions) {
-        targets[dim.id] = 'L-3';
+        targets[dim.id] = defTarget;
         for (const sub of dim.sub_dimensions ?? []) {
           for (const c of sub.criteria ?? []) anchors[c.id] = 1;
         }
@@ -92,9 +107,10 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
     }
     const scores: Record<string, number> = {};
     const targets: Record<string, string> = {};
+    const defTarget = defaultTargetId();
     for (const c of structure.composite.evaluation?.criteria ?? []) {
       scores[c.id] = 0;
-      targets[c.id] = 'L-3';
+      targets[c.id] = defTarget;
     }
     return {
       scope: (structure.composite.evaluation?.criteria ?? []).map((c) => c.id),
@@ -179,7 +195,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
       resolved
         ? h('div', { class: 'lvl-badge' },
             h('span', { class: 'badge', style: '--badge-color:#55c47f;font-size:.9rem;padding:.25rem .9rem' },
-              `${canonicalLabel(resolved)} — ${resolved.valueName ?? resolved.name ?? ''}`))
+              levelLabel(resolved)))
         : null,
       h('div', { class: 'sub' },
         `band: ${resolved?.band?.replace('dea:maturity-band-', '') ?? '—'} · ${res.status}`),
@@ -293,10 +309,11 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
 
   function dimensionEditor(dim: OpDimension): HTMLElement {
     const card = h('div', { class: 'panel', style: 'margin-bottom:1rem' });
+    const scored = lineScoredLevels();
     const target = h('select', { class: 'target-select' },
-      ...LEVELS.map((l) => {
-        const opt = h('option', { value: l }, l) as HTMLOptionElement;
-        if (st.targets[dim.id] === l) opt.selected = true;
+      ...scored.map((l) => {
+        const opt = h('option', { value: l.id }, l.id) as HTMLOptionElement;
+        if (st.targets[dim.id] === l.id) opt.selected = true;
         return opt;
       }),
     );
@@ -324,11 +341,12 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
         const cur = st.anchors[critId] ?? 1;
         const set = h('div', { class: 'anchor-set', 'data-crit': critId },
           ...[1, 2, 3, 4, 5].map((lv) => {
+            const label = anchorLevelId(lv);
             const b = h('button', {
               class: `anchor-btn${cur === lv ? ' on' : ''}`,
-              title: LEVEL_OF_ANCHOR[lv],
+              title: label,
               'data-lv': String(lv),
-            }, LEVEL_OF_ANCHOR[lv]);
+            }, label);
             b.addEventListener('click', () => {
               st.anchors[critId] = lv;
               persist();

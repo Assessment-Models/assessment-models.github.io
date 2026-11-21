@@ -4,7 +4,7 @@
  * component imports, contract handshakes, touchpoints.yaml & CI status.
  */
 import type { ModelStructure, OpDimension, OpSubDimension, RepoManifestInfo, Scale, IndexNode } from '../types';
-import { canonicalLabel, levelsFromScale } from '../scoring/engine';
+import { levelsFromScale, scoredLevels } from '../scoring/engine';
 import { fetchManifest, loadModelStructure, loadRepoManifestInfo } from '../data/loader';
 import { getPersonaDef } from '../ui/persona';
 import { errorPanel, fetchNodeSafe, h, personaViewportBanner, repoUrl } from './shared';
@@ -138,12 +138,13 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
   // ---------- renderers ----------
 
   function opLineView(s: ModelStructure): HTMLElement {
+    const scoredIds = scoredLevels(levelsFromScale(s.operationalized!.scale ?? null)).map((l) => l.id);
     const wrap = h('div', {});
-    for (const dim of s.operationalized!.dimensions) wrap.append(dimensionCard(dim));
+    for (const dim of s.operationalized!.dimensions) wrap.append(dimensionCard(dim, scoredIds));
     return wrap;
   }
 
-  function dimensionCard(dim: OpDimension): HTMLElement {
+  function dimensionCard(dim: OpDimension, scoredIds: string[]): HTMLElement {
     const card = h('div', { class: 'panel dim-card open' });
     const body = h('div', { class: 'dim-body' });
     const headEl = h('div', { class: 'dim-head' },
@@ -156,12 +157,12 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     card.append(headEl);
 
     if (dim.description) body.append(h('p', { class: 'dim', style: 'font-size:.87rem;margin-bottom:.6rem' }, dim.description));
-    for (const sub of dim.sub_dimensions ?? []) body.append(subdimView(sub));
+    for (const sub of dim.sub_dimensions ?? []) body.append(subdimView(sub, scoredIds));
     card.append(body);
     return card;
   }
 
-  function subdimView(sub: OpSubDimension): HTMLElement {
+  function subdimView(sub: OpSubDimension, scoredIds: string[]): HTMLElement {
     const box = h('div', { class: 'subdim' },
       h('div', { class: 'subdim-name' }, sub.name),
       sub.lite_question ? h('div', { class: 'lite-q' }, `“${sub.lite_question}”`) : null,
@@ -174,7 +175,7 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
           ? h('div', { class: 'levers' },
               h('span', { class: 'mono faint', style: 'font-size:.74rem' }, `Levers: ${c.levers.join(' · ')}`))
           : null,
-        anchorsView(c.anchors ?? []),
+        anchorsView(c.anchors ?? [], scoredIds),
         c.evidence?.length
           ? h('ul', { class: 'evidence' }, ...c.evidence.map((e) => h('li', {}, e)))
           : null,
@@ -183,12 +184,11 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     return box;
   }
 
-  function anchorsView(anchors: { level: number; text: string }[]): HTMLElement {
+  function anchorsView(anchors: { level: number; text: string }[], scoredIds: string[]): HTMLElement {
     if (!anchors.length) return h('div', {});
-    const names: Record<number, string> = { 1: 'L-0', 2: 'L-1', 3: 'L-2', 4: 'L-3', 5: 'L-4' };
     return h('div', { class: 'anchors' },
       ...anchors.map((a) => h('div', { class: 'anchor-row' },
-        h('span', { class: 'lvl' }, names[a.level] ?? `L-${a.level - 1}`),
+        h('span', { class: 'lvl' }, scoredIds[a.level - 1] ?? `anchor-${a.level}`),
         h('span', { class: 'txt' }, a.text),
       )),
     );
@@ -295,10 +295,11 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
         h('th', {}, 'Score range'), h('th', {}, 'Effort'), h('th', {}, 'Definition'),
       )),
       h('tbody', {}, ...levels.map((l) => h('tr', {},
-        h('td', {}, `${canonicalLabel(l)} ${l.name ?? ''}`),
+        h('td', {}, `${l.id} ${l.name ?? ''}`,
+          !l.scored ? h('span', { class: 'badge', style: '--badge-color:#7d8aa5;margin-left:.4rem' }, 'not scored') : null),
         h('td', {}, l.valueName ?? l.v2Name ?? ''),
         h('td', { class: 'mono faint' }, (l.band ?? '').replace('dea:maturity-band-', '')),
-        h('td', { class: 'mono' }, `${l.min}–${l.max}`,
+        h('td', { class: 'mono' }, l.min != null && l.max != null ? `${l.min}–${l.max}` : '—',
           l.canonical ? h('span', { class: 'faint', title: 'from canonical dea:maturity-bands-v2' }, ' *') : null),
         h('td', { class: 'mono' }, String(l.effort ?? '')),
         h('td', { class: 'dim' }, l.v2Name ? `v2 state: ${l.v2Name}` : ''),

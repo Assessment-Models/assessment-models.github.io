@@ -11,8 +11,8 @@ import {
   bandFor,
   cascadeOperationalized,
   effortAdjusted,
+  levelLabel,
   levelsFromScale,
-  normalizeLevelId,
   resolveLevel,
 } from './engine';
 import type { Scale } from '../types';
@@ -138,7 +138,7 @@ function bandEdges() {
 // ---------- canonical v2 band fallback (scales without machine score ranges) ----------
 
 function canonicalFallback() {
-  // maturity-model-technology-style scale: L0..L4 ids, no v2_score_range, no effort fields
+  // legacy zero-based 5-level scale (L0..L4, no v2_score_range): bands by scored position
   const simpleScale: Scale = {
     levels: [
       { id: 'L0', ordinal: 0, name: 'Ad Hoc' },
@@ -151,22 +151,64 @@ function canonicalFallback() {
   } as unknown as Scale;
   const levels = levelsFromScale(simpleScale);
   eq(levels.length, 5);
+  eq(levels.every((l) => l.scored), true);
   eq(levels.map((l) => l.min), [0, 21, 46, 71, 89]);
   eq(levels.map((l) => l.max), [20, 45, 70, 88, 100]);
   eq(levels.every((l) => l.canonical), true);
   eq(levels[2].effort, 2.5);
   eq(levels[2].band, 'dea:maturity-band-systematic');
+  eq(levels[2].id, 'L2'); // native id preserved, never translated
   // resolution works end-to-end on fallback bands
   const r = resolveLevel(55, [{ id: 'L0', score: 60, mandatory: true }], levels);
   eq(r.resolved?.min, 46);
   eq(r.status, 'conformant');
 
-  // DTO-style ids: level-1-unrealized … level-5-leading, ordinals 0..4
-  eq(normalizeLevelId('level-1-unrealized', 0), 'L-0');
-  eq(normalizeLevelId('level-5-leading', 4), 'L-4');
-  eq(normalizeLevelId('L-2', 2), 'L-2');
-  eq(normalizeLevelId('L2', 2), 'L-2');
-  eq(normalizeLevelId(undefined, 3), 'L-3');
+  // CR convention (dea-metamodel #214): L-0 "Not Assessed" unscored + L-1..L-5 scored
+  const aoScale: Scale = {
+    levels: [
+      { id: 'L-0', ordinal: 0, name: 'Not Assessed' },
+      { id: 'L-1', ordinal: 1, name: 'Absent' },
+      { id: 'L-2', ordinal: 2, name: 'Initial' },
+      { id: 'L-3', ordinal: 3, name: 'Defined' },
+      { id: 'L-4', ordinal: 4, name: 'Automated' },
+      { id: 'L-5', ordinal: 5, name: 'Autonomous' },
+    ],
+    progression: {},
+  } as unknown as Scale;
+  const aoLevels = levelsFromScale(aoScale);
+  eq(aoLevels.length, 6);
+  eq(aoLevels[0].id, 'L-0');
+  eq(aoLevels[0].scored, false); // sentinel excluded from scoring
+  eq(aoLevels[0].min, undefined);
+  eq(aoLevels[0].band, undefined);
+  eq(aoLevels.slice(1).map((l) => l.min), [0, 21, 46, 71, 89]); // L-1..L-5 → the five scored bands
+  eq(aoLevels[5].id, 'L-5');
+  eq(aoLevels[5].band, 'dea:maturity-band-self-optimising'); // no clamping onto L-4's band
+  eq(aoLevels[5].effort, 6.0);
+  // resolution never lands on the unscored sentinel and respects the gate
+  const aoLevelsScored = aoLevels;
+  const aoRes = resolveLevel(55, [{ id: 'L-1', score: 20, mandatory: true }], aoLevelsScored);
+  eq(aoRes.banded?.id, 'L-3'); // 55 → systematic
+  eq(aoRes.resolved?.id, 'L-1'); // mandatory gate: L-1 score 20 < L-3 min → step down to L-1
+  eq(aoRes.resolved?.scored, true);
+  eq(bandFor(95, aoLevelsScored)?.id, 'L-5'); // highest scored band reachable
+
+  // DTO-style hybrid: one-based level-N ids with zero-based ordinals — native ids win
+  const dtoScale: Scale = {
+    levels: [
+      { id: 'level-1-unrealized', ordinal: 0, name: 'Unrealized' },
+      { id: 'level-2-proven', ordinal: 1, name: 'Proven' },
+      { id: 'level-3-standardized', ordinal: 2, name: 'Standardized' },
+      { id: 'level-4-compounding', ordinal: 3, name: 'Compounding' },
+      { id: 'level-5-leading', ordinal: 4, name: 'Leading' },
+    ],
+    progression: {},
+  } as unknown as Scale;
+  const dtoLevels = levelsFromScale(dtoScale);
+  eq(dtoLevels.map((l) => l.id),
+    ['level-1-unrealized', 'level-2-proven', 'level-3-standardized', 'level-4-compounding', 'level-5-leading']);
+  eq(dtoLevels.map((l) => l.min), [0, 21, 46, 71, 89]); // band by scored position, ids untouched
+  eq(levelLabel(dtoLevels[2]), 'level-3-standardized — Standardized');
 }
 
 workedExample();
@@ -174,4 +216,4 @@ mandatoryGate();
 anchorsAndCascade();
 bandEdges();
 canonicalFallback();
-console.log('engine tests passed: worked example 67.20 → L-2, gate, cascade, bands, canonical fallback');
+console.log('engine tests passed: worked example 67.20 → L-2, gate, cascade, bands, 5/6-level + hybrid fallbacks');

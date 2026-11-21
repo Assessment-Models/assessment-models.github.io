@@ -132,10 +132,16 @@ export class MetroCanvasController {
     });
 
     this.viewportGroup = svgEl("g");
+    this.gridGroup = svgEl("g");
     this.corridorsGroup = svgEl("g");
     this.linksGroup = svgEl("g");
     this.stationsGroup = svgEl("g");
-    this.viewportGroup.append(this.corridorsGroup, this.linksGroup, this.stationsGroup);
+    this.viewportGroup.append(
+      this.gridGroup,
+      this.corridorsGroup,
+      this.linksGroup,
+      this.stationsGroup
+    );
     this.svg.appendChild(this.viewportGroup);
 
     // Directional arrowheads for handshake contract spurs (unidirectional
@@ -426,11 +432,50 @@ export class MetroCanvasController {
 
   render() {
     if (!this.layout) return;
+    this.gridGroup.innerHTML = "";
     this.corridorsGroup.innerHTML = "";
     this.linksGroup.innerHTML = "";
     this.stationsGroup.innerHTML = "";
 
     const { hasFocus, connectedStations, activeLines } = this._computeTraceSets();
+
+    // 0. Grid furniture: domain column headers + guides, lane titles.
+    const columns = this.layout.columns || [];
+    const lanes = this.layout.lanes || [];
+    const gridBottom = this.layout.gridBottom ?? 0;
+    for (const col of columns) {
+      const focusedCol =
+        this.focusedStationId &&
+        this.layout.stations.some((st) => st.id === this.focusedStationId && st.colIdx === col.index);
+      this.gridGroup.appendChild(
+        svgEl("line", {
+          x1: col.x,
+          y1: col.y + 14,
+          x2: col.x,
+          y2: gridBottom,
+          class: focusedCol ? "metro-column-guide metro-column-guide-active" : "metro-column-guide",
+        })
+      );
+      const header = svgEl("text", {
+        x: col.x,
+        y: col.y,
+        "text-anchor": "middle",
+        class: focusedCol ? "metro-column-label metro-column-label-active" : "metro-column-label",
+      });
+      header.textContent = col.label.length > 26 ? `${col.label.slice(0, 24)}…` : col.label;
+      this.gridGroup.appendChild(header);
+    }
+    for (const lane of lanes) {
+      const title = svgEl("text", {
+        x: lane.x,
+        y: lane.y + 4,
+        "text-anchor": "start",
+        class: "metro-lane-label",
+        fill: lane.color,
+      });
+      title.textContent = lane.label;
+      this.gridGroup.appendChild(title);
+    }
 
     // 1. Corridor tracks: dim corridors outside the focused sub-network
     for (const corr of this.layout.corridorPaths) {

@@ -218,6 +218,81 @@ function resolveMarkerPosition(rawX, rawY, stations, placedMarkers, placedLabelR
   return { mx, my };
 }
 
+/** Presentation-only abbreviations so contract labels stay short beside their
+ *  marker. Longest phrases first. Unknown names pass through unchanged; the
+ *  full label always remains available in the tooltip and inspector. */
+const LABEL_ABBREVIATIONS = [
+  [/Digital Transformation Operationalized/g, "DT-Op"],
+  [/Autonomous Operations/g, "Auto Ops"],
+  [/Digital Transformation/g, "DT"],
+  [/Services Delivery/g, "Services"],
+  [/Modernization/g, "Modern."],
+  [/Operations/g, "Ops"],
+  [/Technology/g, "Tech"],
+];
+
+export function shortContractLabel(label, maxChars = 34) {
+  let t = String(label ?? "").replace(/\s+/g, " ").trim();
+  t = t.replace(/\s+(Touchpoint|Handshake)$/i, "");
+  for (const [re, rep] of LABEL_ABBREVIATIONS) t = t.replace(re, rep);
+  return t.length > maxChars ? `${t.slice(0, maxChars - 1).trimEnd()}…` : t;
+}
+
+const MARKER_LABEL_SLOTS = (() => {
+  const slots = [];
+  for (const d of [16, 24, 36, 52, 72]) {
+    slots.push({ dx: d, dy: 4, anchor: "start" });
+    slots.push({ dx: -d, dy: 4, anchor: "end" });
+    slots.push({ dx: 0, dy: -(d + 2), anchor: "middle" });
+    slots.push({ dx: 0, dy: d + 12, anchor: "middle" });
+    slots.push({ dx: d, dy: -(d * 0.6), anchor: "start" });
+    slots.push({ dx: -d, dy: d * 0.6 + 8, anchor: "end" });
+  }
+  return slots;
+})();
+
+function markerLabelRect(mx, my, slot, text) {
+  const w = Math.max(40, text.length * 6.6 + 8);
+  const h = 16;
+  const left =
+    slot.anchor === "end" ? mx + slot.dx - w : slot.anchor === "middle" ? mx + slot.dx - w / 2 : mx + slot.dx;
+  const top = my + slot.dy - 12;
+  return { x1: left, y1: top, x2: left + w, y2: top + h };
+}
+
+/** Place a label beside every contract marker, scored against stations,
+ *  station labels, every marker, and previously placed marker labels. */
+function placeMarkerLabels(edges, stations, markers, stationLabelRects) {
+  const placed = [];
+  for (const edge of edges) {
+    const text = shortContractLabel(edge.label);
+    let best = null;
+    let bestScore = Infinity;
+    for (let i = 0; i < MARKER_LABEL_SLOTS.length; i++) {
+      const slot = MARKER_LABEL_SLOTS[i];
+      const rect = markerLabelRect(edge.mx, edge.my, slot, text);
+      let penalty = 0;
+      for (const st of stations) if (circleRectOverlap(st.x, st.y, 26, rect)) penalty += 1000;
+      for (const r of stationLabelRects) if (rectsOverlap(rect, r, 2)) penalty += 600;
+      for (const m of markers) {
+        if (m.x === edge.mx && m.y === edge.my) continue;
+        if (circleRectOverlap(m.x, m.y, 12, rect)) penalty += 500;
+      }
+      for (const r of placed) if (rectsOverlap(rect, r, 3)) penalty += 400;
+      penalty += i * 0.4;
+      if (penalty < bestScore) {
+        bestScore = penalty;
+        best = { slot, rect };
+        if (penalty < 1) break;
+      }
+    }
+    edge.shortLabel = text;
+    edge.labelPlacement = { dx: best.slot.dx, dy: best.slot.dy, anchor: best.slot.anchor, rect: best.rect };
+    placed.push(best.rect);
+  }
+  return placed;
+}
+
 export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight = 760) {
   const lanePitch = 180; // adjacent-lane same-column distance stays >= 150px test floor
   const colPitch = 220;
@@ -565,6 +640,14 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     .map((hs, idx) => routeContractEdge(hs, idx + 1, "handshake"))
     .filter(Boolean);
 
+  // Label every contract marker (all touchpoints and handshakes).
+  const markerLabelRects = placeMarkerLabels(
+    [...touchpointEdges, ...handshakeEdges],
+    positionedStations,
+    placedMarkers,
+    placedLabelRects
+  );
+
   // ---- 8. Bounds + auto-fit ----------------------------------------------
   let minX = Infinity;
   let minY = Infinity;
@@ -584,6 +667,12 @@ export function computeMetroLayout(graph, viewportWidth = 1280, viewportHeight =
     maxX = Math.max(maxX, m.x + 16);
     minY = Math.min(minY, m.y - 16);
     maxY = Math.max(maxY, m.y + 16);
+  }
+  for (const r of markerLabelRects) {
+    minX = Math.min(minX, r.x1);
+    maxX = Math.max(maxX, r.x2);
+    minY = Math.min(minY, r.y1);
+    maxY = Math.max(maxY, r.y2);
   }
 
   if (Number.isFinite(minX)) {

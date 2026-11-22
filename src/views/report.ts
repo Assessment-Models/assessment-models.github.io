@@ -8,9 +8,10 @@ import type { OpCriterion } from '../types';
 import { loadModelStructure } from '../data/loader';
 import {
   aggregate,
-  canonicalLabel,
+  scoredLevels,
   cascadeOperationalized,
   effortAdjusted,
+  anchorToScore,
   levelsFromScale,
   resolveLevel,
 } from '../scoring/engine';
@@ -89,10 +90,11 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   const resolved = res.resolved;
   const effort = effortAdjusted(overall, resolved);
 
+  const scored = scoredLevels(levels);
   const gapRows = dimScores.map((d) => {
     const targetLevel = st.targets[d.id];
-    const tl = levels.find((l) => l.id === targetLevel);
-    return { ...d, target: targetLevel ?? '—', gap: tl ? Math.round((tl.min - d.score) * 100) / 100 : null };
+    const tl = scored.find((l) => l.id === targetLevel);
+    return { ...d, target: targetLevel ?? '—', gap: tl ? Math.round((tl.min! - d.score) * 100) / 100 : null };
   });
 
   const report: ReportData = {
@@ -101,7 +103,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     repo,
     line,
     overall,
-    level: resolved ? canonicalLabel(resolved) : '—',
+    level: resolved ? resolved.id : '—',
     levelName: resolved?.valueName ?? resolved?.name ?? '—',
     band: resolved?.band?.replace('dea:maturity-band-', '') ?? '—',
     status: res.status,
@@ -211,6 +213,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   root.append(gapPanel);
 
   // ---------- criterion detail ----------
+  const scoredIds = scored.map((l) => l.id);
   const critPanel = h('div', { class: 'panel', style: 'margin-top:1.2rem' },
     h('h2', {}, 'Criterion detail'),
     h('table', { class: 'report-table' },
@@ -223,7 +226,9 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
         h('td', { class: 'mono' }, c.id),
         h('td', {}, c.name),
         h('td', { class: 'mono faint' }, c.dimension),
-        h('td', { class: 'mono' }, c.anchor != null ? `L-${c.anchor - 1} (${(c.anchor - 1) * 25})` : String(c.score ?? '')),
+        h('td', { class: 'mono' }, c.anchor != null
+          ? `${anchorLabel(c.anchor, scoredIds)} (${anchorToScore(c.anchor)})`
+          : String(c.score ?? '')),
         h('td', { class: 'dim' }, c.note ?? ''),
       ))),
     ),
@@ -317,6 +322,11 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
       },
     },
   });
+}
+
+/** Anchor N ↔ the scale's Nth scored level id (native convention). */
+function anchorLabel(anchor: number, scoredIds: string[]): string {
+  return scoredIds[anchor - 1] ?? `anchor-${anchor}`;
 }
 
 function collectOpCriteria(

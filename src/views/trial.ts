@@ -4,6 +4,7 @@
  * evidence notes, target levels, live cascade sidebar, localStorage resume.
  */
 import type { OpDimension } from '../types';
+import { loadTrial, saveTrial } from '../state/trials';
 import { loadModelStructure } from '../data/loader';
 import {
   aggregate,
@@ -21,35 +22,7 @@ Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Fi
 
 type Line = 'operationalized' | 'composite';
 
-interface TrialState {
-  scope: string[]; // dimension ids in scope
-  anchors: Record<string, number>; // leaf-criterion anchor 1..5 (operationalized)
-  scores: Record<string, number>; // composite criterion 0..100
-  notes: Record<string, string>;
-  targets: Record<string, string>; // dimension id → target level id
-  ts?: number;
-}
-
-function storageKey(repo: string, line: Line): string {
-  return `am-trial-${repo}-${line}`;
-}
-
-function loadState(repo: string, line: Line): TrialState | null {
-  try {
-    const raw = localStorage.getItem(storageKey(repo, line));
-    return raw ? (JSON.parse(raw) as TrialState) : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveState(repo: string, line: Line, st: TrialState): void {
-  try {
-    localStorage.setItem(storageKey(repo, line), JSON.stringify({ ...st, ts: Date.now() }));
-  } catch {
-    /* private mode etc. */
-  }
-}
+type TrialState = import('../state/trials').TrialState;
 
 export async function renderTrial(root: HTMLElement, id: string): Promise<void> {
   const node = await fetchNodeSafe(id);
@@ -71,7 +44,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
 
   // ----- mutable session state -----
   let line: Line = hasOp ? 'operationalized' : 'composite';
-  let st: TrialState = loadState(repo, line) ?? blankState(line);
+  let st: TrialState = loadTrial(repo, line) ?? blankState(line);
 
   /** This line's scored levels in ascending order (native ids, excludes "Not Assessed"). */
   function lineScoredLevels(l: Line = line) {
@@ -119,7 +92,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
   }
 
   function persist(): void {
-    saveState(repo, line, st);
+    saveTrial(repo, line, st);
   }
 
   // ----- shell -----
@@ -138,7 +111,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
         l === 'operationalized' ? 'Operationalized line' : 'Composite line');
       t.addEventListener('click', () => {
         line = l;
-        st = loadState(repo, line) ?? blankState(line);
+        st = loadTrial(repo, line) ?? blankState(line);
         drawTabs();
         rebuild();
       });
@@ -432,4 +405,3 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
   rebuild();
 }
 
-export type { TrialState };

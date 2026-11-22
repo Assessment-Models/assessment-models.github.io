@@ -18,6 +18,8 @@ import { renderModel } from './views/model';
 import { renderTrial } from './views/trial';
 import { renderReport } from './views/report';
 import { renderConformance } from './views/conformance';
+import { renderRegistry } from './views/registry';
+import { renderCompare } from './views/compare';
 import { renderInteractions } from './views/interactions';
 
 const app = document.getElementById('app')!;
@@ -60,6 +62,16 @@ const routes: { pattern: RegExp; nav?: string; view: ViewFn; crumb: (p?: string)
     nav: '#/catalog',
     view: (root, p) => renderReport(root, p!),
     crumb: (p) => crumbs(h('span', { class: 'here' }, 'Report — ', h('span', { class: 'mono' }, p ?? ''))),
+  },
+  {
+    pattern: /^#\/registry\/?$/,
+    view: (root) => renderRegistry(root),
+    crumb: () => crumbs(h('span', { class: 'here' }, 'Registry')),
+  },
+  {
+    pattern: /^#\/compare\/?$/,
+    view: (root) => renderCompare(root),
+    crumb: () => crumbs(h('span', { class: 'here' }, 'Compare')),
   },
   {
     pattern: /^#\/conformance\/?$/,

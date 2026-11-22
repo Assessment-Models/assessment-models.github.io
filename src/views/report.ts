@@ -15,7 +15,8 @@ import {
   levelsFromScale,
   resolveLevel,
 } from '../scoring/engine';
-import type { TrialState } from './trial';
+import type { TrialState } from '../state/trials';
+import { listTrials } from '../state/trials';
 import { errorPanel, fetchNodeSafe, h, toast } from './shared';
 
 interface ReportData {
@@ -42,15 +43,17 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     return;
   }
 
-  // load the last trial state for either line (operationalized preferred)
+  // load the most recently updated trial for this repo, across both lines
+  // (previously the operationalized line shadowed composite trials)
   const structure = await loadModelStructure(repo);
-  const line: 'operationalized' | 'composite' = structure.operationalized ? 'operationalized' : 'composite';
-  const raw = localStorage.getItem(`am-trial-${repo}-${line}`);
-  if (!raw) {
+  const candidates = listTrials().filter((t) => t.repo === repo);
+  const latest = candidates[0];
+  if (!latest) {
     root.append(errorPanel('No trial data yet', 'Run a trial assessment first — the report is generated from your local trial state.'));
     return;
   }
-  const st = JSON.parse(raw) as TrialState;
+  const line: 'operationalized' | 'composite' = latest.line;
+  const st = latest.state;
 
   const scale = line === 'operationalized' ? structure.operationalized?.scale ?? null : structure.composite.scale;
   const levels = levelsFromScale(scale);

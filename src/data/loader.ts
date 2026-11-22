@@ -94,6 +94,67 @@ export function loadModelMeta(repo: string): Promise<ModelMeta> {
   return loadYaml<ModelMeta>(repo, 'model.yaml');
 }
 
+// ---------- ecosystem registry (bot-synced catalog) + registration records ----------
+
+export interface EcosystemRegistry {
+  schema_version: string;
+  organization: { login: string; url?: string; pages_url?: string };
+  generated_at: string;
+  content_sha256: string;
+  summary: { total_artifacts: number; by_layer?: Record<string, number>; standards?: string[] };
+  artifacts: {
+    id: string;
+    name: string;
+    full_name: string;
+    owner_type: string;
+    layer: string;
+    architectural_concern?: string;
+    description?: string;
+    html_url?: string;
+    version?: string;
+    license?: string;
+    conformance_status?: string;
+    updated_at?: string;
+    standards_alignment?: string;
+  }[];
+  touchpoints?: {
+    id: string;
+    label: string;
+    from_station_id: string;
+    to_station_id: string;
+    kind?: string;
+    contract_summary?: string;
+    compatibility?: string;
+  }[];
+  handshakes?: {
+    id: string;
+    label: string;
+    from_station_id: string;
+    to_station_id: string;
+    kind?: string;
+    direction?: string;
+    contract_summary?: string;
+    compatibility?: string;
+  }[];
+}
+
+export function fetchEcosystemRegistry(): Promise<EcosystemRegistry> {
+  return cached('ecosystem-registry', async () => {
+    const res = await fetch(`${BASE}data/ecosystem-registry.json`);
+    if (!res.ok) throw new Error(`ecosystem-registry.json: HTTP ${res.status}`);
+    return (await res.json()) as EcosystemRegistry;
+  });
+}
+
+/**
+ * Live-fetch an assessment-registry registration record. Paths are
+ * deterministic from the manifest: registry/<group>/<id>.yaml where group is
+ * one of the four registry subdirectories.
+ */
+export function loadRegistryRecord(repo: string, group: string, id: string): Promise<Record<string, unknown>> {
+  return loadYaml<Record<string, unknown>>(repo, `registry/${group}/${id}.yaml`);
+}
+
 export function loadScale(repo: string, line: 'composite' | 'operationalized'): Promise<Scale> {
   const path =
     line === 'operationalized'

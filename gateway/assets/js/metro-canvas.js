@@ -427,6 +427,41 @@ export class MetroCanvasController {
       }
     });
 
+    const lp = link.labelPlacement;
+    if (lp && link.shortLabel) {
+      const tag = svgEl("text", {
+        x: link.mx + lp.dx,
+        y: link.my + lp.dy,
+        "text-anchor": lp.anchor,
+        class: `metro-link-label ${active ? "metro-highlighted" : "metro-dimmed"}`,
+        fill: color,
+      });
+      tag.textContent = link.shortLabel;
+
+      // In dense clusters a label can sit well away from its dot: tie it back
+      // with a thin leader so it is unambiguous which marker it names.
+      const nodes = [pathEl, nodeEl];
+      if (Math.hypot(lp.dx, lp.dy) >= 34) {
+        const ex =
+          lp.anchor === "start" ? link.mx + lp.dx - 3 : lp.anchor === "end" ? link.mx + lp.dx + 3 : link.mx + lp.dx;
+        const ey = lp.anchor === "middle" ? link.my + lp.dy + (lp.dy < 0 ? 3 : -12) : link.my + lp.dy - 4;
+        nodes.push(
+          svgEl("line", {
+            x1: link.mx,
+            y1: link.my,
+            x2: ex,
+            y2: ey,
+            stroke: color,
+            "stroke-width": 0.9,
+            "stroke-opacity": 0.55,
+            class: "metro-link-leader",
+          })
+        );
+      }
+      this.linksGroup.append(...nodes, tag);
+      return;
+    }
+
     this.linksGroup.append(pathEl, nodeEl);
   }
 

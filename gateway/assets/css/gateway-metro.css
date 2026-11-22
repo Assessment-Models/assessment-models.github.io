@@ -432,3 +432,18 @@ body.metro-mode #app .metro-shell {
   text-transform: uppercase;
   pointer-events: none;
 }
+
+/* Contract marker labels: coloured to match their dot, haloed for legibility */
+.metro-link-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: #0b1020;
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+
+.metro-link-leader {
+  pointer-events: none;
+}

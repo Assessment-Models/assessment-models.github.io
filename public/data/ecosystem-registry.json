@@ -5,8 +5,8 @@
     "url": "https://github.com/Assessment-Models",
     "pages_url": "https://assessment-models.github.io"
   },
-  "generated_at": "2026-11-22T14:13:55Z",
-  "content_sha256": "b8426ede7a7910d452d70f08c7a1f1c96192a478a9d9ed1f56dc2c5b3cb4dfed",
+  "generated_at": "2026-11-22T23:20:56Z",
+  "content_sha256": "22fda391d91715f2f479559629a61699552245a32c1af11c9808fbb5d19f21c3",
   "summary": {
     "total_artifacts": 21,
     "by_layer": {
@@ -78,7 +78,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-19T17:37:15Z"
+      "updated_at": "2026-11-22T16:00:58Z"
     },
     {
       "id": "dea-assessment-modernization",
@@ -382,7 +382,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-20T05:06:36Z"
+      "updated_at": "2026-11-22T14:50:05Z"
     },
     {
       "id": "maturity-model-digital-transformation-operationalized",
@@ -391,11 +391,11 @@
       "owner_type": "cardinal-org",
       "layer": "maturity-model",
       "architectural_concern": "Digital Business Transformation",
-      "description": "Digital-business maturity and assessment model. Positions digital transformation as the reimagining of the organization's business and operating model as a digital business: grounded in advanced digital technology adoption (AI, agentic AI, autonomous systems, composable cloud-native platforms, digital twins), expressed through novel operating models across all operating concerns, steered by customer- and ecosystem-centric digital strategy, and run as a deliberate working model between humans and software agents. Every criterion is MECE-placed, carries five evidence-anchored progression levels correlated to the org's canonical L-0..L-4 scale, and is independently assessable.",
+      "description": "Digital-business maturity and assessment model. Positions digital transformation as the reimagining of the organization's business and operating model as a digital business: grounded in advanced digital technology adoption (AI, agentic AI, autonomous systems, composable cloud-native platforms, digital twins), expressed through novel operating models across all operating concerns, steered by customer- and ecosystem-centric digital strategy, and run as a deliberate working model between humans and software agents. Every criterion is MECE-placed, carries five evidence-anchored progression levels correlated to the org's canonical L-1..L-5 capability scale (L-0 Not Assessed), and is independently assessable.",
       "readme_excerpt": "Digital-business maturity and assessment model. Positions digital transformation as the reimagining of the organization's business and operating model as a digital business: grounded in advanced digital technology adoption (AI, agentic AI, autonomous systems, composable\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-digital-transformation-operationalized",
       "default_branch": "main",
-      "version": "v1.0.1",
+      "version": "v2.0.0",
       "license": "MIT",
       "primary_language": "Python",
       "topics": [],
@@ -418,7 +418,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-20T05:06:47Z"
+      "updated_at": "2026-11-22T14:49:49Z"
     },
     {
       "id": "maturity-model-modernization",
@@ -450,7 +450,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-20T14:42:29Z"
+      "updated_at": "2026-11-22T14:49:57Z"
     },
     {
       "id": "maturity-model-operations",
@@ -494,7 +494,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Services Delivery",
       "description": "Services Delivery Maturity Model \u2014 assesses time-to-market, quality, customer outcomes, flow efficiency and team health.",
-      "readme_excerpt": "Services Delivery Maturity Model \u2014 assesses time-to-market, quality, customer outcomes, flow efficiency and team health. 1.0.0 \u00b7 stable \u2014 canonical v2 bands, independently released This repository is the independent home of the dea:maturity-services-delivery maturity model.\u2026",
+      "readme_excerpt": "Services Delivery Maturity Model \u2014 assesses time-to-market, quality, customer outcomes, flow efficiency and team health. 2.0.0 \u00b7 adoption pending [dea-metamodel #214] \u2014 canonical v2 bands, scale renumbering adopted This repository is the independent home of the\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-services-delivery",
       "default_branch": "main",
       "version": "v1.1.0",
@@ -517,7 +517,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-20T05:06:28Z"
+      "updated_at": "2026-11-22T14:49:41Z"
     },
     {
       "id": "maturity-model-standard",
@@ -553,7 +553,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Technology",
       "description": "Technology Maturity Model \u2014 assesses stack fitness, technical debt, lifecycle management and skill coverage.",
-      "readme_excerpt": "Technology Maturity Model \u2014 assesses stack fitness, technical debt, lifecycle management and skill coverage. 1.0.0 \u00b7 stable \u2014 canonical v2 bands, independently released This repository is the independent home of the dea:maturity-technology maturity model. Under the\u2026",
+      "readme_excerpt": "Technology Maturity Model \u2014 assesses stack fitness, technical debt, lifecycle management and skill coverage. 2.0.0 \u00b7 adoption pending [dea-metamodel #214] \u2014 canonical v2 bands, scale renumbering adopted This repository is the independent home of the dea:maturity-technology\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-technology",
       "default_branch": "main",
       "version": "v1.1.0",
@@ -576,7 +576,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-20T05:06:43Z"
+      "updated_at": "2026-11-22T14:49:32Z"
     },
     {
       "id": "maturity-model-template",

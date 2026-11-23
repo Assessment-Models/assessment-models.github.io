@@ -373,7 +373,7 @@ export async function loadModelStructure(repo: string): Promise<ModelStructure> 
           version: raw.version ?? meta.version,
           description: raw.description ?? meta.description,
           status: raw.status ?? meta.status,
-          scoring: (raw.scoring as ModelMeta['scoring']) ?? { mechanism: 'weighted-mean-0-100' },
+          scoring: (raw.scoring as ModelMeta['scoring']) ?? composite.evaluation?.scoring ?? { mechanism: 'weighted-mean-0-100' },
           criteria: dimensions.map((d) => ({
             id: d.id,
             name: d.name,

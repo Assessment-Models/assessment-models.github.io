@@ -190,7 +190,7 @@ SEED_TOUCHPOINTS: List[Dict[str, Any]] = [
         "from_station_id": "maturity-model-operations",
         "to_station_id": "maturity-model-autonomous-operations",
         "line_id": "integration",
-        "contract_summary": "CR-AM-13 seam: Operations D5 reliability evidence (observability, predictive detection, auto-remediation, SLO enforcement) feeds the peer's Technology and Operations dimensions; boundary - the peer owns closed-loop OODA autonomy, this model owns human/assisted operations.",
+        "contract_summary": "CR-AM-13 reciprocal seam: Operations D5 reliability evidence (observability, predictive detection, auto-remediation and SLO enforcement) feeds Autonomous Operations Technology (3.3.x) and Operations (4.1.x/4.2.5). The peer owns intent-driven OODA autonomy; Operations owns reliability and human/assisted operational practice. Mirrored records remain draft against maturity-touchpoint-contract@0.1.0-draft.",
         "compatibility": "^1.0"
     },
     {
@@ -409,7 +409,7 @@ SEED_HANDSHAKES: List[Dict[str, Any]] = [
         "to_station_id": "dea-metamodel",
         "line_id": "integration",
         "direction": "unidirectional",
-        "contract_summary": "Pins the maturity-scale-contract (CR-AM-11 §15) against the published dea-metamodel suite: scoring is anchored to the canonical dea:maturity-bands-v2 five-level scale (L-0..L-4) and resolved by the reusable Level 2 conformance workflow against the pinned release.",
+        "contract_summary": "Pins maturity-scale-contract@1.0 against the published dea-metamodel contract suite. Autonomous Operations owns the scale instance with L-0 Not Assessed as an unscored sentinel and L-1..L-5 as the five scored capability levels, mapped one-to-one to canonical dea:maturity-bands-v2. The Level 2 workflow validates the handshake against its pinned contract-suite reference.",
         "compatibility": "^1.0"
     },
     {

@@ -36,7 +36,7 @@ export interface IndexNode {
   external?: boolean;
 }
 
-export type EdgeKind = 'imports' | 'shared-components' | 'contract';
+export type EdgeKind = 'imports' | 'shared-components' | 'contract' | 'touchpoint';
 
 export interface IndexEdge {
   source: string; // node id
@@ -155,6 +155,7 @@ export interface CriteriaRegister {
 }
 
 export interface RepoManifestInfo {
+  model: Record<string, unknown> | null;
   manifest: Record<string, unknown> | null;
   touchpoints: Record<string, unknown> | null;
   standard: Record<string, unknown> | null;

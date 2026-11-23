@@ -127,21 +127,39 @@ export interface Resolution {
   status: ConformanceStatus;
 }
 
+export interface ResolveOptions {
+  /**
+   * Weakest-link ceiling (AO closed-loop spine, evaluation.yaml gating rule):
+   * the resolved level cannot exceed the scored level at this index — derived
+   * from the lowest in-scope gating criterion's anchor (anchor N ↔ index N-1).
+   */
+  maxScoredIndex?: number;
+}
+
 /**
  * Highest-conformant-level resolution: start at the banded level and step down
- * until every mandatory dimension score reaches that level's band minimum.
- * Only scored levels participate — "Not Assessed" sentinels are skipped.
+ * until every mandatory dimension score reaches that level's band minimum and
+ * the optional weakest-link ceiling holds. Only scored levels participate —
+ * "Not Assessed" sentinels are skipped.
  */
 export function resolveLevel(
   overall: number,
   dimScores: { id: string; score: number; mandatory?: boolean }[],
   levels: EngineLevel[],
+  opts?: ResolveOptions,
 ): Resolution {
-  const scored = scoredLevels(levels);
-  const banded = bandFor(overall, scored);
+  const allScored = scoredLevels(levels);
+  // the raw score bands against the full ladder; the ceiling only caps the resolution
+  const banded = bandFor(overall, allScored);
+  const scored = typeof opts?.maxScoredIndex === 'number'
+    ? allScored.slice(0, Math.max(1, opts.maxScoredIndex + 1))
+    : allScored;
   if (!banded) return { banded: null, resolved: null, status: 'indeterminate' };
   let resolved = banded;
-  for (let i = scored.indexOf(banded); i >= 0; i--) {
+  // when the ceiling sits below the banded level, step down from the ceiling top
+  let i = scored.indexOf(banded);
+  if (i < 0) i = scored.length - 1;
+  for (; i >= 0; i--) {
     const candidate = scored[i];
     const mandatory = dimScores.filter((d) => d.mandatory);
     const holds =

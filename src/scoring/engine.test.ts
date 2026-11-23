@@ -211,7 +211,40 @@ function canonicalFallback() {
   eq(levelLabel(dtoLevels[2]), 'level-3-standardized — Standardized');
 }
 
+// ---------- weakest-link gating ceiling (AO spine, dea-metamodel #214 numbering) ----------
+
+function gatingCeiling() {
+  // AO-style scored ladder: L-1..L-5 on the canonical bands (no sentinel in scoring path)
+  const aoLevels = levelsFromScale({
+    levels: [
+      { id: 'L-1', ordinal: 0, name: 'Absent', v2_score_range: [0, 20] },
+      { id: 'L-2', ordinal: 1, name: 'Initial', v2_score_range: [21, 45] },
+      { id: 'L-3', ordinal: 2, name: 'Defined', v2_score_range: [46, 70] },
+      { id: 'L-4', ordinal: 3, name: 'Automated', v2_score_range: [71, 88] },
+      { id: 'L-5', ordinal: 4, name: 'Autonomous', v2_score_range: [89, 100] },
+    ],
+    progression: { effort_multiplier: { 'L-1': 1.0, 'L-2': 1.5, 'L-3': 2.5, 'L-4': 4.0, 'L-5': 6.0 } },
+  } as unknown as Scale);
+  const levels = aoLevels;
+  // AO spine: a gating criterion at anchor 3 (L-3) caps resolution at scored index 2
+  const dimScores = [
+    { id: 'd1', score: 90, mandatory: true },
+    { id: 'd2', score: 90, mandatory: true },
+  ];
+  const ungated = resolveLevel(90, dimScores, levels);
+  eq(ungated.resolved?.id, 'L-5');
+  const gated = resolveLevel(90, dimScores, levels, { maxScoredIndex: 2 });
+  eq(gated.banded?.id, 'L-5'); // 90 bands to L-5…
+  eq(gated.resolved?.id, 'L-3'); // …but the spine caps at L-3
+  eq(gated.status, 'partially-conformant');
+  // ceiling at the lowest capability = everything resolves to L-1
+  const floor = resolveLevel(90, dimScores, levels, { maxScoredIndex: 0 });
+  eq(floor.resolved?.id, 'L-1');
+  // sentinel ceiling interacts correctly: maxScoredIndex bounds, never wraps
+}
+
 workedExample();
+gatingCeiling();
 mandatoryGate();
 anchorsAndCascade();
 bandEdges();

@@ -184,10 +184,15 @@ export interface WeightedScore {
 }
 
 /** Weighted mean over 0–100 dimension scores, rounded to 2 decimals. */
-export function aggregate(scores: WeightedScore[]): number {
+export function aggregateUnrounded(scores: WeightedScore[]): number {
   const totalWeight = scores.reduce((s, x) => s + x.weight, 0) || 1;
   const sum = scores.reduce((s, x) => s + x.score * x.weight, 0);
-  return Math.round((sum / totalWeight) * 100) / 100;
+  return sum / totalWeight;
+}
+
+/** Weighted mean over 0–100 dimension scores, rounded for presentation. */
+export function aggregate(scores: WeightedScore[]): number {
+  return Math.round(aggregateUnrounded(scores) * 100) / 100;
 }
 
 /** Criterion anchor level 1–5 → native 0–100 score. */
@@ -271,7 +276,7 @@ export function cascadeOperationalized(
     const dimScore = subScores.length ? subScores.reduce((a, b) => a + b, 0) / subScores.length : 0;
     dimScores.push({
       id: dim.id,
-      score: Math.round(dimScore * 100) / 100,
+      score: dimScore,
       weight: dim.weight,
       mandatory: dim.mandatory,
     });

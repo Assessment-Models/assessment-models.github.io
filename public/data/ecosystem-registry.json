@@ -5,8 +5,8 @@
     "url": "https://github.com/Assessment-Models",
     "pages_url": "https://assessment-models.github.io"
   },
-  "generated_at": "2026-11-23T06:13:30Z",
-  "content_sha256": "15895cd0ad954b4756d1235abe347fc5b894d3aaf5e5ff5b84a80d08edca0d91",
+  "generated_at": "2026-11-23T07:37:50Z",
+  "content_sha256": "a65eab573f9efc5e9509b42045da2876da65ff408c2ba95f07fe7e871af42f7d",
   "summary": {
     "total_artifacts": 21,
     "by_layer": {
@@ -78,7 +78,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-23T01:45:16Z"
+      "updated_at": "2026-11-23T07:37:12Z"
     },
     {
       "id": "dea-assessment-modernization",
@@ -344,7 +344,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T04:09:16Z"
+      "updated_at": "2026-11-23T07:35:41Z"
     },
     {
       "id": "maturity-model-digital-transformation",
@@ -498,7 +498,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T03:16:54Z"
+      "updated_at": "2026-11-23T07:36:56Z"
     },
     {
       "id": "maturity-model-services-delivery",
@@ -616,7 +616,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-23T04:16:51Z"
+      "updated_at": "2026-11-23T07:11:49Z"
     },
     {
       "id": "dea-metamodel",
@@ -1032,6 +1032,17 @@
       "line_id": "integration",
       "direction": "unidirectional",
       "contract_summary": "The Handshake & Touchpoint Model records are declared against maturity-touchpoint-contract v0.1.0-draft, published by the upstream dea-metamodel (issue #213); mirror reciprocity is validated by ecosystem CI.",
+      "compatibility": "^0.1"
+    },
+    {
+      "id": "hs-touchpoint-contract-autonomous-operations",
+      "label": "Autonomous Operations Touchpoint Contract Handshake",
+      "kind": "handshake",
+      "from_station_id": "maturity-model-autonomous-operations",
+      "to_station_id": "dea-metamodel",
+      "line_id": "integration",
+      "direction": "unidirectional",
+      "contract_summary": "Autonomous Operations declares its mirrored touchpoint records against maturity-touchpoint-contract@0.1.0-draft. The manifest's typed touchpoints.declaration exposes the artifact to Level 2 path validation; semantic reciprocity remains a separate ecosystem validation responsibility.",
       "compatibility": "^0.1"
     },
     {

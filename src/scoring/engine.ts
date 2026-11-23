@@ -7,8 +7,8 @@
  * maturity/operationalized/evaluation.yaml):
  *   overall = Σ(dim_score × weight); dim = mean(subdims); subdim = mean(criteria 0–100)
  *   criterion anchor 1–5 → 0–100 ((anchor−1) × 25)
- *   overall → v2 band → L-0..L-4 by highest-conformant-level with the
- *   mandatory-dimension gate (each mandatory dim score ≥ resolved level's band minimum).
+ *   overall → the model's scored native level ladder by highest-conformant-level,
+ *   excluding any explicit Not Assessed sentinel, with the declared gate.
  *
  * Composite line (maturity/evaluation.yaml): weighted mean over the criteria's
  * native 0–100 scores, then band → level.

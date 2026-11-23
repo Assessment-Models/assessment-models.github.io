@@ -446,6 +446,17 @@ SEED_HANDSHAKES: List[Dict[str, Any]] = [
         "compatibility": "^0.1"
     },
     {
+        "id": "hs-touchpoint-contract-autonomous-operations",
+        "label": "Autonomous Operations Touchpoint Contract Handshake",
+        "kind": "handshake",
+        "from_station_id": "maturity-model-autonomous-operations",
+        "to_station_id": "dea-metamodel",
+        "line_id": "integration",
+        "direction": "unidirectional",
+        "contract_summary": "Autonomous Operations declares its mirrored touchpoint records against maturity-touchpoint-contract@0.1.0-draft. The manifest's typed touchpoints.declaration exposes the artifact to Level 2 path validation; semantic reciprocity remains a separate ecosystem validation responsibility.",
+        "compatibility": "^0.1"
+    },
+    {
         "id": "hs-opendea-assessment-metamodel-modernization",
         "label": "Modernization Metamodel Contract Handshake",
         "kind": "handshake",

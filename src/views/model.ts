@@ -268,6 +268,18 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
             'No standalone standard.yaml file returned; structural conformance metadata is synchronized via assessment-registry.'),
     ));
 
+    const modelManifest = info.model;
+    const touchpointDeclaration = (modelManifest?.touchpoints as Record<string, unknown> | undefined)?.declaration;
+    wrap.append(h('div', { class: 'panel' },
+      h('h3', {}, 'model.yaml — Contract handshake & declarations'),
+      touchpointDeclaration
+        ? h('p', { class: 'dim', style: 'font-size:.84rem' }, `Typed touchpoint declaration: ${String(touchpointDeclaration)}`)
+        : h('p', { class: 'dim', style: 'font-size:.84rem' }, 'No typed touchpoint declaration is present in the model manifest.'),
+      modelManifest
+        ? h('pre', { class: 'code-inspect' }, JSON.stringify(modelManifest, null, 2))
+        : h('p', { class: 'dim', style: 'font-size:.86rem' }, 'model.yaml could not be loaded.'),
+    ));
+
     wrap.append(h('div', { class: 'panel' },
       h('h3', {}, 'assessment-manifest.json'),
       info.manifest
@@ -337,7 +349,7 @@ async function relationshipsPanel(node: IndexNode): Promise<HTMLElement | null> 
       const other = manifest.nodes.find((n) => n.id === otherId);
       if (!other) continue;
       const direction = edge.source === node.id ? '→' : '←';
-      const kindLabel = edge.kind === 'contract' ? 'Handshake' : edge.kind === 'imports' ? 'Imports' : 'Shared';
+      const kindLabel = edge.kind === 'contract' ? 'Handshake' : edge.kind === 'touchpoint' ? 'Touchpoint' : edge.kind === 'imports' ? 'Imports' : 'Shared';
 
       panel.append(h('div', { class: 'rel-row' },
         h('span', { class: 'mono faint', style: 'min-width:6.2rem;font-size:.76rem' }, kindLabel),

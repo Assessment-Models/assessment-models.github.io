@@ -5,8 +5,8 @@
     "url": "https://github.com/Assessment-Models",
     "pages_url": "https://assessment-models.github.io"
   },
-  "generated_at": "2026-11-23T07:37:50Z",
-  "content_sha256": "a65eab573f9efc5e9509b42045da2876da65ff408c2ba95f07fe7e871af42f7d",
+  "generated_at": "2026-11-23T23:30:36Z",
+  "content_sha256": "74ff396f8af657dd2b988774ff7869f42bf95807255605ad5a24f6301793cb23",
   "summary": {
     "total_artifacts": 21,
     "by_layer": {
@@ -52,7 +52,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-23T03:58:24Z"
+      "updated_at": "2026-11-23T15:32:29Z"
     },
     {
       "id": "assessment-registry",
@@ -78,7 +78,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-23T07:37:12Z"
+      "updated_at": "2026-11-23T16:21:25Z"
     },
     {
       "id": "dea-assessment-modernization",
@@ -320,7 +320,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Autonomous Operations",
       "description": "Autonomous Operations (AO) maturity and assessment model \u2014 the enterprise operating model in which value streams are instrumented with AI, data and closed-loop control so that agents and autonomous systems learn, self-govern and self-adapt, with intent driving the closed loops.",
-      "readme_excerpt": "Model ID: dea:maturity-autonomous-operations Repository release: 2.0.0 \u00b7 License: MIT \u00b7 Conformance: Structural The Autonomous Operations Maturity Model assesses an enterprise's ability to operate value streams through intent-driven, governed, closed-loop execution. It examines\u2026",
+      "readme_excerpt": "Model ID: dea:maturity-autonomous-operations Repository release: 2.0.1 \u00b7 License: MIT \u00b7 Conformance: Structural The Autonomous Operations Maturity Model assesses an enterprise's ability to operate value streams through intent-driven, governed, closed-loop execution. It examines\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-autonomous-operations",
       "default_branch": "main",
       "version": "v2.0.0",
@@ -344,7 +344,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T07:35:41Z"
+      "updated_at": "2026-11-23T15:36:03Z"
     },
     {
       "id": "maturity-model-digital-transformation",
@@ -396,7 +396,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T02:59:23Z"
+      "updated_at": "2026-11-23T16:04:49Z"
     },
     {
       "id": "maturity-model-digital-transformation-operationalized",
@@ -409,7 +409,7 @@
       "readme_excerpt": "An evidence-based maturity model for assessing how an enterprise transforms its business and operating model into a digital business. It considers customer and ecosystem value, strategy, platforms, operations, organizational capabilities, and the intelligence required to adapt.\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-digital-transformation-operationalized",
       "default_branch": "main",
-      "version": "v2.0.0",
+      "version": "v2.0.1",
       "license": "MIT",
       "primary_language": "Python",
       "topics": [],
@@ -432,7 +432,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T02:44:56Z"
+      "updated_at": "2026-11-23T15:38:24Z"
     },
     {
       "id": "maturity-model-modernization",
@@ -464,7 +464,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T02:46:06Z"
+      "updated_at": "2026-11-23T15:38:48Z"
     },
     {
       "id": "maturity-model-operations",
@@ -473,11 +473,11 @@
       "owner_type": "cardinal-org",
       "layer": "maturity-model",
       "architectural_concern": "Operations",
-      "description": "Operations Maturity Model \u2014 assesses enterprise operations: how day-to-day activities leverage key organizational capabilities to deliver outcomes. Covers value-stream and daily operations, capability orchestration, service and process management, workforce and ways of working, technology and infrastructure operations, and strategy alignment with the operating blueprint.",
-      "readme_excerpt": "Assessing the enterprise operating engine: how the organization turns capabilities, people, processes and technology into reliable outcomes. The Operations Maturity Model assesses how an enterprise runs its day-to-day operations: how work flows through value streams, how\u2026",
+      "description": "Operations Maturity Model \u2014 the parent operational assessment for enterprise operations: how the enterprise mobilizes capabilities, processes, services, people, resources, information, technology, governance and performance mechanisms to realize its intent and deliver value. Nine dimensions assessed through two complementary perspectives on every criterion \u2014 Current Operational Realization and Future Operational Readiness \u2014 with the operational transformation gap as a first-class result.",
+      "readme_excerpt": "Assessing the enterprise operating engine: how the organization turns capabilities, people, processes, resources, information and technology into reliable outcomes \u2014 today, and ready for tomorrow. The Operations Maturity Model is the parent operational assessment for enterprise\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-operations",
       "default_branch": "main",
-      "version": "v2.1.0",
+      "version": "v3.0.0",
       "license": "MIT",
       "primary_language": "Python",
       "topics": [],
@@ -489,16 +489,19 @@
         "en"
       ],
       "dimensions": [
-        "Value-Stream & Daily Operations",
-        "Capability Orchestration",
-        "Service & Process Management",
-        "Workforce & Ways of Working",
-        "Technology & Infrastructure Operations",
-        "Strategy Alignment & Operating Blueprint"
+        "Operating Model",
+        "Operational Capabilities",
+        "Value Streams & Processes",
+        "Service & Delivery Management",
+        "People & Organization",
+        "Resources & Assets",
+        "Information & Technology",
+        "Operational Governance & Resilience",
+        "Operational Performance & Value"
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T07:36:56Z"
+      "updated_at": "2026-11-23T15:35:30Z"
     },
     {
       "id": "maturity-model-services-delivery",
@@ -531,7 +534,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T02:21:04Z"
+      "updated_at": "2026-11-23T15:37:18Z"
     },
     {
       "id": "maturity-model-standard",
@@ -557,7 +560,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-14T05:47:21Z"
+      "updated_at": "2026-11-23T10:09:04Z"
     },
     {
       "id": "maturity-model-technology",
@@ -590,7 +593,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-23T02:20:36Z"
+      "updated_at": "2026-11-23T15:37:43Z"
     },
     {
       "id": "maturity-model-template",
@@ -616,7 +619,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-23T07:11:49Z"
+      "updated_at": "2026-11-23T08:52:32Z"
     },
     {
       "id": "dea-metamodel",
@@ -662,7 +665,7 @@
       "dimensions": [],
       "conformance_status": "external-aligned",
       "has_manifest": false,
-      "updated_at": "2026-11-19T17:08:14Z"
+      "updated_at": "2026-11-23T15:04:49Z"
     },
     {
       "id": "dea-catalog-reference-architecture",

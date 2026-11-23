@@ -243,10 +243,28 @@ function gatingCeiling() {
   // sentinel ceiling interacts correctly: maxScoredIndex bounds, never wraps
 }
 
+
+function marginalBandEav() {
+  const intervals = [
+    { upper_boundary: 20, effort_multiplier: 1.0 },
+    { upper_boundary: 45, effort_multiplier: 1.5 },
+    { upper_boundary: 70, effort_multiplier: 2.5 },
+    { upper_boundary: 88, effort_multiplier: 4.0 },
+    { upper_boundary: 100, effort_multiplier: 6.0 },
+  ];
+  // AO evaluation contract: marginal score points are counted once, before
+  // the weakest-link cap; they are not multiplied by the resolved band's rate.
+  eq(effortAdjusted(68, null, { intervals }), 45.87);
+  eq(effortAdjusted(64, null, { intervals }), 44.27);
+  // Existing models without a marginal EAV declaration retain their behavior.
+  eq(effortAdjusted(67.2, { effort: 2.5 } as never), 168.0);
+}
+
 workedExample();
+marginalBandEav();
 gatingCeiling();
 mandatoryGate();
 anchorsAndCascade();
 bandEdges();
 canonicalFallback();
-console.log('engine tests passed: worked example 67.20 → L-2, gate, cascade, bands, 5/6-level + hybrid fallbacks');
+console.log('engine tests passed: worked example, marginal EAV, gate, cascade, bands, 5/6-level + hybrid fallbacks');

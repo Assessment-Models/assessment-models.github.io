@@ -109,7 +109,11 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   })();
   const res = resolveLevel(overall, dimScores, levels, gating.opts);
   const resolved = res.resolved;
-  const effort = effortAdjusted(overall, resolved);
+  const scoring = line === 'operationalized'
+    ? structure.operationalized?.evaluation.scoring
+    : structure.composite.evaluation?.scoring;
+  const eavConfig = scoring?.effort_adjusted_value;
+  const effort = effortAdjusted(overall, resolved, eavConfig);
 
   const scored = scoredLevels(levels);
   const gapRows = dimScores.map((d) => {
@@ -128,7 +132,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     levelName: resolved?.valueName ?? resolved?.name ?? '—',
     band: resolved?.band?.replace('dea:maturity-band-', '') ?? '—',
     status: res.status,
-    effortMultiplier: resolved?.effort,
+    effortMultiplier: eavConfig ? undefined : resolved?.effort,
     effortAdjusted: effort ?? undefined,
     dimensions: gapRows.map((g) => ({ id: g.id, name: g.name, score: g.score, weight: g.weight, mandatory: g.mandatory, target: g.target, gap: g.gap })),
     criteria: criteriaRows,
@@ -168,7 +172,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
       h('span', { class: 'badge', style: '--badge-color:#55c47f;font-size:1rem;padding:.3rem 1rem' },
         `${report.level} — ${report.levelName}`),
       h('span', { class: 'dim' }, `band: ${report.band} · conformance: ${report.status}`),
-      effort != null ? h('span', { class: 'dim' }, `effort-adjusted value: ${effort} (×${resolved?.effort})`) : null,
+      effort != null ? h('span', { class: 'dim' }, eavConfig ? `EAV (marginal bands): ${effort}` : `effort-adjusted value: ${effort} (×${resolved?.effort})`) : null,
       gating.binding && res.banded && res.resolved && res.banded.id !== res.resolved.id
         ? h('span', { class: 'dim' }, `weakest-link gate: ${gating.binding.id} (closed-loop spine)`)
         : null,

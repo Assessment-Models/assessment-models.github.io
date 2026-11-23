@@ -28,6 +28,7 @@ const registryPath = arg('registry', join(ROOT, '..', 'assessment-registry'));
 const standardPath = arg('standard', join(ROOT, '..', 'maturity-model-standard'));
 const modelsPath = arg('models', join(ROOT, '..', 'maturity-model-digital-transformation'));
 const publicPath = arg('out', join(ROOT, 'public'));
+const snapshotRootForEdges = arg('snapshot-root', dirname(modelsPath));
 
 const GROUPS = {
   'maturity-models': 'maturity-models',
@@ -286,6 +287,24 @@ function addEdge(source, target, kind) {
   edges.push({ source, target, kind });
 }
 
+// Semantic touchpoint edges are sourced from each model repository's
+// declared touchpoints.yaml artifact, not inferred from prose or dependencies.
+for (const node of nodes) {
+  if (!node.repo) continue;
+  const touchpointFile = join(snapshotRootForEdges, node.repo, 'touchpoints.yaml');
+  if (!existsSync(touchpointFile)) continue;
+  try {
+    const declaration = readYaml(touchpointFile);
+    for (const tp of declaration?.touchpoints ?? []) {
+      if (tp.peer_asset && existingIds.has(tp.peer_asset)) {
+        addEdge(node.id, tp.peer_asset, 'touchpoint');
+      }
+    }
+  } catch (err) {
+    console.warn(`touchpoint declaration skipped for ${node.repo}: ${err.message}`);
+  }
+}
+
 for (const node of nodes) {
   if (node.components?.length) {
     // component package imports → the maturity-components registry record
@@ -343,7 +362,7 @@ writeFileSync(join(publicPath, 'models.json'), JSON.stringify(manifest, null, 2)
 
 // snapshot source root: locally the sibling clones sit next to the models clone;
 // in CI all repos are checked out under --snapshot-root (e.g. sources/)
-const snapshotRootArg = arg('snapshot-root', dirname(modelsPath));
+const snapshotRootArg = snapshotRootForEdges;
 let snapshotted = 0;
 for (const node of nodes.filter((n) => n.group === 'maturity-models')) {
   const src = join(snapshotRootArg, node.repo ?? node.id);

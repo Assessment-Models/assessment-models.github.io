@@ -169,7 +169,8 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     );
     for (const c of sub.criteria ?? []) {
       box.append(h('div', { class: 'crit' },
-        h('div', { class: 'crit-name' }, c.name),
+        h('div', { class: 'crit-name' }, c.name,
+          c.gating ? h('span', { class: 'badge', style: '--badge-color:#e8b04b;margin-left:.5rem;font-size:.68rem', title: c.gating_note ?? 'weakest-link spine criterion' }, 'gating') : null),
         c.statement ? h('div', { class: 'crit-statement' }, c.statement) : null,
         c.levers?.length
           ? h('div', { class: 'levers' },

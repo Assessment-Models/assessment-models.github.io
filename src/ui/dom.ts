@@ -118,7 +118,10 @@ export function groupChip(g: NodeGroup, label: string, active: boolean): HTMLEle
 // ---------- misc ----------
 
 export function repoUrl(repo: string): string {
-  return `https://github.com/Assessment-Models/${repo}`;
+  // partner repos carry their org ('org/name'); ecosystem repos are bare
+  return repo.includes('/')
+    ? `https://github.com/${repo}`
+    : `https://github.com/Assessment-Models/${repo}`;
 }
 
 export function spinner(text = 'Loading…'): HTMLElement {

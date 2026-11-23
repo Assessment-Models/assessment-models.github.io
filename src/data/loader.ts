@@ -208,6 +208,8 @@ function normalizeDimensions(rawDims: unknown[]): OpDimension[] {
               levers: Array.isArray(c.levers) ? c.levers.map(String) : undefined,
               anchors: Array.isArray(c.anchors) ? (c.anchors as { level: number; text: string }[]) : undefined,
               evidence: Array.isArray(c.evidence) ? c.evidence.map(String) : undefined,
+              gating: c.gating === true,
+              gating_note: typeof c.gating_note === 'string' ? c.gating_note : undefined,
             };
           }),
         };
@@ -228,6 +230,8 @@ function normalizeDimensions(rawDims: unknown[]): OpDimension[] {
                 : typeof q.evidence === 'string'
                   ? [q.evidence]
                   : undefined,
+              gating: q.gating === true,
+              gating_note: typeof q.gating_note === 'string' ? q.gating_note : undefined,
             };
           }),
         },
@@ -250,6 +254,8 @@ function normalizeDimensions(rawDims: unknown[]): OpDimension[] {
                     ? c.definition
                     : undefined,
               evidence: Array.isArray(c.evidence) ? c.evidence.map(String) : undefined,
+              gating: c.gating === true,
+              gating_note: typeof c.gating_note === 'string' ? c.gating_note : undefined,
             };
           }),
         },

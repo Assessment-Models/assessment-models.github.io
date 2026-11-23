@@ -168,7 +168,11 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
     const gating = gatingConstraint();
     const res = resolveLevel(overall, dimScores, levels, gating.opts);
     const resolved = res.resolved;
-    const effort = effortAdjusted(overall, resolved);
+    const scoring = line === 'operationalized'
+      ? structure.operationalized?.evaluation.scoring
+      : structure.composite.evaluation?.scoring;
+    const eavConfig = scoring?.effort_adjusted_value;
+    const effort = effortAdjusted(overall, resolved, eavConfig);
     const maxW = Math.max(...dimScores.map((d) => d.weight), 0.001);
 
     const cascade = h('div', { class: 'panel cascade' },
@@ -200,7 +204,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
         ? h('div', { class: 'sub', style: 'color:var(--warn)' },
             `weakest-link gate: ${gating.binding.id} binds the resolved level`)
         : null,
-      effort != null ? h('div', { class: 'sub' }, `effort-adjusted: ${effort} (×${resolved?.effort})`) : null,
+      effort != null ? h('div', { class: 'sub' }, eavConfig ? `EAV (marginal bands): ${effort}` : `effort-adjusted: ${effort} (×${resolved?.effort})`) : null,
     );
 
     const radarCanvas = h('canvas', { id: 'live-radar', style: 'max-height:220px;width:100%' }) as HTMLCanvasElement;

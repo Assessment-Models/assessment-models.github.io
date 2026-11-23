@@ -5,8 +5,8 @@
     "url": "https://github.com/Assessment-Models",
     "pages_url": "https://assessment-models.github.io"
   },
-  "generated_at": "2026-11-22T23:20:56Z",
-  "content_sha256": "22fda391d91715f2f479559629a61699552245a32c1af11c9808fbb5d19f21c3",
+  "generated_at": "2026-11-23T06:13:30Z",
+  "content_sha256": "15895cd0ad954b4756d1235abe347fc5b894d3aaf5e5ff5b84a80d08edca0d91",
   "summary": {
     "total_artifacts": 21,
     "by_layer": {
@@ -52,7 +52,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-13T09:08:11Z"
+      "updated_at": "2026-11-23T03:58:24Z"
     },
     {
       "id": "assessment-registry",
@@ -78,7 +78,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-22T16:00:58Z"
+      "updated_at": "2026-11-23T01:45:16Z"
     },
     {
       "id": "dea-assessment-modernization",
@@ -320,7 +320,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Autonomous Operations",
       "description": "Autonomous Operations (AO) maturity and assessment model \u2014 the enterprise operating model in which value streams are instrumented with AI, data and closed-loop control so that agents and autonomous systems learn, self-govern and self-adapt, with intent driving the closed loops.",
-      "readme_excerpt": "dea:maturity-autonomous-operations \u00b7 release 2.0.0 (adoption pending [dea-metamodel #214](https://github.com/technehub-labs/dea-metamodel/issues/214)) \u00b7 MIT license This model measures how mature an organization is at running Autonomous Operations: an operating model in which\u2026",
+      "readme_excerpt": "Model ID: dea:maturity-autonomous-operations Repository release: 2.0.0 \u00b7 License: MIT \u00b7 Conformance: Structural The Autonomous Operations Maturity Model assesses an enterprise's ability to operate value streams through intent-driven, governed, closed-loop execution. It examines\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-autonomous-operations",
       "default_branch": "main",
       "version": "v2.0.0",
@@ -344,7 +344,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-20T05:06:39Z"
+      "updated_at": "2026-11-23T04:09:16Z"
     },
     {
       "id": "maturity-model-digital-transformation",
@@ -354,13 +354,27 @@
       "layer": "maturity-model",
       "architectural_concern": "Digital Transformation",
       "description": "Composite maturity model spanning operations, technology, and services-delivery child models, plus the org's own adoption of OpenDEA itself. First independent model in the Assessment-Models ecosystem (CR-AM-11 \u00a731 first-model candidate).",
-      "readme_excerpt": "The first independent model in the Assessment-Models ecosystem. CR-AM-11 \u00a731 first-model candidate, demonstrating all three CI levels on the same repository (\u00a714): This model is a composite spanning operations, technology, and services-delivery child models. It uses the OpenDEA\u2026",
+      "readme_excerpt": "An enterprise-wide model for assessing how effectively an organization transforms its strategy, business model, customer and ecosystem relationships, operating capabilities, people, data and technology into sustained value. Digital transformation is not synonymous with\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-digital-transformation",
       "default_branch": "main",
       "version": "v1.1.0-alpha",
       "license": "MIT",
       "primary_language": "Python",
-      "topics": [],
+      "topics": [
+        "business-architecture",
+        "business-management",
+        "digital",
+        "digital-transformation",
+        "digital-transformation-services",
+        "digital-transformation-strategy",
+        "digital-transformation-track",
+        "enterprise",
+        "enterprise-architecture",
+        "enterprise-services",
+        "strategy",
+        "strategy-development",
+        "strategy-research"
+      ],
       "standards_alignment": [
         "AM-MODEL-REPOSITORY-STANDARD",
         "OpenDEA"
@@ -382,7 +396,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-22T14:50:05Z"
+      "updated_at": "2026-11-23T02:59:23Z"
     },
     {
       "id": "maturity-model-digital-transformation-operationalized",
@@ -392,7 +406,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Digital Business Transformation",
       "description": "Digital-business maturity and assessment model. Positions digital transformation as the reimagining of the organization's business and operating model as a digital business: grounded in advanced digital technology adoption (AI, agentic AI, autonomous systems, composable cloud-native platforms, digital twins), expressed through novel operating models across all operating concerns, steered by customer- and ecosystem-centric digital strategy, and run as a deliberate working model between humans and software agents. Every criterion is MECE-placed, carries five evidence-anchored progression levels correlated to the org's canonical L-1..L-5 capability scale (L-0 Not Assessed), and is independently assessable.",
-      "readme_excerpt": "Digital-business maturity and assessment model. Positions digital transformation as the reimagining of the organization's business and operating model as a digital business: grounded in advanced digital technology adoption (AI, agentic AI, autonomous systems, composable\u2026",
+      "readme_excerpt": "An evidence-based maturity model for assessing how an enterprise transforms its business and operating model into a digital business. It considers customer and ecosystem value, strategy, platforms, operations, organizational capabilities, and the intelligence required to adapt.\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-digital-transformation-operationalized",
       "default_branch": "main",
       "version": "v2.0.0",
@@ -418,7 +432,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-22T14:49:49Z"
+      "updated_at": "2026-11-23T02:44:56Z"
     },
     {
       "id": "maturity-model-modernization",
@@ -428,7 +442,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Architecture Modernization",
       "description": "Architecture Modernization Maturity Model \u2014 assesses the capability to modernise legacy estates and platforms: strategy, sequencing, execution and technical-debt reduction.",
-      "readme_excerpt": "> One modernization assessment foundation. Multiple architectural interpretations. Coordinated realization. This repository is the home of architecture modernization assessment under the Assessment-Models organisation. It carries two coordinated assets: 1. AMAF, the\u2026",
+      "readme_excerpt": "A common assessment foundation for architecture modernization. Multiple architectural interpretations. Coordinated realization. This repository brings together two distinct but complementary assets maintained by the [Assessment-Models\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-modernization",
       "default_branch": "main",
       "version": "v1.1.0",
@@ -450,7 +464,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-22T14:49:57Z"
+      "updated_at": "2026-11-23T02:46:06Z"
     },
     {
       "id": "maturity-model-operations",
@@ -460,10 +474,10 @@
       "layer": "maturity-model",
       "architectural_concern": "Operations",
       "description": "Operations Maturity Model \u2014 assesses enterprise operations: how day-to-day activities leverage key organizational capabilities to deliver outcomes. Covers value-stream and daily operations, capability orchestration, service and process management, workforce and ways of working, technology and infrastructure operations, and strategy alignment with the operating blueprint.",
-      "readme_excerpt": "Operations Maturity Model \u2014 assesses incident response, observability, deployment automation, SLOs and SRE practice. 1.0.0 \u00b7 stable \u2014 canonical v2 bands, independently released This repository is the independent home of the dea:maturity-operations maturity model. Under the\u2026",
+      "readme_excerpt": "Assessing the enterprise operating engine: how the organization turns capabilities, people, processes and technology into reliable outcomes. The Operations Maturity Model assesses how an enterprise runs its day-to-day operations: how work flows through value streams, how\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-operations",
       "default_branch": "main",
-      "version": "v2.0.0",
+      "version": "v2.1.0",
       "license": "MIT",
       "primary_language": "Python",
       "topics": [],
@@ -484,7 +498,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-20T05:06:32Z"
+      "updated_at": "2026-11-23T03:16:54Z"
     },
     {
       "id": "maturity-model-services-delivery",
@@ -494,7 +508,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Services Delivery",
       "description": "Services Delivery Maturity Model \u2014 assesses time-to-market, quality, customer outcomes, flow efficiency and team health.",
-      "readme_excerpt": "Services Delivery Maturity Model \u2014 assesses time-to-market, quality, customer outcomes, flow efficiency and team health. 2.0.0 \u00b7 adoption pending [dea-metamodel #214] \u2014 canonical v2 bands, scale renumbering adopted This repository is the independent home of the\u2026",
+      "readme_excerpt": "Assessing how effectively an organization turns ideas and commitments into reliable services, quality outcomes and customer value. The Services Delivery Maturity Model focuses on the organization's ability to deliver services and products predictably, efficiently and with\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-services-delivery",
       "default_branch": "main",
       "version": "v1.1.0",
@@ -517,7 +531,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-22T14:49:41Z"
+      "updated_at": "2026-11-23T02:21:04Z"
     },
     {
       "id": "maturity-model-standard",
@@ -553,7 +567,7 @@
       "layer": "maturity-model",
       "architectural_concern": "Technology",
       "description": "Technology Maturity Model \u2014 assesses stack fitness, technical debt, lifecycle management and skill coverage.",
-      "readme_excerpt": "Technology Maturity Model \u2014 assesses stack fitness, technical debt, lifecycle management and skill coverage. 2.0.0 \u00b7 adoption pending [dea-metamodel #214] \u2014 canonical v2 bands, scale renumbering adopted This repository is the independent home of the dea:maturity-technology\u2026",
+      "readme_excerpt": "Assessing the fitness, sustainability and organizational readiness of the technology estate. The Technology Maturity Model provides a structured view of how an organization selects, governs, maintains and evolves the technologies on which its products, services and operations\u2026",
       "html_url": "https://github.com/Assessment-Models/maturity-model-technology",
       "default_branch": "main",
       "version": "v1.1.0",
@@ -576,7 +590,7 @@
       ],
       "conformance_status": "structural",
       "has_manifest": true,
-      "updated_at": "2026-11-22T14:49:32Z"
+      "updated_at": "2026-11-23T02:20:36Z"
     },
     {
       "id": "maturity-model-template",
@@ -602,7 +616,7 @@
       "dimensions": [],
       "conformance_status": "draft",
       "has_manifest": false,
-      "updated_at": "2026-11-14T05:40:01Z"
+      "updated_at": "2026-11-23T04:16:51Z"
     },
     {
       "id": "dea-metamodel",

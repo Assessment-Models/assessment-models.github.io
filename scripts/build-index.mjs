@@ -296,9 +296,8 @@ for (const node of nodes) {
   try {
     const declaration = readYaml(touchpointFile);
     for (const tp of declaration?.touchpoints ?? []) {
-      if (tp.peer_asset && existingIds.has(tp.peer_asset)) {
-        addEdge(node.id, tp.peer_asset, 'touchpoint');
-      }
+      const peer = tp.peer_repo ? byRepo.get(tp.peer_repo) : nodes.find((n) => n.id === tp.peer_asset);
+      if (peer) addEdge(node.id, peer.id, 'touchpoint');
     }
   } catch (err) {
     console.warn(`touchpoint declaration skipped for ${node.repo}: ${err.message}`);

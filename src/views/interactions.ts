@@ -63,9 +63,9 @@ const CI_LEVELS = [
     scope: 'Cross-repo verification against maturity-model-standard & dea-metamodel',
     trigger: 'Pull Request / Reusable workflow call',
     checks: [
-      'Resolves standard.yaml coherence against AM-MODEL-REPOSITORY-STANDARD',
-      'Checks maturity-scale-contract handshake against pinned dea-metamodel release',
-      'Validates touchpoints.yaml reciprocity across peer models (CR-AM-13)',
+      'Resolves the declared contract family and version against the pinned dea-metamodel contract suite',
+      'Validates optional touchpoints.declaration as a safe repository-relative YAML path and confirms the artifact exists',
+      'Does not validate touchpoint record semantics or reciprocal peer mappings at this level',
     ],
   },
   {
@@ -76,9 +76,9 @@ const CI_LEVELS = [
     scope: 'Org-wide synchronization into assessment-models.github.io',
     trigger: 'repository_dispatch [model-released, manifest-updated] · 6h schedule',
     checks: [
-      'sync_org_catalog.py discovers all Assessment-Models repos and validates against schema',
-      'Updates data/ecosystem-registry.json and triggers workflow_run rebuild',
-      'verify-metro-layout.yml & validate-homepage-links.mjs gate Pages deployment',
+      'validate_ecosystem.py checks immutable registry references, dependency resolution, and registered model-manifest coherence',
+      'sync_org_catalog.py synchronizes curated touchpoint and handshake entries for ecosystem discovery',
+      'Touchpoint reciprocity is not yet an automated Level 3 conformance check; the draft peer mappings remain explicit but require a future validator extension',
     ],
   },
 ];
@@ -233,7 +233,7 @@ export async function renderInteractions(root: HTMLElement): Promise<void> {
   linksSection.append(
     h('h2', { style: 'margin:0 0 .35rem' }, 'Existing Model Touchpoints & Handshake Seams'),
     h('p', { class: 'dim', style: 'font-size:.87rem;margin-bottom:.85rem' },
-      'Live contracts extracted from ecosystem-registry.json (CR-AM-11 & CR-AM-13 single-owner evidence seams).'),
+      'Curated touchpoint and handshake records synchronized into ecosystem-registry.json. Typed model declarations and reciprocal peer mappings remain visible in each model repository; the current Level 3 validator does not yet certify their semantic reciprocity.'),
     filterBar,
     linksGrid,
   );

@@ -8,6 +8,7 @@ import { loadTrial, saveTrial } from '../state/trials';
 import { loadModelStructure } from '../data/loader';
 import {
   aggregate,
+  aggregateUnrounded,
   cascadeOperationalized,
   effortAdjusted,
   levelLabel,
@@ -172,7 +173,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
       ? structure.operationalized?.evaluation.scoring
       : structure.composite.evaluation?.scoring;
     const eavConfig = scoring?.effort_adjusted_value;
-    const effort = effortAdjusted(overall, resolved, eavConfig);
+    const effort = effortAdjusted(eavConfig ? aggregateUnrounded(dimScores) : overall, resolved, eavConfig);
     const maxW = Math.max(...dimScores.map((d) => d.weight), 0.001);
 
     const cascade = h('div', { class: 'panel cascade' },

@@ -136,13 +136,37 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
 
   let radarChart: Chart | null = null;
 
+  /**
+   * AO closed-loop spine (evaluation.yaml gating rule): the resolved level
+   * cannot exceed the level of the lowest in-scope `gating: true` criterion
+   * (anchor N ↔ scored index N-1). Returns undefined when no gating criterion
+   * is in scope.
+   */
+  function gatingConstraint() {
+    if (line !== 'operationalized' || !structure.operationalized) return { opts: {}, binding: null as { id: string; anchor: number } | null };
+    let binding: { id: string; anchor: number } | null = null;
+    for (const dim of structure.operationalized.dimensions) {
+      if (!st.scope.includes(dim.id)) continue;
+      for (const sub of dim.sub_dimensions ?? []) {
+        for (const c of sub.criteria ?? []) {
+          if (!c.gating) continue;
+          const anchor = st.anchors[c.id] ?? 1;
+          if (!binding || anchor < binding.anchor) binding = { id: c.id, anchor };
+        }
+      }
+    }
+    if (!binding) return { opts: {}, binding: null };
+    return { opts: { maxScoredIndex: binding.anchor - 1 }, binding };
+  }
+
   function renderSide(): void {
     side.innerHTML = '';
     const scale = line === 'operationalized' ? structure.operationalized?.scale ?? null : structure.composite.scale;
     const levels = levelsFromScale(scale);
     const dimScores = currentDimScores();
     const overall = aggregate(dimScores);
-    const res = resolveLevel(overall, dimScores, levels);
+    const gating = gatingConstraint();
+    const res = resolveLevel(overall, dimScores, levels, gating.opts);
     const resolved = res.resolved;
     const effort = effortAdjusted(overall, resolved);
     const maxW = Math.max(...dimScores.map((d) => d.weight), 0.001);
@@ -172,6 +196,10 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
         : null,
       h('div', { class: 'sub' },
         `band: ${resolved?.band?.replace('dea:maturity-band-', '') ?? '—'} · ${res.status}`),
+      gating.binding && res.banded && res.resolved && res.banded.id !== res.resolved.id
+        ? h('div', { class: 'sub', style: 'color:var(--warn)' },
+            `weakest-link gate: ${gating.binding.id} binds the resolved level`)
+        : null,
       effort != null ? h('div', { class: 'sub' }, `effort-adjusted: ${effort} (×${resolved?.effort})`) : null,
     );
 
@@ -332,7 +360,8 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
           }),
         );
         box.append(h('div', { class: 'crit', style: 'border-left-color:var(--border)' },
-          h('div', { class: 'crit-name' }, c.name),
+          h('div', { class: 'crit-name' }, c.name,
+            c.gating ? h('span', { class: 'badge', style: '--badge-color:#e8b04b;margin-left:.5rem;font-size:.68rem', title: c.gating_note ?? 'weakest-link spine criterion' }, 'gating') : null),
           c.statement ? h('div', { class: 'crit-statement' }, c.statement) : null,
           set,
           noteInput(critId),

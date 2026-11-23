@@ -89,7 +89,25 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   }
 
   const overall = aggregate(dimScores);
-  const res = resolveLevel(overall, dimScores, levels);
+  const gating = (() => {
+    let binding: { id: string; anchor: number } | null = null;
+    if (line === 'operationalized' && structure.operationalized) {
+      for (const dim of structure.operationalized.dimensions) {
+        if (!st.scope.includes(dim.id)) continue;
+        for (const sub of dim.sub_dimensions ?? []) {
+          for (const c of sub.criteria ?? []) {
+            if (!c.gating) continue;
+            const anchor = st.anchors[c.id] ?? 1;
+            if (!binding || anchor < binding.anchor) binding = { id: c.id, anchor };
+          }
+        }
+      }
+    }
+    return binding
+      ? { opts: { maxScoredIndex: binding.anchor - 1 }, binding }
+      : { opts: {} as { maxScoredIndex?: number }, binding: null as { id: string; anchor: number } | null };
+  })();
+  const res = resolveLevel(overall, dimScores, levels, gating.opts);
   const resolved = res.resolved;
   const effort = effortAdjusted(overall, resolved);
 
@@ -151,6 +169,9 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
         `${report.level} — ${report.levelName}`),
       h('span', { class: 'dim' }, `band: ${report.band} · conformance: ${report.status}`),
       effort != null ? h('span', { class: 'dim' }, `effort-adjusted value: ${effort} (×${resolved?.effort})`) : null,
+      gating.binding && res.banded && res.resolved && res.banded.id !== res.resolved.id
+        ? h('span', { class: 'dim' }, `weakest-link gate: ${gating.binding.id} (closed-loop spine)`)
+        : null,
     ),
   ));
 

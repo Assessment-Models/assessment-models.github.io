@@ -114,6 +114,9 @@ export interface OpCriterion {
   levers?: string[];
   anchors?: { level: number; text: string }[];
   evidence?: string[];
+  /** weakest-link spine criterion (AO 4.1.1–4.1.4): org level cannot exceed its level */
+  gating?: boolean;
+  gating_note?: string;
 }
 
 export interface OpSubDimension {

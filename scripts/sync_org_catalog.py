@@ -190,7 +190,7 @@ SEED_TOUCHPOINTS: List[Dict[str, Any]] = [
         "from_station_id": "maturity-model-operations",
         "to_station_id": "maturity-model-autonomous-operations",
         "line_id": "integration",
-        "contract_summary": "CR-AM-13 reciprocal seam: Operations D5 reliability evidence (observability, predictive detection, auto-remediation and SLO enforcement) feeds Autonomous Operations Technology (3.3.x) and Operations (4.1.x/4.2.5). The peer owns intent-driven OODA autonomy; Operations owns reliability and human/assisted operational practice. Mirrored records remain draft against maturity-touchpoint-contract@0.1.0-draft.",
+        "contract_summary": "CR-AM-13 seam: Operations D5 reliability evidence (observability, predictive detection, auto-remediation and SLO enforcement) feeds Autonomous Operations Technology (3.3.x) and Operations (4.1.x/4.2.5). The AO-side record mirrors the Operations touchpoint; the explicit reverse mirror pointer is proposed in maturity-model-operations#13. The peer owns intent-driven OODA autonomy; Operations owns reliability and human/assisted operational practice. The touchpoint contract remains draft at maturity-touchpoint-contract@0.1.0-draft.",
         "compatibility": "^1.0"
     },
     {

@@ -86,7 +86,7 @@ export interface MetaCriterion {
 }
 
 export interface ScaleLevel {
-  id: string; // "L-0".."L-4"
+  id: string; // model-native level identifier (including any unscored sentinel)
   ordinal: number;
   name?: string;
   v2_name?: string;

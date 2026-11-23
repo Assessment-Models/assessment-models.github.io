@@ -65,6 +65,11 @@ export interface ModelMeta {
     mechanism?: string;
     domain?: { kind?: string; minimum?: number; maximum?: number };
     aggregation_rule?: string;
+    effort_adjusted_value?: {
+      formula?: string;
+      intervals?: { upper_boundary: number; effort_multiplier: number }[];
+      [k: string]: unknown;
+    };
   };
   criteria?: MetaCriterion[];
   [k: string]: unknown;

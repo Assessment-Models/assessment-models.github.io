@@ -370,6 +370,10 @@ for (const node of nodes.filter((n) => n.group === 'maturity-models')) {
     rmSync(dst, { recursive: true, force: true });
     cpSync(join(src, 'model.yaml'), join(dst, 'model.yaml'));
     cpSync(join(src, 'maturity'), join(dst, 'maturity'), { recursive: true });
+    for (const artifact of ['touchpoints.yaml', 'standard.yaml']) {
+      const sourceArtifact = join(src, artifact);
+      if (existsSync(sourceArtifact)) cpSync(sourceArtifact, join(dst, artifact));
+    }
     if (node.repo === 'maturity-model-digital-transformation') {
       cpSync(join(src, 'examples', 'operationalized-2026.yaml'),
         join(dst, 'examples', 'operationalized-2026.yaml'), { force: true });

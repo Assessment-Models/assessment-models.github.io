@@ -36,7 +36,7 @@ export interface IndexNode {
   external?: boolean;
 }
 
-export type EdgeKind = 'imports' | 'shared-components' | 'contract';
+export type EdgeKind = 'imports' | 'shared-components' | 'contract' | 'touchpoint';
 
 export interface IndexEdge {
   source: string; // node id
@@ -65,6 +65,11 @@ export interface ModelMeta {
     mechanism?: string;
     domain?: { kind?: string; minimum?: number; maximum?: number };
     aggregation_rule?: string;
+    effort_adjusted_value?: {
+      formula?: string;
+      intervals?: { upper_boundary: number; effort_multiplier: number }[];
+      [k: string]: unknown;
+    };
   };
   criteria?: MetaCriterion[];
   [k: string]: unknown;
@@ -81,7 +86,7 @@ export interface MetaCriterion {
 }
 
 export interface ScaleLevel {
-  id: string; // "L-0".."L-4"
+  id: string; // model-native level identifier (including any unscored sentinel)
   ordinal: number;
   name?: string;
   v2_name?: string;
@@ -150,6 +155,7 @@ export interface CriteriaRegister {
 }
 
 export interface RepoManifestInfo {
+  model: Record<string, unknown> | null;
   manifest: Record<string, unknown> | null;
   touchpoints: Record<string, unknown> | null;
   standard: Record<string, unknown> | null;

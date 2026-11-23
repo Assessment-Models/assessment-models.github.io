@@ -82,12 +82,13 @@ export async function loadJson<T = unknown>(repo: string, path: string): Promise
 }
 
 export async function loadRepoManifestInfo(repo: string): Promise<RepoManifestInfo> {
-  const [manifest, touchpoints, standard] = await Promise.all([
+  const [model, manifest, touchpoints, standard] = await Promise.all([
+    loadYaml<Record<string, unknown>>(repo, 'model.yaml').catch(() => null),
     loadJson<Record<string, unknown>>(repo, 'assessment-manifest.json'),
     loadYaml<Record<string, unknown>>(repo, 'touchpoints.yaml').catch(() => null),
     loadYaml<Record<string, unknown>>(repo, 'standard.yaml').catch(() => null),
   ]);
-  return { manifest, touchpoints, standard };
+  return { model, manifest, touchpoints, standard };
 }
 
 export function loadModelMeta(repo: string): Promise<ModelMeta> {
@@ -373,7 +374,7 @@ export async function loadModelStructure(repo: string): Promise<ModelStructure> 
           version: raw.version ?? meta.version,
           description: raw.description ?? meta.description,
           status: raw.status ?? meta.status,
-          scoring: (raw.scoring as ModelMeta['scoring']) ?? { mechanism: 'weighted-mean-0-100' },
+          scoring: (raw.scoring as ModelMeta['scoring']) ?? composite.evaluation?.scoring ?? { mechanism: 'weighted-mean-0-100' },
           criteria: dimensions.map((d) => ({
             id: d.id,
             name: d.name,

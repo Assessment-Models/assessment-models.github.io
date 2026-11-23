@@ -9,7 +9,7 @@ Two entries, one Vite build:
 
 ## How it works
 
-- **Data-driven, never duplicated**: the constellation manifest (`models.json`) is generated at build time from the machine-readable sources of truth — [`assessment-registry`](https://github.com/Assessment-Models/assessment-registry) registration records and the [`maturity-model-standard`](https://github.com/Assessment-Models/maturity-model-standard) portfolio conformance registry.
+- **Data-driven, never duplicated**: the constellation manifest (`models.json`) is generated from [`assessment-registry`](https://github.com/Assessment-Models/assessment-registry) identity records and the [`maturity-model-standard`](https://github.com/Assessment-Models/maturity-model-standard) conformance registry. Declared `touchpoints.yaml` artifacts are also read from model snapshots to generate semantic touchpoint edges; the Interactions view displays the curated ecosystem touchpoint and handshake contracts.
 - **Live model structures**: drill-downs and trials fetch `model.yaml` / `maturity/**/*.yaml` from `raw.githubusercontent.com` at runtime, with a build-time snapshot as offline fallback.
 - **Scoring engine** (`src/scoring/engine.ts`): implements the evaluation contracts declared in each model's `evaluation.yaml` — e.g. for the operationalized line: `overall = Σ(dim × weight)`, `dim = mean(subdims)`, `subdim = mean(criteria 1–5 → 0–100)`, banded to L-0..L-4 by highest-conformant-level with the mandatory-dimension gate. Verified against the worked example shipped in `maturity-model-digital-transformation/examples/operationalized-2026.yaml` (67.20 → L-2).
 
@@ -23,7 +23,7 @@ npm run build      # generate indexes + production build into dist/
 npm run preview    # serve the production build
 ```
 
-The index generator reads sibling clones by default (`../assessment-registry`, `../maturity-model-standard`, `../maturity-model-digital-transformation`); override with `--registry/--standard/--models` (the deploy workflow checks out those repos into `sources/`).
+The index generator reads the registry and standard repositories plus the maturity-model repositories checked out under `sources/` in deployment. The AO repository is included in the offline YAML snapshot set; runtime structure loading continues to prefer the live repository artifact and falls back to that snapshot.
 
 ## Deployment
 

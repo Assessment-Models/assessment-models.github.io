@@ -7,8 +7,8 @@
  * maturity/operationalized/evaluation.yaml):
  *   overall = Σ(dim_score × weight); dim = mean(subdims); subdim = mean(criteria 0–100)
  *   criterion anchor 1–5 → 0–100 ((anchor−1) × 25)
- *   overall → v2 band → L-0..L-4 by highest-conformant-level with the
- *   mandatory-dimension gate (each mandatory dim score ≥ resolved level's band minimum).
+ *   overall → the model's scored native level ladder by highest-conformant-level,
+ *   excluding any explicit Not Assessed sentinel, with the declared gate.
  *
  * Composite line (maturity/evaluation.yaml): weighted mean over the criteria's
  * native 0–100 scores, then band → level.
@@ -184,10 +184,15 @@ export interface WeightedScore {
 }
 
 /** Weighted mean over 0–100 dimension scores, rounded to 2 decimals. */
-export function aggregate(scores: WeightedScore[]): number {
+export function aggregateUnrounded(scores: WeightedScore[]): number {
   const totalWeight = scores.reduce((s, x) => s + x.weight, 0) || 1;
   const sum = scores.reduce((s, x) => s + x.score * x.weight, 0);
-  return Math.round((sum / totalWeight) * 100) / 100;
+  return sum / totalWeight;
+}
+
+/** Weighted mean over 0–100 dimension scores, rounded for presentation. */
+export function aggregate(scores: WeightedScore[]): number {
+  return Math.round(aggregateUnrounded(scores) * 100) / 100;
 }
 
 /** Criterion anchor level 1–5 → native 0–100 score. */
@@ -195,7 +200,34 @@ export function anchorToScore(anchor: number): number {
   return (Math.min(5, Math.max(1, anchor)) - 1) * 25;
 }
 
-export function effortAdjusted(overall: number, level: EngineLevel | null): number | null {
+export interface EffortAdjustedValueConfig {
+  intervals?: { upper_boundary: number; effort_multiplier: number }[];
+}
+
+/**
+ * Calculate effort-adjusted value. Models may declare a marginal-band formula
+ * in evaluation.yaml; when present, each score point is allocated once to its
+ * band interval and divided by that band's multiplier. Models without this
+ * declaration retain the legacy resolved-band multiplier calculation.
+ */
+export function effortAdjusted(
+  overall: number,
+  level: EngineLevel | null,
+  config?: EffortAdjustedValueConfig,
+): number | null {
+  if (config?.intervals?.length) {
+    let lower = 0;
+    let value = 0;
+    for (const interval of config.intervals) {
+      const upper = interval.upper_boundary;
+      const multiplier = interval.effort_multiplier;
+      if (!Number.isFinite(upper) || !Number.isFinite(multiplier) || multiplier <= 0) return null;
+      const marginalPoints = Math.max(0, Math.min(overall, upper) - lower);
+      value += marginalPoints / multiplier;
+      lower = upper;
+    }
+    return Math.round(value * 100) / 100;
+  }
   if (!level?.effort) return null;
   return Math.round(overall * level.effort * 100) / 100;
 }
@@ -244,7 +276,7 @@ export function cascadeOperationalized(
     const dimScore = subScores.length ? subScores.reduce((a, b) => a + b, 0) / subScores.length : 0;
     dimScores.push({
       id: dim.id,
-      score: Math.round(dimScore * 100) / 100,
+      score: dimScore,
       weight: dim.weight,
       mandatory: dim.mandatory,
     });

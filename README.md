@@ -23,7 +23,7 @@ npm run build      # generate indexes + production build into dist/
 npm run preview    # serve the production build
 ```
 
-The index generator reads sibling clones by default (`../assessment-registry`, `../maturity-model-standard`, `../maturity-model-digital-transformation`); override with `--registry/--standard/--models` (the deploy workflow checks out those repos into `sources/`).
+The index generator reads the registry and standard repositories plus the maturity-model repositories checked out under `sources/` in deployment. The AO repository is included in the offline YAML snapshot set; runtime structure loading continues to prefer the live repository artifact and falls back to that snapshot.
 
 ## Deployment
 

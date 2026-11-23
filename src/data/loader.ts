@@ -82,12 +82,13 @@ export async function loadJson<T = unknown>(repo: string, path: string): Promise
 }
 
 export async function loadRepoManifestInfo(repo: string): Promise<RepoManifestInfo> {
-  const [manifest, touchpoints, standard] = await Promise.all([
+  const [model, manifest, touchpoints, standard] = await Promise.all([
+    loadYaml<Record<string, unknown>>(repo, 'model.yaml').catch(() => null),
     loadJson<Record<string, unknown>>(repo, 'assessment-manifest.json'),
     loadYaml<Record<string, unknown>>(repo, 'touchpoints.yaml').catch(() => null),
     loadYaml<Record<string, unknown>>(repo, 'standard.yaml').catch(() => null),
   ]);
-  return { manifest, touchpoints, standard };
+  return { model, manifest, touchpoints, standard };
 }
 
 export function loadModelMeta(repo: string): Promise<ModelMeta> {

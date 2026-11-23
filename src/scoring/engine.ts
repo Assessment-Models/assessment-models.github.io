@@ -195,7 +195,34 @@ export function anchorToScore(anchor: number): number {
   return (Math.min(5, Math.max(1, anchor)) - 1) * 25;
 }
 
-export function effortAdjusted(overall: number, level: EngineLevel | null): number | null {
+export interface EffortAdjustedValueConfig {
+  intervals?: { upper_boundary: number; effort_multiplier: number }[];
+}
+
+/**
+ * Calculate effort-adjusted value. Models may declare a marginal-band formula
+ * in evaluation.yaml; when present, each score point is allocated once to its
+ * band interval and divided by that band's multiplier. Models without this
+ * declaration retain the legacy resolved-band multiplier calculation.
+ */
+export function effortAdjusted(
+  overall: number,
+  level: EngineLevel | null,
+  config?: EffortAdjustedValueConfig,
+): number | null {
+  if (config?.intervals?.length) {
+    let lower = 0;
+    let value = 0;
+    for (const interval of config.intervals) {
+      const upper = interval.upper_boundary;
+      const multiplier = interval.effort_multiplier;
+      if (!Number.isFinite(upper) || !Number.isFinite(multiplier) || multiplier <= 0) return null;
+      const marginalPoints = Math.max(0, Math.min(overall, upper) - lower);
+      value += marginalPoints / multiplier;
+      lower = upper;
+    }
+    return Math.round(value * 100) / 100;
+  }
   if (!level?.effort) return null;
   return Math.round(overall * level.effort * 100) / 100;
 }

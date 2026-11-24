@@ -5,8 +5,8 @@
     "url": "https://github.com/Assessment-Models",
     "pages_url": "https://assessment-models.github.io"
   },
-  "generated_at": "2026-11-23T23:30:36Z",
-  "content_sha256": "74ff396f8af657dd2b988774ff7869f42bf95807255605ad5a24f6301793cb23",
+  "generated_at": "2026-11-24T08:50:43Z",
+  "content_sha256": "8c7579ec29d1acf1071707f29147a3a27ac9d74928da58f8317fd1434dbab313",
   "summary": {
     "total_artifacts": 21,
     "by_layer": {
@@ -61,7 +61,7 @@
       "owner_type": "cardinal-org",
       "layer": "shared-capability",
       "architectural_concern": "Assessment Architecture",
-      "description": "Ecosystem integration spine for OpenDEA-compatible assessment assets \u2014 registration, immutable references, compatibility and dependency resolution (CR-AM-11 Phase 1).",
+      "description": "The integration spine for an ecosystem of enterprise capability models and assessment toolkits within OpenDEA. It registers new models and tools through immutable references, ensuring robust compatibility and dependency resolution as defined in CR-AM-11 Phase 1.",
       "readme_excerpt": "The ecosystem integration spine for OpenDEA-compatible assets (CR-AM-11 \u00a710 + CR-AR-01 \u00a7Scope). This repository registers assets. It contains no model content \u2014 registration records carry metadata and immutable references only (\u00a711). Dimensions, criteria, levels, scoring rules\u2026",
       "html_url": "https://github.com/Assessment-Models/assessment-registry",
       "default_branch": "main",

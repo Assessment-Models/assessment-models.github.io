@@ -1,6 +1,6 @@
-# Assessment Models — Site & Gateway
+# Assessment Models Front-end Site & Tooling Gateway
 
-The GitHub Pages site for the [Assessment-Models](https://github.com/Assessment-Models) ecosystem — https://assessment-models.github.io
+The GitHub Pages site for the [Assessment-Models](https://github.com/Assessment-Models) ecosystem: https://assessment-models.github.io
 
 Two entries, one Vite build:
 
@@ -11,7 +11,7 @@ Two entries, one Vite build:
 
 - **Data-driven, never duplicated**: the constellation manifest (`models.json`) is generated from [`assessment-registry`](https://github.com/Assessment-Models/assessment-registry) identity records and the [`maturity-model-standard`](https://github.com/Assessment-Models/maturity-model-standard) conformance registry. Declared `touchpoints.yaml` artifacts are also read from model snapshots to generate semantic touchpoint edges; the Interactions view displays the curated ecosystem touchpoint and handshake contracts.
 - **Live model structures**: drill-downs and trials fetch `model.yaml` / `maturity/**/*.yaml` from `raw.githubusercontent.com` at runtime, with a build-time snapshot as offline fallback.
-- **Scoring engine** (`src/scoring/engine.ts`): implements the evaluation contracts declared in each model's `evaluation.yaml` — e.g. for the operationalized line: `overall = Σ(dim × weight)`, `dim = mean(subdims)`, `subdim = mean(criteria 1–5 → 0–100)`, banded to L-0..L-4 by highest-conformant-level with the mandatory-dimension gate. Verified against the worked example shipped in `maturity-model-digital-transformation/examples/operationalized-2026.yaml` (67.20 → L-2).
+- **Scoring engine** (`src/scoring/engine.ts`): implements the evaluation contracts declared in each model's `evaluation.yaml` — e.g. for the operationalized line: `overall = Σ(dim × weight)`, `dim = mean(subdims)`, `subdim = mean(criteria 1–5 → 0–100)`, banded to L-0, L1..L-5 by highest-conformant-level with the mandatory-dimension gate. Verified against the worked example shipped in `maturity-model-digital-transformation/examples/operationalized-2026.yaml` (67.20 → L-2).
 
 ## Development
 

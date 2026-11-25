@@ -82,7 +82,7 @@ async function main() {
     });
     if (res.status === 404) missing.push(`${slug} (${locations.join(', ')})`);
     else if (!res.ok) {
-      console.error(`validate-homepage-links: GitHub API returned ${res.status} for ${slug} — treating as failure.`);
+      console.error(`validate-homepage-links: GitHub API returned ${res.status} for ${slug} - treating as failure.`);
       process.exit(1);
     }
   }

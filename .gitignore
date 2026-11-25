@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# assessment-models.github.io — ignore rules
+# assessment-models.github.io - ignore rules
 #
 # STANDING RULE: this repository is PUBLIC and is served to the world at
 # https://assessment-models.github.io/. Machine-local scratch state must never
@@ -9,7 +9,7 @@
 #
 # These rules are a guard against ACCIDENTAL publication, not a security
 # control. A deliberate `git add -f` still overrides them. That is the
-# intended escape hatch for genuinely shared project configuration — it must
+# intended escape hatch for genuinely shared project configuration - it must
 # be used consciously, never by accident.
 #
 # Keep this file ordered by class. Do not add a rule that would match an
@@ -24,7 +24,7 @@
 # against this same list and fails if any rule below has gone missing. That
 # check is the load-bearing guard, because an archive extracted over this
 # repository root can carry its own .gitignore and overwrite this file,
-# silently dropping every rule here — at which point the residue becomes
+# silently dropping every rule here - at which point the residue becomes
 # committable again with no visible signal. The tracked-tree check holds
 # regardless of what this file currently says.
 # ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@
 # Never publish. Machine-local workspaces of authoring / agent tools: session
 # artifacts, scratch media, tool-local caches. Observed residue in the
 # 2026-11-21 site archive: .aistudio/artifacts/brain/<uuid>/.tempmediaStorage/
-# (13 PNG/WEBM files, 3.2 MB) — unreferenced by any site source.
+# (13 PNG/WEBM files, 3.2 MB) - unreferenced by any site source.
 .aistudio/
 .tempmediaStorage/
 .cursor/
@@ -91,8 +91,8 @@ __pycache__/
 
 # --- Logs and CI scratch ----------------------------------------------------
 # Logs are never site content. Safe to ignore: the catalog sync workflow
-# writes sync-output.log with `tee` and reads it back from the working tree —
-# gitignore does not affect file existence — and it commits only the two
+# writes sync-output.log with `tee` and reads it back from the working tree -
+# gitignore does not affect file existence - and it commits only the two
 # registry JSON files by explicit path.
 *.log
 diag-lines.txt

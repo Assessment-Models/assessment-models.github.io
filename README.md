@@ -4,14 +4,14 @@ The GitHub Pages site for the [Assessment-Models](https://github.com/Assessment-
 
 Two entries, one Vite build:
 
-- **`/` — the site homepage** (`index.html`): the organization's marketing front page — pillars, governance matrix, and the repositories & tooling catalog — in the corporate blueprint design language (alabaster canvas, hairline cards, Inter/JetBrains Mono, corporate navy & indigo accents).
-- **`/gateway/` — the Assessment Gateway** (`gateway/index.html`): an application, not documentation. Explore the model constellation, drill into any model's structure (dimensions → sub-dimensions → criteria → level anchors), run trial assessments with cascade scoring, and generate shareable reports — **all client-side, no backend**. The gateway now shares the homepage's design ethos (light corporate theme; the 3D constellation stage deliberately stays dark, echoing the homepage's code panels). Hash routes are unchanged, now served under `/gateway/#/…`.
+- **`/` - the site homepage** (`index.html`): the organization's marketing front page - pillars, governance matrix, and the repositories & tooling catalog - in the corporate blueprint design language (alabaster canvas, hairline cards, Inter/JetBrains Mono, corporate navy & indigo accents).
+- **`/gateway/` - the Assessment Gateway** (`gateway/index.html`): an application, not documentation. Explore the model constellation, drill into any model's structure (dimensions → sub-dimensions → criteria → level anchors), run trial assessments with cascade scoring, and generate shareable reports - **all client-side, no backend**. The gateway now shares the homepage's design ethos (light corporate theme; the 3D constellation stage deliberately stays dark, echoing the homepage's code panels). Hash routes are unchanged, now served under `/gateway/#/…`.
 
 ## How it works
 
 - **Data-driven, never duplicated**: the constellation manifest (`models.json`) is generated from [`assessment-registry`](https://github.com/Assessment-Models/assessment-registry) identity records and the [`maturity-model-standard`](https://github.com/Assessment-Models/maturity-model-standard) conformance registry. Declared `touchpoints.yaml` artifacts are also read from model snapshots to generate semantic touchpoint edges; the Interactions view displays the curated ecosystem touchpoint and handshake contracts.
 - **Live model structures**: drill-downs and trials fetch `model.yaml` / `maturity/**/*.yaml` from `raw.githubusercontent.com` at runtime, with a build-time snapshot as offline fallback.
-- **Scoring engine** (`src/scoring/engine.ts`): implements the evaluation contracts declared in each model's `evaluation.yaml` — e.g. for the operationalized line: `overall = Σ(dim × weight)`, `dim = mean(subdims)`, `subdim = mean(criteria 1–5 → 0–100)`, banded to L-0, L1..L-5 by highest-conformant-level with the mandatory-dimension gate. Verified against the worked example shipped in `maturity-model-digital-transformation/examples/operationalized-2026.yaml` (67.20 → L-2).
+- **Scoring engine** (`src/scoring/engine.ts`): implements the evaluation contracts declared in each model's `evaluation.yaml` - e.g. for the operationalized line: `overall = Σ(dim × weight)`, `dim = mean(subdims)`, `subdim = mean(criteria 1-5 → 0-100)`, banded to L-0, L1..L-5 by highest-conformant-level with the mandatory-dimension gate. Verified against the worked example shipped in `maturity-model-digital-transformation/examples/operationalized-2026.yaml` (67.20 → L-2).
 
 ## Development
 
@@ -31,14 +31,14 @@ The index generator reads the registry and standard repositories plus the maturi
 
 ## Repository hygiene
 
-**This repository is public. Never commit local tooling scratch to it** — external authoring-tool artifacts (`.aistudio/`, `.tempmediaStorage/`), alternate lockfiles (`bun.lock`, `pnpm-lock.yaml`, `yarn.lock`), editor and language-runtime scratch, credential-bearing files (`.env*`), patch residue, or CI scratch logs.
+**This repository is public. Never commit local tooling scratch to it** - external authoring-tool artifacts (`.aistudio/`, `.tempmediaStorage/`), alternate lockfiles (`bun.lock`, `pnpm-lock.yaml`, `yarn.lock`), editor and language-runtime scratch, credential-bearing files (`.env*`), patch residue, or CI scratch logs.
 
 Two mechanisms enforce this:
 
 - `.gitignore` lists every such path, so an ordinary `git add` refuses them.
 - `scripts/verify-no-local-residue.mjs` (run in CI by `verify-no-local-residue.yml`) checks the **tracked tree** against the same list, and fails if `.gitignore` has lost any of the rules.
 
-The second mechanism exists because an archive extracted over this repository root can carry its own `.gitignore` and overwrite the repository's, silently dropping every ignore rule — at which point the residue becomes committable again. The tracked-tree check holds regardless of what `.gitignore` currently says.
+The second mechanism exists because an archive extracted over this repository root can carry its own `.gitignore` and overwrite the repository's, silently dropping every ignore rule - at which point the residue becomes committable again. The tracked-tree check holds regardless of what `.gitignore` currently says.
 
 When you extract an archive here, keep the repository's `.gitignore` and exclude the scratch paths; do not let the archive's copy replace it.
 

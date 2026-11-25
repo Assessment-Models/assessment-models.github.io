@@ -56,6 +56,26 @@ MAX_RETRIES = 4
 # instead of failing the whole pipeline on identity problems.
 _AUTH_DEGRADED = False
 
+# Editorial style rule for the whole site: no em/en dashes in any published
+# text. Normalize to a plain hyphen at the source so every downstream artifact
+# (registry JSON, gateway data, catalog cards) is dash-free.
+DASH_CHARS = re.compile("[\u2014\u2013]")
+
+
+def sanitize_text(value: str) -> str:
+    return DASH_CHARS.sub("-", value)
+
+
+def deep_sanitize(obj: Any) -> Any:
+    if isinstance(obj, str):
+        return sanitize_text(obj)
+    if isinstance(obj, list):
+        return [deep_sanitize(item) for item in obj]
+    if isinstance(obj, dict):
+        return {key: deep_sanitize(value) for key, value in obj.items()}
+    return obj
+
+
 # Meta-repositories excluded from the domain artifact catalog
 EXCLUDED_REPOS = {".github", "assessment-models.github.io"}
 
@@ -664,6 +684,22 @@ def safe_fetch_repo_file_text(full_name: str, filepath: str, token: Optional[str
         return None
 
 
+def fetch_version_file(full_name: str, token: Optional[str]) -> Optional[str]:
+    """Read a repository's root VERSION file, normalized to a v-prefixed tag."""
+    raw = safe_fetch_repo_file_text(full_name, "VERSION", token)
+    if not raw:
+        return None
+    stripped = raw.strip()
+    if not stripped:
+        return None
+    version = stripped.splitlines()[0].strip()
+    if not version:
+        return None
+    if not version.startswith("v"):
+        version = f"v{version}"
+    return version
+
+
 def fetch_latest_version(full_name: str, token: Optional[str]) -> str:
     try:
         release = github_get(f"/repos/{full_name}/releases/latest", token)
@@ -761,7 +797,11 @@ def build_artifact_entry(
             note(f"[WARN] Invalid JSON in {full_name}/assessment-manifest.json; falling back to repo metadata.")
 
     readme_raw = safe_fetch_repo_file_text(full_name, "README.md", token)
-    version = manifest.get("version") or fetch_latest_version(full_name, token)
+    version = (
+        manifest.get("version")
+        or fetch_version_file(full_name, token)
+        or fetch_latest_version(full_name, token)
+    )
 
     inferred_layer, inferred_concern = infer_layer_and_concern(
         topics,
@@ -976,6 +1016,12 @@ def main() -> int:
     touchpoints = filter_contracts(merge_contracts(SEED_TOUCHPOINTS, prev_touchpoints), known_ids)
     handshakes = filter_contracts(merge_contracts(SEED_HANDSHAKES, prev_handshakes), known_ids)
 
+    # Enforce the no-em/en-dash style rule on everything we publish,
+    # including upstream README/manifest text, before hashing.
+    artifacts = [deep_sanitize(item) for item in artifacts]
+    touchpoints = deep_sanitize(touchpoints)
+    handshakes = deep_sanitize(handshakes)
+
     # 4. Compute deterministic summary & SHA-256 hash
     by_layer = {
         "governance": 0,
@@ -1029,7 +1075,7 @@ def main() -> int:
         note(
             f"[ERROR] Coverage collapse guard: discovered {len(artifacts)} artifacts "
             f"but the published registry holds {previous_total}. Refusing to publish "
-            "a drastically smaller catalog — investigate org visibility/filters first."
+            "a drastically smaller catalog - investigate org visibility/filters first."
         )
         return 1
 
@@ -1096,7 +1142,7 @@ if __name__ == "__main__":
         # Unexpected crash: mirror the traceback into the job step summary so
         # the failure is diagnosable from the public run page (logs need
         # sign-in), then re-raise so the step still fails loudly.
-        note("## sync_org_catalog.py crashed — traceback")
+        note("## sync_org_catalog.py crashed - traceback")
         note("```")
         for line in traceback.format_exc().splitlines():
             note(line)

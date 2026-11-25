@@ -3,13 +3,13 @@
  * Build-time index generator for the Assessment-Models gateway.
  *
  * Reads the machine-readable sources from the org's sibling repos and emits:
- *   public/models.json            — constellation manifest (nodes + edges)
- *   public/snapshot/<repo>/...    — snapshot of model YAMLs (offline fallback
+ *   public/models.json            - constellation manifest (nodes + edges)
+ *   public/snapshot/<repo>/...    - snapshot of model YAMLs (offline fallback
  *                                   for raw.githubusercontent.com fetches)
  *
  * Sources (defaults point at the sibling clones; override for CI):
- *   --registry  assessment-registry        (registry/... — 14 records)
- *   --standard  maturity-model-standard    (registry/conformance.yaml — portfolio adoption)
+ *   --registry  assessment-registry        (registry/... - 14 records)
+ *   --standard  maturity-model-standard    (registry/conformance.yaml - portfolio adoption)
  *   --models    maturity-model-digital-transformation (snapshot source)
  */
 import { readFileSync, writeFileSync, existsSync, cpSync, rmSync, readdirSync } from 'node:fs';
@@ -42,19 +42,19 @@ const INFRA_NODES = [
     id: 'assessment-registry',
     name: 'Assessment Registry',
     group: 'infrastructure',
-    description: 'Ecosystem identity spine — registration records, immutable references, compatibility and dependency resolution (CR-AM-11 Phase 1).',
+    description: 'Ecosystem identity spine - registration records, immutable references, compatibility and dependency resolution (CR-AM-11 Phase 1).',
   },
   {
     id: 'assessment-ci',
     name: 'Assessment CI',
     group: 'infrastructure',
-    description: 'Three-level cross-repository CI — local, contract-conformance and ecosystem validation. Owns no model content.',
+    description: 'Three-level cross-repository CI - local, contract-conformance and ecosystem validation. Owns no model content.',
   },
   {
     id: 'maturity-model-standard',
     name: 'Model Repository Standard',
     group: 'infrastructure',
-    description: 'Normative AM-MODEL-REPOSITORY-STANDARD — specifications, schemas, conformance workflow and portfolio registry (CR-AM-ORG-RES-000).',
+    description: 'Normative AM-MODEL-REPOSITORY-STANDARD - specifications, schemas, conformance workflow and portfolio registry (CR-AM-ORG-RES-000).',
   },
   {
     id: 'maturity-model-template',
@@ -66,7 +66,7 @@ const INFRA_NODES = [
     id: 'org-governance',
     name: 'Organization Governance',
     group: 'infrastructure',
-    description: 'Org defaults (.github) — profile, governance, repository taxonomy, contribution and CI baseline policies.',
+    description: 'Org defaults (.github) - profile, governance, repository taxonomy, contribution and CI baseline policies.',
   },
 ];
 
@@ -77,7 +77,7 @@ const EXTERNAL_NODES = [
     group: 'external',
     external: true,
     repo: 'technehub-labs/dea-metamodel',
-    description: 'External contract anchor — the maturity-scale-contract handshake lives in the upstream dea-metamodel (CR-AM-11).',
+    description: 'External contract anchor - the maturity-scale-contract handshake lives in the upstream dea-metamodel (CR-AM-11).',
   },
 ];
 
@@ -246,7 +246,7 @@ try {
     );
     console.warn('conformance.yaml: strict YAML parse failed, used lenient line parser');
   } catch {
-    console.warn('conformance.yaml not found — portfolio adoption will be omitted');
+    console.warn('conformance.yaml not found - portfolio adoption will be omitted');
   }
 }
 for (const rec of conformance?.repositories ?? []) {

@@ -15,7 +15,7 @@ export {
 export async function fetchNodeSafe(id: string): Promise<IndexNode> {
   const manifest = await fetchManifest();
   const node = findNode(manifest, id);
-  if (!node) throw new Error(`Unknown asset “${id}” — is it registered in assessment-registry?`);
+  if (!node) throw new Error(`Unknown asset “${id}” - is it registered in assessment-registry?`);
   return node;
 }
 

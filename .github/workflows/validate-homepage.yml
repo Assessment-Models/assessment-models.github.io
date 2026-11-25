@@ -8,12 +8,20 @@ on:
   pull_request:
     paths:
       - index.html
-      - scripts/validate-homepage-links.mjs
+      - assets/**
+      - data/**
+      - public/**
+      - scripts/**
+      - .github/workflows/validate-homepage.yml
   push:
     branches: [main]
     paths:
       - index.html
-      - scripts/validate-homepage-links.mjs
+      - assets/**
+      - data/**
+      - public/**
+      - scripts/**
+      - .github/workflows/validate-homepage.yml
 
 permissions:
   contents: read
@@ -32,3 +40,6 @@ jobs:
         run: node scripts/validate-homepage-links.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lint site text (no em/en dashes, portfolio facts vs registry)
+        run: node scripts/lint-site-text.mjs

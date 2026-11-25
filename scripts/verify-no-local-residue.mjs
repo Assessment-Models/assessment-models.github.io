@@ -10,7 +10,7 @@
  *   signal. This gate is checked against the tracked tree itself, so it
  *   holds regardless of what .gitignore currently says.
  *
- * Git's own matcher is the authority here — not a hand-rolled glob-to-regex
+ * Git's own matcher is the authority here - not a hand-rolled glob-to-regex
  * conversion, which would silently disagree with gitignore semantics on
  * escapes, directory-only patterns and character classes.
  *
@@ -59,7 +59,7 @@ const RULES = [
   ['.codex/', '.codex/x'],
   ['.aider*', '.aider.conf'],
   ['.continue/', '.continue/x'],
-  // Alternate lockfiles — this project builds with npm (package-lock.json)
+  // Alternate lockfiles - this project builds with npm (package-lock.json)
   ['bun.lock', 'bun.lock'],
   ['bun.lockb', 'bun.lockb'],
   ['yarn.lock', 'yarn.lock'],
@@ -152,10 +152,10 @@ if (offenders.length > 0) {
 
 // ---------------------------------------------------------------- check 2
 // The repository's .gitignore must still ignore every canonical rule.
-// Tested with git's matcher, so semantics — not text equality — decide.
+// Tested with git's matcher, so semantics - not text equality - decide.
 const gitignorePath = join(ROOT, '.gitignore');
 if (!existsSync(gitignorePath)) {
-  console.error('FAIL: .gitignore is missing — residue would be committable.');
+  console.error('FAIL: .gitignore is missing - residue would be committable.');
   process.exit(1);
 }
 

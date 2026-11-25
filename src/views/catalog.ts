@@ -1,4 +1,4 @@
-/** Model catalog — searchable, role-aware catalog of maturity models, EA instruments, and capability repos. */
+/** Model catalog - searchable, role-aware catalog of maturity models, EA instruments, and capability repos. */
 import { fetchManifest } from '../data/loader';
 import { groupLabel, h, repoUrl } from '../ui/dom';
 import { personaViewportBanner } from './shared';
@@ -41,7 +41,7 @@ export async function renderCatalog(root: HTMLElement): Promise<void> {
       'Explore governed maturity models, OpenDEA assessment instruments, and reusable capability repositories. Select any scorable asset to inspect its YAML structure or run a client-side trial assessment.'),
   ));
 
-  root.append(personaViewportBanner('Filter by architectural line or launch a browser-local L-0..L-4 trial directly below.'));
+  root.append(personaViewportBanner('Filter by architectural line or launch a browser-local L-1..L-5 trial directly below.'));
 
   let activeTab: CatalogTab = 'all';
   let query = '';

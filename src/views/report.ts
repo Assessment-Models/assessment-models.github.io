@@ -1,5 +1,5 @@
 /**
- * Report view — generated from the trial state in localStorage:
+ * Report view - generated from the trial state in localStorage:
  * executive summary (overall score, level, band, conformance status),
  * radar + cascade-contribution charts, gap-to-target, criterion detail,
  * print and JSON export. Everything is client-side.
@@ -50,7 +50,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   const candidates = listTrials().filter((t) => t.repo === repo);
   const latest = candidates[0];
   if (!latest) {
-    root.append(errorPanel('No trial data yet', 'Run a trial assessment first — the report is generated from your local trial state.'));
+    root.append(errorPanel('No trial data yet', 'Run a trial assessment first - the report is generated from your local trial state.'));
     return;
   }
   const line: 'operationalized' | 'composite' = latest.line;
@@ -120,7 +120,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   const gapRows = dimScores.map((d) => {
     const targetLevel = st.targets[d.id];
     const tl = scored.find((l) => l.id === targetLevel);
-    return { ...d, target: targetLevel ?? '—', gap: tl ? Math.round((tl.min! - d.score) * 100) / 100 : null };
+    return { ...d, target: targetLevel ?? '-', gap: tl ? Math.round((tl.min! - d.score) * 100) / 100 : null };
   });
 
   const report: ReportData = {
@@ -129,9 +129,9 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     repo,
     line,
     overall,
-    level: resolved ? resolved.id : '—',
-    levelName: resolved?.valueName ?? resolved?.name ?? '—',
-    band: resolved?.band?.replace('dea:maturity-band-', '') ?? '—',
+    level: resolved ? resolved.id : '-',
+    levelName: resolved?.valueName ?? resolved?.name ?? '-',
+    band: resolved?.band?.replace('dea:maturity-band-', '') ?? '-',
     status: res.status,
     effortMultiplier: eavConfig ? undefined : resolved?.effort,
     effortAdjusted: effort ?? undefined,
@@ -142,7 +142,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   // ---------- header ----------
   root.append(h('div', { class: 'page-head no-print', style: 'display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap' },
     h('div', {},
-      h('h1', {}, 'Assessment report — ', h('span', { class: 'mono' }, node.name)),
+      h('h1', {}, 'Assessment report - ', h('span', { class: 'mono' }, node.name)),
       h('p', { class: 'lede' }, `${report.line} line · generated ${report.generatedAt.slice(0, 16).replace('T', ' ')} · all computation client-side`),
     ),
     h('div', { style: 'display:flex;gap:.6rem;align-items:center' },
@@ -161,17 +161,17 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
 
   root.append(h('div', { class: 'print-cover' },
     h('h1', {}, 'Assessment report'),
-    h('p', {}, `${node.name} — ${report.line} line`),
+    h('p', {}, `${node.name} - ${report.line} line`),
     h('p', { class: 'dim' },
       `${report.generatedAt.slice(0, 16).replace('T', ' ')} · overall ${overall.toFixed(2)} · ${report.level} (${report.levelName}) · ${report.status}`),
-    h('p', { class: 'dim' }, 'Assessment-Models — assessment-models.github.io'),
+    h('p', { class: 'dim' }, 'Assessment-Models - assessment-models.github.io'),
   ));
 
   root.append(h('div', { class: 'panel report-hero' },
     h('div', { class: 'big-score' }, overall.toFixed(2)),
     h('div', { class: 'hero-meta' },
       h('span', { class: 'badge', style: '--badge-color:#55c47f;font-size:1rem;padding:.3rem 1rem' },
-        `${report.level} — ${report.levelName}`),
+        `${report.level} - ${report.levelName}`),
       h('span', { class: 'dim' }, `band: ${report.band} · conformance: ${report.status}`),
       effort != null ? h('span', { class: 'dim' }, eavConfig ? `EAV (marginal bands): ${effort}` : `effort-adjusted value: ${effort} (×${resolved?.effort})`) : null,
       gating.binding && res.banded && res.resolved && res.banded.id !== res.resolved.id
@@ -184,7 +184,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     h('h2', {}, 'Executive summary'),
     h('p', { style: 'max-width:90ch' },
       `This trial scored ${dimScores.length} dimension${dimScores.length === 1 ? '' : 's'} of the ${report.line} line. ` +
-      `The overall score of ${overall.toFixed(2)} places the assessed organization at ${report.level} — ${report.levelName} — within the ${report.band} band, with conformance status “${report.status}”. ` +
+      `The overall score of ${overall.toFixed(2)} places the assessed organization at ${report.level} - ${report.levelName} - within the ${report.band} band, with conformance status “${report.status}”. ` +
       (strongest && strongest.id !== weakest?.id
         ? `${strongest.name} (${strongest.id}) is the strongest dimension at ${strongest.score}; ${weakest.name} (${weakest.id}) has the largest headroom at ${weakest.score}. `
         : '') +
@@ -206,7 +206,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     h('div', { class: 'panel' },
       h('h2', {}, 'Recommended focus'),
       focus.length
-        ? h('ul', { style: 'margin:.4rem 0;padding-left:1.2rem' }, ...focus.map((d) => h('li', {}, `${d.name} (${d.score}) — consider targeted improvement`)))
+        ? h('ul', { style: 'margin:.4rem 0;padding-left:1.2rem' }, ...focus.map((d) => h('li', {}, `${d.name} (${d.score}) - consider targeted improvement`)))
         : h('p', { class: 'dim' }, 'All scored dimensions are above 50. Maintain current practices.'),
     ),
   ));
@@ -218,7 +218,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   const radarBox = h('div', { class: 'panel' }, h('h2', {}, 'Dimension profile'),
     h('div', { class: 'chart-box' }, radarCanvas));
   const contribBox = h('div', { class: 'panel' }, h('h2', {}, 'Cascade contributions'),
-    h('p', { class: 'dim', style: 'font-size:.8rem' }, 'each dimension’s score × weight — the bars sum to the overall score'),
+    h('p', { class: 'dim', style: 'font-size:.8rem' }, 'each dimension’s score × weight - the bars sum to the overall score'),
     h('div', { class: 'chart-box' }, contribCanvas));
   chartsGrid.append(radarBox, contribBox);
   root.append(chartsGrid);
@@ -236,7 +236,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
         style: `width:${Math.max(0, Math.min(100, g.score))}%;background:${gap != null && gap <= 0 ? 'var(--good)' : 'linear-gradient(90deg, var(--accent), #60A5FA)'}`,
       })),
       h('span', { class: 'mono dim' },
-        gap == null ? '—' : gap <= 0 ? `target ${g.target} ✓` : `${g.score} → ${g.target} (+${gap})`),
+        gap == null ? '-' : gap <= 0 ? `target ${g.target} ✓` : `${g.score} → ${g.target} (+${gap})`),
     ));
   }
   root.append(gapPanel);
@@ -268,18 +268,18 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
   const notes = criteriaRows.filter((c) => c.note);
   if (notes.length) {
     root.append(h('div', { class: 'panel page-break', style: 'margin-top:1.2rem' },
-      h('h2', {}, 'Appendix — evidence notes'),
+      h('h2', {}, 'Appendix - evidence notes'),
       h('p', { class: 'dim', style: 'font-size:.8rem' },
         'Assessor evidence notes recorded during the trial (kept locally until exported).'),
       ...notes.map((c) => h('div', { class: 'crit', style: 'margin:.6rem 0' },
-        h('div', { class: 'crit-name mono' }, `${c.id} — ${c.name}`),
+        h('div', { class: 'crit-name mono' }, `${c.id} - ${c.name}`),
         h('div', { class: 'dim', style: 'font-size:.85rem;white-space:pre-wrap' }, c.note ?? ''),
       )),
     ));
   }
 
   root.append(h('p', { class: 'footer-note' },
-    'Assessment Models — independently governed models, consistently engineered, operationally assessable and interoperable by design.',
+    'Assessment Models - independently governed models, consistently engineered, operationally assessable and interoperable by design.',
   ));
 
   // ---------- export / print ----------
@@ -303,7 +303,7 @@ export async function renderReport(root: HTMLElement, id: string): Promise<void>
     data: {
       labels: report.dimensions.map((d) => d.id),
       datasets: [{
-        label: 'score (0–100)',
+        label: 'score (0-100)',
         data: report.dimensions.map((d) => d.score),
         backgroundColor: 'rgba(29, 78, 216, 0.15)',
         borderColor: '#1D4ED8',

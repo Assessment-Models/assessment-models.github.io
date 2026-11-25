@@ -1,4 +1,4 @@
-/* ============ Gateway — full-viewport Metro Map canvas ============ */
+/* ============ Gateway - full-viewport Metro Map canvas ============ */
 /* Dark transit stage inside the light gateway shell (echoes the retired
    constellation stage). Lines = corridors, stations = artifacts, transfer
    nodes = touchpoints, interchange diamonds = handshakes. */
@@ -129,7 +129,7 @@ body.metro-mode #app .metro-shell {
   transition: opacity 200ms ease;
 }
 
-/* Animated route tracing — only under motion-safe preferences */
+/* Animated route tracing - only under motion-safe preferences */
 @media (prefers-reduced-motion: no-preference) {
   .metro-flow-active {
     stroke-dasharray: 8 6;

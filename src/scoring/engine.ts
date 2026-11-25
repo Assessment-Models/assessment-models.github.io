@@ -1,17 +1,17 @@
 /**
- * Cascade scoring engine — implements the evaluation contracts declared in the
+ * Cascade scoring engine - implements the evaluation contracts declared in the
  * model repositories' evaluation.yaml / scale.yaml files. Pure functions, no
  * dependencies, so the same logic runs in the browser and in tests.
  *
  * Operationalized line (e.g. maturity-model-digital-transformation
  * maturity/operationalized/evaluation.yaml):
- *   overall = Σ(dim_score × weight); dim = mean(subdims); subdim = mean(criteria 0–100)
- *   criterion anchor 1–5 → 0–100 ((anchor−1) × 25)
+ *   overall = Σ(dim_score × weight); dim = mean(subdims); subdim = mean(criteria 0-100)
+ *   criterion anchor 1-5 → 0-100 ((anchor−1) × 25)
  *   overall → the model's scored native level ladder by highest-conformant-level,
  *   excluding any explicit Not Assessed sentinel, with the declared gate.
  *
  * Composite line (maturity/evaluation.yaml): weighted mean over the criteria's
- * native 0–100 scores, then band → level.
+ * native 0-100 scores, then band → level.
  */
 import type { Scale, ScaleLevel } from '../types';
 
@@ -21,7 +21,7 @@ export interface EngineLevel {
   /** native level id, displayed verbatim (L-0, L0, level-1-unrealized …) */
   id: string;
   ordinal: number;
-  /** false for sentinel levels like "L-0 Not Assessed" (dea-metamodel #214) — excluded from scoring */
+  /** false for sentinel levels like "L-0 Not Assessed" (dea-metamodel #214) - excluded from scoring */
   scored: boolean;
   min?: number;
   max?: number;
@@ -37,9 +37,9 @@ export interface EngineLevel {
 /**
  * Canonical v2 band instance `dea:maturity-bands-v2` v1.0.0 (technehub-labs/dea-metamodel).
  * Every ecosystem scale references these bands (via band_reference or prose), but most
- * scale.yaml files carry them as prose only — not machine fields. Scored levels without an
+ * scale.yaml files carry them as prose only - not machine fields. Scored levels without an
  * explicit v2_score_range fall back to these by their position among the scale's scored
- * levels — never by raw ordinal, so both conventions work:
+ * levels - never by raw ordinal, so both conventions work:
  *   - legacy zero-based 5-level scales (L-0..L-4 / L0..L4): scored levels 0..4 → bands 0..4
  *   - CR (dea-metamodel #214) convention: L-0 "Not Assessed" (unscored) + L-1..L-5 → bands 0..4
  */
@@ -73,7 +73,7 @@ export function levelsFromScale(scale: Scale | null): EngineLevel[] {
     const fallback = CANONICAL_V2_BANDS[bandIdx];
     if (!fallback) {
       console.warn(
-        `[engine] scale level "${l.id}" (scored index ${bandIdx}) exceeds the ${CANONICAL_V2_BANDS.length} canonical v2 bands — no band/effort fallback available`,
+        `[engine] scale level "${l.id}" (scored index ${bandIdx}) exceeds the ${CANONICAL_V2_BANDS.length} canonical v2 bands - no band/effort fallback available`,
       );
       return {
         id: l.id, ordinal, scored: true, name: l.name, v2Name: l.v2_name,
@@ -104,7 +104,7 @@ export function scoredLevels(levels: EngineLevel[]): EngineLevel[] {
 
 /** Display label for a resolved level: native id + its best available name. */
 export function levelLabel(level: EngineLevel): string {
-  return `${level.id} — ${level.valueName ?? level.v2Name ?? level.name ?? ''}`.replace(/ — $/, '');
+  return `${level.id} - ${level.valueName ?? level.v2Name ?? level.name ?? ''}`.replace(/ - $/, '');
 }
 
 export function bandFor(overall: number, levels: EngineLevel[]): EngineLevel | null {
@@ -130,7 +130,7 @@ export interface Resolution {
 export interface ResolveOptions {
   /**
    * Weakest-link ceiling (AO closed-loop spine, evaluation.yaml gating rule):
-   * the resolved level cannot exceed the scored level at this index — derived
+   * the resolved level cannot exceed the scored level at this index - derived
    * from the lowest in-scope gating criterion's anchor (anchor N ↔ index N-1).
    */
   maxScoredIndex?: number;
@@ -139,7 +139,7 @@ export interface ResolveOptions {
 /**
  * Highest-conformant-level resolution: start at the banded level and step down
  * until every mandatory dimension score reaches that level's band minimum and
- * the optional weakest-link ceiling holds. Only scored levels participate —
+ * the optional weakest-link ceiling holds. Only scored levels participate -
  * "Not Assessed" sentinels are skipped.
  */
 export function resolveLevel(
@@ -178,24 +178,24 @@ export function resolveLevel(
 
 export interface WeightedScore {
   id: string;
-  score: number; // 0–100
+  score: number; // 0-100
   weight: number;
   mandatory?: boolean;
 }
 
-/** Weighted mean over 0–100 dimension scores, rounded to 2 decimals. */
+/** Weighted mean over 0-100 dimension scores, rounded to 2 decimals. */
 export function aggregateUnrounded(scores: WeightedScore[]): number {
   const totalWeight = scores.reduce((s, x) => s + x.weight, 0) || 1;
   const sum = scores.reduce((s, x) => s + x.score * x.weight, 0);
   return sum / totalWeight;
 }
 
-/** Weighted mean over 0–100 dimension scores, rounded for presentation. */
+/** Weighted mean over 0-100 dimension scores, rounded for presentation. */
 export function aggregate(scores: WeightedScore[]): number {
   return Math.round(aggregateUnrounded(scores) * 100) / 100;
 }
 
-/** Criterion anchor level 1–5 → native 0–100 score. */
+/** Criterion anchor level 1-5 → native 0-100 score. */
 export function anchorToScore(anchor: number): number {
   return (Math.min(5, Math.max(1, anchor)) - 1) * 25;
 }
@@ -239,7 +239,7 @@ export interface CascadeNode {
 }
 
 export interface CascadeResult {
-  criterionScores: Record<string, number>; // 0–100 per leaf criterion
+  criterionScores: Record<string, number>; // 0-100 per leaf criterion
   subdimScores: Record<string, number>;
   dimScores: { id: string; score: number; weight: number; mandatory?: boolean }[];
   overall: number;
@@ -252,7 +252,7 @@ export interface DimLike {
   sub_dimensions: { id: string; criteria: { id: string }[] }[];
 }
 
-/** Full operationalized cascade from leaf-criterion anchors (1–5). */
+/** Full operationalized cascade from leaf-criterion anchors (1-5). */
 export function cascadeOperationalized(
   dimensions: DimLike[],
   anchors: Record<string, number>,

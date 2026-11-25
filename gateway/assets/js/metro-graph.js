@@ -41,7 +41,7 @@ export const METRO_SEED_REGISTRY = {
       readme_excerpt:
         "Normative source of truth for the maturity-model repository standard across the Assessment-Models organization.",
       html_url: "https://github.com/Assessment-Models/maturity-model-standard",
-      version: "v0.1.0-draft",
+      version: "v1.0.1",
       license: "MIT",
       standards_alignment: ["MECE-STRICT", "AM-MODEL-REPOSITORY-STANDARD"],
       locales: ["en"],
@@ -103,7 +103,7 @@ export const METRO_SEED_REGISTRY = {
       layer: "shared-capability",
       architectural_concern: "Assessment Architecture",
       description:
-        "Reusable, versioned maturity component packages — dimension, criteria, level-expectation and evidence-requirement bundles consumed by maturity models.",
+        "Reusable, versioned maturity component packages - dimension, criteria, level-expectation and evidence-requirement bundles consumed by maturity models.",
       readme_excerpt:
         "Reusable maturity component packages consumed under explicit import, extend, and override kinds.",
       html_url: "https://github.com/Assessment-Models/maturity-components",

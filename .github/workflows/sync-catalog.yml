@@ -4,7 +4,7 @@ on:
   push:
     # Verify the sync liveness whenever its logic changes (runs the real sync
     # in CI and commits any registry drift; bot commits use [skip ci] so no
-    # recursion). User pushes fire this trigger — GITHUB_TOKEN pushes do not.
+    # recursion). User pushes fire this trigger - GITHUB_TOKEN pushes do not.
     branches: [main]
     paths:
       - "scripts/sync_org_catalog.py"
@@ -134,7 +134,7 @@ jobs:
               with urllib.request.urlopen(req) as resp:
                   return json.loads(resp.read() or b"null")
 
-          title = "Catalog sync failed — diagnostics"
+          title = "Catalog sync failed - diagnostics"
           log_tail = ""
           try:
               with open("sync-output.log", encoding="utf-8", errors="replace") as fh:

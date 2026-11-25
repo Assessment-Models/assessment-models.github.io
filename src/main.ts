@@ -55,13 +55,13 @@ const routes: { pattern: RegExp; nav?: string; view: ViewFn; crumb: (p?: string)
     pattern: /^#\/trial\/([\w.-]+)/,
     nav: '#/catalog',
     view: (root, p) => renderTrial(root, p!),
-    crumb: (p) => crumbs(h('span', { class: 'here' }, 'Trial — ', h('span', { class: 'mono' }, p ?? ''))),
+    crumb: (p) => crumbs(h('span', { class: 'here' }, 'Trial - ', h('span', { class: 'mono' }, p ?? ''))),
   },
   {
     pattern: /^#\/report\/([\w.-]+)/,
     nav: '#/catalog',
     view: (root, p) => renderReport(root, p!),
-    crumb: (p) => crumbs(h('span', { class: 'here' }, 'Report — ', h('span', { class: 'mono' }, p ?? ''))),
+    crumb: (p) => crumbs(h('span', { class: 'here' }, 'Report - ', h('span', { class: 'mono' }, p ?? ''))),
   },
   {
     pattern: /^#\/registry\/?$/,

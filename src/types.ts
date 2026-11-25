@@ -1,4 +1,4 @@
-/** Shared types — build-time index (models.json) and runtime model structures. */
+/** Shared types - build-time index (models.json) and runtime model structures. */
 
 // ---------- build-time index ----------
 
@@ -119,7 +119,7 @@ export interface OpCriterion {
   levers?: string[];
   anchors?: { level: number; text: string }[];
   evidence?: string[];
-  /** weakest-link spine criterion (AO 4.1.1–4.1.4): org level cannot exceed its level */
+  /** weakest-link spine criterion (AO 4.1.1-4.1.4): org level cannot exceed its level */
   gating?: boolean;
   gating_note?: string;
 }

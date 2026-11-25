@@ -6,13 +6,29 @@
       note: "Each domain repository owns its semantic rubric while declaring machine-readable identity and conformance contracts.",
       code: JSON.stringify(
         {
-          org: "Assessment-Models",
-          repo: "maturity-model-digital-transformation",
-          model_id: "dea:maturity-digital-transformation",
-          version: "1.1.0-alpha",
-          conformance: "structural",
-          scale_contract: "dea:maturity-bands-v2",
-          imported_components: ["digital-culture", "technology-adoption"],
+          id: "maturity-model-digital-transformation",
+          title: "Digital Transformation Maturity Model",
+          layer: "maturity-model",
+          architectural_concern: "Digital Transformation",
+          version: "v1.1.0-alpha",
+          license: "MIT",
+          conformance_status: "structural",
+          standards_alignment: ["OpenDEA", "AM-MODEL-REPOSITORY-STANDARD"],
+          locales: ["en"],
+          dimensions: [
+            "Leadership sponsorship",
+            "Shared DT vocabulary",
+            "Safe-to-fail experimentation",
+            "Reference architecture",
+            "Automation coverage",
+            "Service reliability",
+            "Incident response",
+            "DT instrumentation coverage",
+            "DT observability budget",
+            "Platform engineering",
+          ],
+          description:
+            "Composite maturity model spanning operations, technology, and services-delivery child models, plus the org's own adoption of OpenDEA itself. First independent model in the Assessment-Models ecosystem (CR-AM-11 §31 first-model candidate).",
         },
         null,
         2
@@ -22,14 +38,25 @@
       filename: "maturity-model-operations/touchpoints.yaml",
       note: "CR-AM-13 single-owner evidence seams prevent duplicate questioning across overlapping domains such as Operations and Autonomous Operations.",
       code: [
-        "seams:",
+        "handshakes:",
+        "  - id: hs-scoring-v2-bands",
+        "    kind: scored-by",
+        "    contract:",
+        "      id: maturity-scale-contract",
+        "      version: '1.0'",
+        "    asset:",
+        "      id: dea:maturity-bands-v2",
+        "      organization: technehub-labs",
+        "      repository: dea-metamodel",
+        "      reference: v1.0.0",
+        "",
+        "touchpoints:",
         "  - id: tp-ops-x-autonomous-operations",
-        "    peer: Assessment-Models/maturity-model-autonomous-operations",
-        "    ownership: operations owns D5 reliability evidence;",
-        "               autonomous-operations owns closed-loop OODA autonomy",
-        "    compatibility: '^1.0'",
-        "handshake:",
-        "  scale_contract: technehub-labs/dea-metamodel@v1.0.0",
+        "    peer_asset: dea:maturity-autonomous-operations",
+        "    peer_repo: maturity-model-autonomous-operations",
+        "    peer_contract_version: '^1.0'",
+        "    direction: feeds",
+        "    mapping_type: feeds",
       ].join("\n"),
     },
     ci: {
@@ -40,7 +67,7 @@
         "  repository_dispatch:",
         "    types: [model-released, manifest-updated]",
         "  schedule:",
-        "    - cron: '15 */6 * * *'",
+        "    - cron: '0 */6 * * *'",
         "jobs:",
         "  sync-and-validate:",
         "    - run: python3 scripts/sync_org_catalog.py",
@@ -58,13 +85,13 @@
       kicker: "Viewport · Business Transformation Executive",
       title: "Portfolio Posture & Transformation Horizon",
       summary:
-        "Compare capability maturity across Operations, Technology, Services Delivery, Modernization, and Autonomous Operations — linking effort-adjusted investment directly to OpenDEA DERA-L1 guardrails.",
+        "Compare capability maturity across Operations, Technology, Services Delivery, Modernization, and Autonomous Operations - linking effort-adjusted investment directly to OpenDEA DERA-L1 guardrails.",
       ctaText: "Open Conformance & Portfolio →",
       ctaHref: "/gateway/#/conformance",
       secondaryText: "Explore Metro Map",
       secondaryHref: "/gateway/#/",
       signals: [
-        { k: "Cross-Domain Balance", v: "Track L-0 to L-4 posture across 7 active maturity models." },
+        { k: "Cross-Domain Balance", v: "Track L-1 to L-5 posture across 7 active maturity models." },
         { k: "Effort-Adjusted Value", v: "See OpenDEA DERA-L1 improvement effort multipliers in live roll-ups." },
         { k: "Portfolio Governance", v: "Inspect AM-MODEL-REPOSITORY-STANDARD conformance per repository." },
       ],
@@ -73,14 +100,14 @@
       kicker: "Viewport · Assessor",
       title: "Calibration, Evidence & Deterministic Scoring",
       summary:
-        "Execute structured L-0 to L-4 assessments directly in the browser with criterion weights, mandatory dimension gates, anchor rubrics, and auditable JSON/PDF report export.",
+        "Execute structured L-1 to L-5 assessments directly in the browser with criterion weights, mandatory dimension gates, anchor rubrics, and auditable JSON/PDF report export.",
       ctaText: "Start Live Trial Assessment →",
       ctaHref: "/gateway/#/trial/maturity-model-digital-transformation",
       secondaryText: "Inspect Operations Model",
       secondaryHref: "/gateway/#/model/maturity-model-operations",
       signals: [
         { k: "Browser-Local Scoring", v: "Run live dimension cascades with zero server-side data lock-in." },
-        { k: "Evidence-Anchored Levels", v: "Score against explicit L-0 through L-4 behavioral indicators." },
+        { k: "Evidence-Anchored Levels", v: "Score against explicit L-1 through L-5 behavioral indicators." },
         { k: "Executive Export", v: "Generate radar charts, gap-to-target tables, and JSON exports." },
       ],
     },
@@ -201,8 +228,8 @@
       {
         id: "maturity-model-digital-transformation-operationalized",
         name: "DT Operationalized Maturity Model",
-        meta: "v1.0.1 · structural · Operationalized",
-        desc: "Six-dimension digital business operating model anchored to L-0..L-4 behavioral criteria and human-agent teaming.",
+        meta: "v2.0.1 · structural · Operationalized",
+        desc: "Six-dimension digital business operating model anchored to L-1..L-5 behavioral criteria and human-agent teaming.",
         dims: "Customer & Ecosystem · Strategy · Digital Platforms · Autonomous Operations · Culture · Data",
         scorable: true,
         repo: "Assessment-Models/maturity-model-digital-transformation-operationalized",
@@ -210,9 +237,9 @@
       {
         id: "maturity-model-operations",
         name: "Operations Maturity Model",
-        meta: "v2.0.0 · structural · Stable",
-        desc: "Enterprise operations covering daily flow visibility, SRE reliability, workforce readiness, and operating blueprint strategy.",
-        dims: "6 dimensions · CR-AM-13 seams with 6 sibling repos",
+        meta: "v3.0.0 · structural · Stable",
+        desc: "Parent operational assessment across 9 dimensions and two perspectives: Current Operational Realization and Future Operational Readiness.",
+        dims: "9 dimensions · CR-AM-13 seams with 6 sibling repos",
         scorable: true,
         repo: "Assessment-Models/maturity-model-operations",
       },
@@ -230,7 +257,7 @@
         name: "Technology Maturity Model",
         meta: "v1.1.0 · structural · Domain",
         desc: "Assesses stack fitness, technical debt control, lifecycle management, platform capability, and skill coverage.",
-        dims: "Stack Fitness · Tech Debt · Lifecycle · Skill Coverage · Tooling",
+        dims: "Stack Fitness · Technical Debt · Lifecycle Management · Skill Coverage · Platform & Tooling",
         scorable: true,
         repo: "Assessment-Models/maturity-model-technology",
       },
@@ -239,7 +266,7 @@
         name: "Services Delivery Maturity Model",
         meta: "v1.1.0 · structural · Domain",
         desc: "Measures delivery predictability, time-to-market, defect quality, customer value, and team health.",
-        dims: "Time-to-Market · Quality · Customer Outcomes · Flow · Team Health",
+        dims: "Time-to-Market · Quality · Customer Outcomes · Flow Efficiency · Team Health",
         scorable: true,
         repo: "Assessment-Models/maturity-model-services-delivery",
       },
@@ -248,7 +275,7 @@
         name: "Architecture Modernization Maturity Model",
         meta: "v1.1.0 · structural · AMAF",
         desc: "Evaluates legacy decomposition strategy, migration sequencing, modernization wave execution, and debt retirement.",
-        dims: "Strategy & Direction · Sequencing · Execution · Technical Debt",
+        dims: "Strategy & Direction · Sequencing & Migration Patterns · Execution & Operations · Technical Debt & Outcomes",
         scorable: true,
         repo: "Assessment-Models/maturity-model-modernization",
       },
@@ -295,7 +322,7 @@
       {
         id: "maturity-model-standard",
         name: "maturity-model-standard",
-        meta: "v0.1.0-draft · Governance Norm",
+        meta: "v1.0.1 · Governance Norm",
         desc: "Normative AM-MODEL-REPOSITORY-STANDARD specification, conformance workflows, and portfolio adoption registry.",
         dims: "Defines registered · structural · full tiers",
         scorable: false,
@@ -304,7 +331,7 @@
       {
         id: "maturity-model-template",
         name: "maturity-model-template",
-        meta: "v0.1.0-draft · Repository Scaffold",
+        meta: "v0.1.0 · Repository Scaffold",
         desc: "Executable GitHub template repository pre-wired with CI, manifests, and standard.yaml for new domain models.",
         dims: "Accelerates compliant creation of future maturity-model-* repos",
         scorable: false,
@@ -315,7 +342,7 @@
         name: "maturity-components",
         meta: "v1.0.1 · Shared Capability",
         desc: "Single-sourced reusable dimension and criteria bundles consumed under import, extend, or override semantics.",
-        dims: "digital-culture · technology-adoption · operations-modernization",
+        dims: "digital-culture · technology-adoption · operations-modernization · services-delivery",
         scorable: false,
         repo: "Assessment-Models/maturity-components",
       },
@@ -332,7 +359,7 @@
         id: "assessment-ci",
         name: "assessment-ci",
         meta: "v0.1.0-draft · Validation Engine",
-        desc: "Cross-repository GitHub Actions reusable validator enforcing Level 1–3 CI checks and MECE contracts.",
+        desc: "Cross-repository GitHub Actions reusable validator enforcing Level 1-3 CI checks and MECE contracts.",
         dims: "Powers contract-conformance & manifest verification",
         scorable: false,
         repo: "Assessment-Models/assessment-ci",
@@ -394,36 +421,36 @@
 
   renderPortfolio("maturity");
 
-  // ---------- 4. Animated L-0..L-4 Progression & Roll-Up Callout ----------
+  // ---------- 4. Animated L-1..L-5 Progression & Roll-Up Callout (canonical dea:maturity-bands-v2) ----------
   const SCALE_LEVELS = [
     {
       band: "dea:maturity-band-emergent",
       effort: "1.0× Baseline",
-      gate: "L-0 (0–20): Ad-hoc practices; local heroics; no mandatory cross-dimension floor.",
+      gate: "L-1 (0-20): Emergent - practice exists but is person-dependent and informal; no mandatory cross-dimension floor.",
       width: "20%",
     },
     {
       band: "dea:maturity-band-structured",
-      effort: "1.15× Foundation",
-      gate: "L-1 (21–45): Documented team practices; initial telemetry; evidence audit begins.",
+      effort: "1.5×",
+      gate: "L-2 (21-45): Structured - documented and agreed, but inconsistently enforced; evidence audit begins.",
       width: "40%",
     },
     {
       band: "dea:maturity-band-systematic",
-      effort: "1.35× Standardization",
-      gate: "L-2 (46–70): Org-wide repeatable patterns; mandatory core criteria must reach L-1+.",
+      effort: "2.5×",
+      gate: "L-3 (46-70): Systematic - formal, tooling-enabled, governance active; mandatory core criteria must reach L-2+.",
       width: "60%",
     },
     {
       band: "dea:maturity-band-adaptive",
-      effort: "1.6× Continuous Tuning",
-      gate: "L-3 (71–88): SLO-driven feedback loops; cross-model touchpoints actively reused.",
+      effort: "4.0×",
+      gate: "L-4 (71-88): Adaptive - metrics-driven; the organisation senses and responds.",
       width: "80%",
     },
     {
-      band: "dea:maturity-band-self-optimizing",
-      effort: "1.85× Autonomous Edge",
-      gate: "L-4 (89–100): Closed-loop autonomous governance & verifiable ecosystem evidence.",
+      band: "dea:maturity-band-self-optimising",
+      effort: "6.0×",
+      gate: "L-5 (89-100): Self-Optimising - continuous improvement is autonomous, not programme-driven.",
       width: "100%",
     },
   ];
@@ -651,7 +678,7 @@
       heading: "Independently Governed Maturity Models",
       flow: "Own domain semantics, dimensions, levels & rubrics",
       summary:
-        "Each maturity model is independently versioned and maintained around its specific domain, criteria, L-0..L-4 progression levels, and assessment methodology.",
+        "Each maturity model is independently versioned and maintained around its specific domain, criteria, L-1..L-5 progression levels, and assessment methodology.",
       nodes: [
         "Digital Transformation & Operationalized DT",
         "Operations & Autonomous Operations",
@@ -664,7 +691,7 @@
       heading: "Shared Assessment Capabilities",
       flow: "Reusable operational services across models",
       summary:
-        "Reusable packages and services that operationalize assessments — execution engines, evidence handling, deterministic scoring, and reporting.",
+        "Reusable packages and services that operationalize assessments - execution engines, evidence handling, deterministic scoring, and reporting.",
       nodes: [
         "Browser Trial & Cascade Engine",
         "maturity-components Packages",
@@ -874,7 +901,7 @@
         architectural_concern: "Organization Governance",
         description: "Normative source of truth for AM-MODEL-REPOSITORY-STANDARD specifications, schemas, and portfolio conformance.",
         html_url: "https://github.com/Assessment-Models/maturity-model-standard",
-        version: "v0.1.0-draft",
+        version: "v1.0.1",
         license: "MIT",
         standards_alignment: ["AM-MODEL-REPOSITORY-STANDARD", "MECE-STRICT"],
         locales: ["en"],
@@ -1117,7 +1144,7 @@
       if (modelsEl && activeReg.summary?.by_layer) {
         modelsEl.textContent = String(activeReg.summary.by_layer["maturity-model"] ?? 0);
       }
-      if (seamsEl) seamsEl.textContent = String(loadedLinks.length || 26);
+      if (seamsEl) seamsEl.textContent = String(loadedLinks.length || 44);
       if (syncEl && activeReg.content_sha256) {
         syncEl.textContent = activeReg.content_sha256.slice(0, 7);
       }

@@ -1,5 +1,5 @@
 /**
- * Trial-state storage — the single source of truth for saved trial runs
+ * Trial-state storage - the single source of truth for saved trial runs
  * (localStorage keys `am-trial-<repo>-<line>`, shared by the trial runner,
  * the report view and the compare view).
  */

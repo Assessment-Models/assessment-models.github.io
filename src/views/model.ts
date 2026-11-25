@@ -1,5 +1,5 @@
 /**
- * Model drill-down — full navigation of a model repository's structure:
+ * Model drill-down - full navigation of a model repository's structure:
  * dimensions -> sub-dimensions -> criteria -> level anchors / evidence, plus
  * component imports, contract handshakes, touchpoints.yaml & CI status.
  */
@@ -149,7 +149,7 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     const body = h('div', { class: 'dim-body' });
     const headEl = h('div', { class: 'dim-head' },
       h('span', { class: 'caret', 'aria-hidden': 'true' }, '▸'),
-      h('h3', { style: 'margin:0' }, `${(dim.dimension ?? dim.id).toUpperCase()} — ${dim.name}`),
+      h('h3', { style: 'margin:0' }, `${(dim.dimension ?? dim.id).toUpperCase()} - ${dim.name}`),
       h('span', { class: 'dim-weight' }, `weight ${dim.weight}`),
       h('span', { style: 'flex:1' }),
     );
@@ -271,7 +271,7 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
     const modelManifest = info.model;
     const touchpointDeclaration = (modelManifest?.touchpoints as Record<string, unknown> | undefined)?.declaration;
     wrap.append(h('div', { class: 'panel' },
-      h('h3', {}, 'model.yaml — Contract handshake & declarations'),
+      h('h3', {}, 'model.yaml - Contract handshake & declarations'),
       touchpointDeclaration
         ? h('p', { class: 'dim', style: 'font-size:.84rem' }, `Typed touchpoint declaration: ${String(touchpointDeclaration)}`)
         : h('p', { class: 'dim', style: 'font-size:.84rem' }, 'No typed touchpoint declaration is present in the model manifest.'),
@@ -312,14 +312,14 @@ export async function renderModel(root: HTMLElement, id: string): Promise<void> 
           !l.scored ? h('span', { class: 'badge', style: '--badge-color:#7d8aa5;margin-left:.4rem' }, 'not scored') : null),
         h('td', {}, l.valueName ?? l.v2Name ?? ''),
         h('td', { class: 'mono faint' }, (l.band ?? '').replace('dea:maturity-band-', '')),
-        h('td', { class: 'mono' }, l.min != null && l.max != null ? `${l.min}–${l.max}` : '—',
+        h('td', { class: 'mono' }, l.min != null && l.max != null ? `${l.min}-${l.max}` : '-',
           l.canonical ? h('span', { class: 'faint', title: 'from canonical dea:maturity-bands-v2' }, ' *') : null),
         h('td', { class: 'mono' }, String(l.effort ?? '')),
         h('td', { class: 'dim' }, l.v2Name ? `v2 state: ${l.v2Name}` : ''),
       ))),
     );
     return h('div', { class: 'panel', style: 'margin-top:1.2rem' },
-      h('h2', {}, 'Scale — ', h('span', { class: 'mono faint', style: 'font-size:.85rem' }, scale.id ?? '')),
+      h('h2', {}, 'Scale - ', h('span', { class: 'mono faint', style: 'font-size:.85rem' }, scale.id ?? '')),
       table,
       levels.some((l) => l.canonical)
         ? h('p', { class: 'faint', style: 'font-size:.75rem;margin-top:.4rem' },

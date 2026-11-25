@@ -1,5 +1,5 @@
 /**
- * Compare view — two modes:
+ * Compare view - two modes:
  *  1. Trial results: side-by-side of two saved trial runs (overlay radar +
  *     delta table). Trials live in localStorage (src/state/trials.ts).
  *  2. Model structures: any two model assets side by side (dimensions,
@@ -51,8 +51,8 @@ function computeSide(
   return {
     dims: dimScores,
     overall,
-    levelId: res.resolved?.id ?? '—',
-    band: res.resolved?.band?.replace('dea:maturity-band-', '') ?? '—',
+    levelId: res.resolved?.id ?? '-',
+    band: res.resolved?.band?.replace('dea:maturity-band-', '') ?? '-',
     status: res.status,
   };
 }
@@ -98,14 +98,14 @@ export async function renderCompare(root: HTMLElement): Promise<void> {
     if (saved.length < 2) {
       content.append(errorPanel(
         'Need two saved trials',
-        `Found ${saved.length}. Run trials in at least two models (or two lines) — progress is kept in your browser. The digital-transformation model supports both a composite and an operationalized line.`,
+        `Found ${saved.length}. Run trials in at least two models (or two lines) - progress is kept in your browser. The digital-transformation model supports both a composite and an operationalized line.`,
       ));
       return;
     }
 
     const options = saved.map((t, i) => ({
       value: `${t.repo}||${t.line}`,
-      label: `${t.repo} · ${t.line} (${new Date(t.state.ts ?? Date.now()).toISOString().slice(0, 16).replace('T', ' ')})${i === 0 ? ' — latest' : ''}`,
+      label: `${t.repo} · ${t.line} (${new Date(t.state.ts ?? Date.now()).toISOString().slice(0, 16).replace('T', ' ')})${i === 0 ? ' - latest' : ''}`,
     }));
     const selA = picker(options, 'cmp-a');
     const selB = picker(options, 'cmp-b', Math.min(1, options.length - 1));
@@ -285,10 +285,10 @@ export async function renderCompare(root: HTMLElement): Promise<void> {
         const fa = la[i], fb = lb[i];
         rows.push(h('tr', {},
           h('td', { class: 'mono' },
-            fa ? `${fa.id} ${fa.name ?? ''}` : '—',
+            fa ? `${fa.id} ${fa.name ?? ''}` : '-',
             fa && !fa.scored ? h('span', { class: 'badge', style: '--badge-color:#7d8aa5;margin-left:.4rem' }, 'not scored') : null),
           h('td', { class: 'mono' },
-            fb ? `${fb.id} ${fb.name ?? ''}` : '—',
+            fb ? `${fb.id} ${fb.name ?? ''}` : '-',
             fb && !fb.scored ? h('span', { class: 'badge', style: '--badge-color:#7d8aa5;margin-left:.4rem' }, 'not scored') : null),
         ));
       }
@@ -305,12 +305,12 @@ export async function renderCompare(root: HTMLElement): Promise<void> {
           row('Dimensions', String(ra.dims), String(rb.dims)),
           row('Sub-dimensions', String(ra.subdims), String(rb.subdims)),
           row('Criteria', String(ra.crits), String(rb.crits)),
-          row('Contract', String(a.meta.id ?? '—'), String(b.meta.id ?? '—')),
-          row('Model version', String(a.meta.version ?? '—'), String(b.meta.version ?? '—')),
+          row('Contract', String(a.meta.id ?? '-'), String(b.meta.id ?? '-')),
+          row('Model version', String(a.meta.version ?? '-'), String(b.meta.version ?? '-')),
         ),
       ),
       h('table', { class: 'report-table', style: 'margin-top:1rem' },
-        h('thead', {}, h('tr', {}, h('th', {}, `Scale levels — ${idA}`), h('th', {}, `Scale levels — ${idB}`))),
+        h('thead', {}, h('tr', {}, h('th', {}, `Scale levels - ${idA}`), h('th', {}, `Scale levels - ${idB}`))),
         h('tbody', {}, ...levelsRows(ra.levels, rb.levels)),
       ),
     );

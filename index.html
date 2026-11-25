@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Assessment Models — Enterprise Maturity &amp; Blueprint Ecosystem</title>
+  <title>Assessment Models - Enterprise Maturity &amp; Blueprint Ecosystem</title>
   <meta
     name="description"
     content="Governed enterprise and organizational maturity models, OpenDEA assessment instruments, cross-model handshake contracts, and automated CI conformance for Assessment-Models."
@@ -71,7 +71,7 @@
 
           <p class="hero-lead">
             An open governance and assessment ecosystem for <strong>Assessment-Models</strong>. Each
-            domain model owns its dimensions, levels L-0, L-1 to L-5 anchors, and deterministic scoring logic while
+            domain model owns its dimensions, L-1 to L-5 level anchors (L-0 is the Not Assessed sentinel), and deterministic scoring logic while
             connecting through OpenDEA metamodel handshakes, shared component packages, and three-level
             GitHub Actions CI.
           </p>
@@ -117,7 +117,7 @@
                   Verified Seams
                 </button>
               </dt>
-              <dd id="stat-seams">26</dd>
+              <dd id="stat-seams">44</dd>
             </div>
             <div class="telemetry-item">
               <dt>
@@ -185,13 +185,33 @@
               </button>
             </div>
             <pre id="spec-code-block" class="code-block" tabindex="0"><code>{
-  "org": "Assessment-Models",
-  "repo": "maturity-model-digital-transformation",
-  "model_id": "dea:maturity-digital-transformation",
-  "version": "1.1.0-alpha",
-  "conformance": "structural",
-  "scale_contract": "dea:maturity-bands-v2",
-  "imported_components": ["digital-culture", "technology-adoption"]
+  "id": "maturity-model-digital-transformation",
+  "title": "Digital Transformation Maturity Model",
+  "layer": "maturity-model",
+  "architectural_concern": "Digital Transformation",
+  "version": "v1.1.0-alpha",
+  "license": "MIT",
+  "conformance_status": "structural",
+  "standards_alignment": [
+    "OpenDEA",
+    "AM-MODEL-REPOSITORY-STANDARD"
+  ],
+  "locales": [
+    "en"
+  ],
+  "dimensions": [
+    "Leadership sponsorship",
+    "Shared DT vocabulary",
+    "Safe-to-fail experimentation",
+    "Reference architecture",
+    "Automation coverage",
+    "Service reliability",
+    "Incident response",
+    "DT instrumentation coverage",
+    "DT observability budget",
+    "Platform engineering"
+  ],
+  "description": "Composite maturity model spanning operations, technology, and services-delivery child models, plus the org's own adoption of OpenDEA itself. First independent model in the Assessment-Models ecosystem (CR-AM-11 §31 first-model candidate)."
 }</code></pre>
             <p id="spec-note" class="inspector-footnote">
               Every domain repository declares its semantic identity, conformance standard, and
@@ -238,7 +258,7 @@
               <h3 id="vp-title">Portfolio Posture &amp; Transformation Horizon</h3>
               <p id="vp-summary" class="viewport-summary">
                 Compare capability maturity across Operations, Technology, Services Delivery, Modernization,
-                and Autonomous Operations — linking effort-adjusted investment directly to OpenDEA DERA-L1 guardrails.
+                and Autonomous Operations - linking effort-adjusted investment directly to OpenDEA DERA-L1 guardrails.
               </p>
               <div class="viewport-actions">
                 <a id="vp-primary-cta" class="btn btn-primary" href="/gateway/#/conformance">
@@ -267,7 +287,7 @@
           <p class="eyebrow">Work Completed Across Models</p>
           <h2>Domain Maturity Models, EA Instruments &amp; Progression Architecture</h2>
           <p>
-            Browse active domain specifications and EA assessment tools — then step through the canonical
+            Browse active domain specifications and EA assessment tools - then step through the canonical
             five-level OpenDEA progression contract below.
           </p>
         </div>
@@ -290,7 +310,7 @@
 
         <div id="portfolio-showcase-grid" class="showcase-grid" aria-live="polite"></div>
 
-        <!-- Animated L-0, L-1..L-5 Progression & Roll-Up Callout -->
+        <!-- Animated L-1..L-5 Progression & Roll-Up Callout -->
         <div class="scale-callout" id="scale-callout">
           <div class="scale-callout-head">
             <div>
@@ -315,27 +335,27 @@
               <button type="button" role="tab" class="scale-step-btn is-active" data-scale-idx="0" aria-selected="true">
                 <span class="lvl-code">L-1</span>
                 <span class="lvl-name">Emergent</span>
-                <span class="lvl-range">0–20</span>
+                <span class="lvl-range">0-20</span>
               </button>
               <button type="button" role="tab" class="scale-step-btn" data-scale-idx="1" aria-selected="false">
                 <span class="lvl-code">L-2</span>
                 <span class="lvl-name">Structured</span>
-                <span class="lvl-range">21–45</span>
+                <span class="lvl-range">21-45</span>
               </button>
               <button type="button" role="tab" class="scale-step-btn" data-scale-idx="2" aria-selected="false">
                 <span class="lvl-code">L-3</span>
                 <span class="lvl-name">Systematic</span>
-                <span class="lvl-range">46–70</span>
+                <span class="lvl-range">46-70</span>
               </button>
               <button type="button" role="tab" class="scale-step-btn" data-scale-idx="3" aria-selected="false">
                 <span class="lvl-code">L-4</span>
                 <span class="lvl-name">Adaptive</span>
-                <span class="lvl-range">71–88</span>
+                <span class="lvl-range">71-88</span>
               </button>
               <button type="button" role="tab" class="scale-step-btn" data-scale-idx="4" aria-selected="false">
                 <span class="lvl-code">L-5</span>
                 <span class="lvl-name">Self-Optimizing</span>
-                <span class="lvl-range">89–100</span>
+                <span class="lvl-range">89-100</span>
               </button>
             </div>
           </div>
@@ -465,8 +485,8 @@
             <div class="card-index">01 · What Is Measured</div>
             <h3>Maturity Model Architecture</h3>
             <p>
-              Governs domain scope, MECE dimensions and sub-dimensions, L-0, L-1 to L-5 anchor definitions,
-              evidence requirements, and OpenDEA semantic crosswalks.
+              Governs domain scope, MECE dimensions and sub-dimensions, L-1 to L-5 anchor definitions
+              (L-0 Not Assessed sentinel), evidence requirements, and OpenDEA semantic crosswalks.
             </p>
           </article>
           <article class="surface-card">
@@ -598,7 +618,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>
-        <strong>Assessment Models</strong> — Enterprise Maturity &amp; Interoperable Assessment Ecosystem
+        <strong>Assessment Models</strong> - Enterprise Maturity &amp; Interoperable Assessment Ecosystem
       </div>
       <div class="footer-links">
         <a href="https://github.com/Assessment-Models/" target="_blank" rel="noopener noreferrer">GitHub Org</a>

@@ -1,5 +1,5 @@
 /**
- * Landing view — the Metro Map canvas (previously: free-floating constellation).
+ * Landing view - the Metro Map canvas (previously: free-floating constellation).
  *
  * Independently governed maturity models are Stations, architectural layers
  * and shared capabilities are Metro Lines, touchpoints map to transfer nodes

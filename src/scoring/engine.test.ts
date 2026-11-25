@@ -1,6 +1,6 @@
 /**
  * Engine tests. Primary fixture: the worked example shipped in
- * maturity-model-digital-transformation/examples/operationalized-2026.yaml —
+ * maturity-model-digital-transformation/examples/operationalized-2026.yaml -
  * dimension scores d1..d6 with weights 0.20/0.20/0.20/0.15/0.10/0.15 must
  * aggregate to 67.20, band to dea:maturity-band-systematic and resolve to L-2
  * (conformant, effort multiplier 2.5, effort-adjusted 168.0).
@@ -20,7 +20,7 @@ import type { Scale } from '../types';
 // tiny assertion helpers (keeps the test runnable with zero extra deps)
 function eq(actual: unknown, expected: unknown, msg?: string): void {
   const ok = JSON.stringify(actual) === JSON.stringify(expected);
-  if (!ok) throw new Error(`assertion failed: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}${msg ? ` — ${msg}` : ''}`);
+  if (!ok) throw new Error(`assertion failed: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}${msg ? ` - ${msg}` : ''}`);
 }
 
 // v2 bands from maturity/operationalized/scale.yaml (verified 2026-11-14)
@@ -193,7 +193,7 @@ function canonicalFallback() {
   eq(aoRes.resolved?.scored, true);
   eq(bandFor(95, aoLevelsScored)?.id, 'L-5'); // highest scored band reachable
 
-  // DTO-style hybrid: one-based level-N ids with zero-based ordinals — native ids win
+  // DTO-style hybrid: one-based level-N ids with zero-based ordinals - native ids win
   const dtoScale: Scale = {
     levels: [
       { id: 'level-1-unrealized', ordinal: 0, name: 'Unrealized' },
@@ -208,7 +208,7 @@ function canonicalFallback() {
   eq(dtoLevels.map((l) => l.id),
     ['level-1-unrealized', 'level-2-proven', 'level-3-standardized', 'level-4-compounding', 'level-5-leading']);
   eq(dtoLevels.map((l) => l.min), [0, 21, 46, 71, 89]); // band by scored position, ids untouched
-  eq(levelLabel(dtoLevels[2]), 'level-3-standardized — Standardized');
+  eq(levelLabel(dtoLevels[2]), 'level-3-standardized - Standardized');
 }
 
 // ---------- weakest-link gating ceiling (AO spine, dea-metamodel #214 numbering) ----------

@@ -1,5 +1,5 @@
 /**
- * Guided walkthrough — spotlight tour synchronized to the four corporate viewports:
+ * Guided walkthrough - spotlight tour synchronized to the four corporate viewports:
  * Metro Map -> Viewport Switcher -> Interactions & CI -> Model Drill-Down -> Trial -> Report -> Conformance.
  */
 import { h } from './dom';
@@ -36,7 +36,7 @@ const STEPS: Step[] = [
   },
   {
     title: 'Model Structure & Contracts',
-    text: 'Drill into every model’s dimensions, criteria, L-0 to L-4 anchors, required evidence, touchpoints.yaml seams, and assessment-manifest.json declarations.',
+    text: 'Drill into every model’s dimensions, criteria, L-1 to L-5 anchors, required evidence, touchpoints.yaml seams, and assessment-manifest.json declarations.',
     selector: '.model-head',
     hash: '#/model/maturity-model-digital-transformation',
     waitMs: 1200,

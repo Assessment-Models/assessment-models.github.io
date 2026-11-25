@@ -29,7 +29,7 @@ export const PERSONAS: PersonaDef[] = [
     role: 'align maturity baselines with OpenDEA reference blueprints and target outcomes',
     calloutTitle: 'Portfolio Posture & Transformation Horizon',
     calloutSummary:
-      'Focuses on weighted capability balance across Operations, Technology, Services Delivery, Modernization, and Autonomous Operations — linking maturity gaps to OpenDEA DERA-L1 guardrails and effort-adjusted progression.',
+      'Focuses on weighted capability balance across Operations, Technology, Services Delivery, Modernization, and Autonomous Operations - linking maturity gaps to OpenDEA DERA-L1 guardrails and effort-adjusted progression.',
     focusMetrics: ['Portfolio Coverage', 'Effort-Adjusted Value', 'OpenDEA DERA-L1 Alignment'],
     step: {
       text: 'Review portfolio conformance, inter-model dependencies, and executive assessment reports.',
@@ -42,10 +42,10 @@ export const PERSONAS: PersonaDef[] = [
     id: 'assessor',
     label: 'Assessor',
     shortLabel: 'Assessors',
-    role: 'run trial assessments, calibrate L-0..L-4 anchors, and generate evidence-backed reports',
+    role: 'run trial assessments, calibrate L-1..L-5 anchors, and generate evidence-backed reports',
     calloutTitle: 'Calibration, Evidence & Deterministic Scoring',
     calloutSummary:
-      'Exposes criterion weights, mandatory gates, anchor statements, and evidence confidence rules so assessors produce auditable, repeatable L-0 to L-4 determinations.',
+      'Exposes criterion weights, mandatory gates, anchor statements, and evidence confidence rules so assessors produce auditable, repeatable L-1 to L-5 determinations.',
     focusMetrics: ['Criterion Weights', 'Mandatory Gates', 'Evidence Requirements'],
     step: {
       text: 'Pick a domain model or EA instrument, run a trial assessment, and export a JSON/PDF report.',
@@ -61,8 +61,8 @@ export const PERSONAS: PersonaDef[] = [
     role: 'review level expectations, exit criteria, and required evidence before evaluation',
     calloutTitle: 'Target Expectations & Evidence Readiness',
     calloutSummary:
-      'Translates abstract maturity bands into concrete engineering, operations, and governance evidence checklists so teams know exactly what L-0 through L-4 expects.',
-    focusMetrics: ['Level Anchors (L-0..L-4)', 'Evidence Checklists', 'Gap-to-Target'],
+      'Translates abstract maturity bands into concrete engineering, operations, and governance evidence checklists so teams know exactly what L-1 through L-5 expects.',
+    focusMetrics: ['Level Anchors (L-1..L-5)', 'Evidence Checklists', 'Gap-to-Target'],
     step: {
       text: 'Inspect dimension expectations, anchor behaviors, and evidence artifacts for your domain.',
       href: '#/model/maturity-model-digital-transformation',

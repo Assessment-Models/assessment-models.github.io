@@ -344,8 +344,8 @@ export class MetroCanvasController {
     const color = isHandshake ? "#a78bfa" : "#34d399";
     const isBidirectional = !isHandshake || (link.direction || "bidirectional") === "bidirectional";
     const label = isHandshake
-      ? `${link.label} — ${isBidirectional ? "bidirectional" : "unidirectional"} handshake from ${link.from_station_id} to ${link.to_station_id}`
-      : `${link.label} — touchpoint from ${link.from_station_id} to ${link.to_station_id}`;
+      ? `${link.label} - ${isBidirectional ? "bidirectional" : "unidirectional"} handshake from ${link.from_station_id} to ${link.to_station_id}`
+      : `${link.label} - touchpoint from ${link.from_station_id} to ${link.to_station_id}`;
 
     const pathEl = svgEl("path", {
       d: link.d,

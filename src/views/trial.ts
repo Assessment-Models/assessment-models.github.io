@@ -1,6 +1,6 @@
 /**
- * Trial assessment runner — scope selection, interactive scoring (anchors
- * 1–5 on the operationalized line, 0–100 sliders on the composite line),
+ * Trial assessment runner - scope selection, interactive scoring (anchors
+ * 1-5 on the operationalized line, 0-100 sliders on the composite line),
  * evidence notes, target levels, live cascade sidebar, localStorage resume.
  */
 import type { OpDimension } from '../types';
@@ -36,7 +36,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
   const hasOp = !!structure.operationalized;
 
   root.append(h('div', { class: 'page-head' },
-    h('h1', {}, 'Trial assessment — ', h('span', { class: 'mono' }, node.name)),
+    h('h1', {}, 'Trial assessment - ', h('span', { class: 'mono' }, node.name)),
     h('p', { class: 'lede' },
       'Score in the browser; nothing leaves your machine. The cascade follows the model’s own ',
       h('span', { class: 'mono' }, 'evaluation.yaml'),
@@ -200,7 +200,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
               levelLabel(resolved)))
         : null,
       h('div', { class: 'sub' },
-        `band: ${resolved?.band?.replace('dea:maturity-band-', '') ?? '—'} · ${res.status}`),
+        `band: ${resolved?.band?.replace('dea:maturity-band-', '') ?? '-'} · ${res.status}`),
       gating.binding && res.banded && res.resolved && res.banded.id !== res.resolved.id
         ? h('div', { class: 'sub', style: 'color:var(--warn)' },
             `weakest-link gate: ${gating.binding.id} binds the resolved level`)
@@ -277,7 +277,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
         return;
       }
       left.append(h('div', { class: 'panel', style: 'margin-bottom:1rem' },
-        h('h3', {}, 'Scoring — composite line'),
+        h('h3', {}, 'Scoring - composite line'),
         h('p', { class: 'dim', style: 'font-size:.82rem' },
           ev.scoring?.aggregation_rule ?? `mechanism: ${ev.scoring?.mechanism ?? 'weighted'}`),
       ));
@@ -329,7 +329,7 @@ export async function renderTrial(root: HTMLElement, id: string): Promise<void> 
     });
 
     card.append(h('div', { style: 'display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin-bottom:.2rem' },
-      h('h3', { style: 'margin:0' }, `${(dim.dimension ?? dim.id).toUpperCase()} — ${dim.name}`),
+      h('h3', { style: 'margin:0' }, `${(dim.dimension ?? dim.id).toUpperCase()} - ${dim.name}`),
       h('span', { class: 'mono dim' }, `weight ${dim.weight}`),
       h('span', { style: 'flex:1' }),
       h('span', { class: 'faint', style: 'font-size:.78rem' }, 'target'),

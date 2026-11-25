@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   workflow_run:
     # Registry sync commits are pushed by the bot with GITHUB_TOKEN, which does
-    # not fire `push` events — rebuild and redeploy when the sync completes,
+    # not fire `push` events - rebuild and redeploy when the sync completes,
     # so /data/ecosystem-registry.json and the dist bundle stay current.
     workflows: ["Sync Assessment-Models Ecosystem Registry"]
     types: [completed]
@@ -26,7 +26,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # workflow_run fires on any conclusion — only redeploy when the triggering
+    # workflow_run fires on any conclusion - only redeploy when the triggering
     # registry sync actually succeeded (push/dispatch/schedule always proceed).
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
@@ -59,6 +59,8 @@ jobs:
         run: node scripts/validate-homepage-links.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      - name: Lint site text (no em/en dashes, portfolio facts vs registry)
+        run: node scripts/lint-site-text.mjs
       - run: node scripts/build-index.mjs --registry sources/assessment-registry --standard sources/maturity-model-standard --models sources/maturity-model-digital-transformation --snapshot-root sources
       - run: npm run build:site
 

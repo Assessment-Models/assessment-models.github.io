@@ -1,5 +1,5 @@
 /**
- * Conformance dashboard — portfolio view of repository-standard adoption
+ * Conformance dashboard - portfolio view of repository-standard adoption
  * (AM-MODEL-REPOSITORY-STANDARD) and ecosystem identity coherence.
  */
 import type { IndexNode } from '../types';
@@ -64,10 +64,10 @@ export async function renderConformance(root: HTMLElement): Promise<void> {
         h('div', { class: 'faint', style: 'font-size:.74rem' }, groupLabel(n.group)),
       ),
       h('td', { class: 'mono', style: 'font-size:.78rem' }, n.classification ?? groupLabel(n.group)),
-      h('td', { class: 'mono' }, n.standardVersion ? `std ${n.standardVersion}` : n.version ? `v${n.version.replace(/^v/, '')}` : '—'),
+      h('td', { class: 'mono' }, n.standardVersion ? `std ${n.standardVersion}` : n.version ? `v${n.version.replace(/^v/, '')}` : '-'),
       h('td', {}, conformanceCell(n)),
       h('td', {}, identityCell(n)),
-      h('td', { class: 'mono faint' }, n.phase2?.assessed ?? '—'),
+      h('td', { class: 'mono faint' }, n.phase2?.assessed ?? '-'),
       h('td', { class: 'dim', style: 'font-size:.82rem;max-width:34ch' },
         n.phase2?.result ?? (n.contract ? `Contract: ${n.contract}` : 'Indexed via ecosystem registry')),
     ))),
